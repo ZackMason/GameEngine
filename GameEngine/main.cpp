@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
 
 	Actors.push_back(box);
 
-	for (int i = 0; i < 1960; i++)
+	for (int i = 0; i < 0; i++)
 	{
 		std::cout << i << std::endl;
 		std::string end = "";
@@ -276,6 +276,31 @@ int main(int argc, char* argv[])
 			SDL_Surface* screenSurface = SDL_GetWindowSurface(display.GetWindow());
 			SDL_UpdateWindowSurface(display.GetWindow());
 			camera.SetAspect(display.GetAspect());
+		}
+
+		if (state[SDL_SCANCODE_Y] && !Actors.empty())
+			Actors.pop_back();
+		
+		if (state[SDL_SCANCODE_U] && !Actors.empty())
+		{
+			std::string end = "";
+			int pick = (rand() % 12) + 4;
+			if (pick < 10)
+			{
+				end = "0" + std::to_string(pick);
+			}
+			else
+			{
+				end = std::to_string(pick);
+			}
+
+			Actor tree1("TREES/tree_" + end, "tree", "tree_pallet", ".png");
+			tree1.m_transform->GetPos().z = rand() % 400 - 200;
+			tree1.m_transform->GetPos().x = rand() % 400 - 200;
+			tree1.m_transform->GetRot().y = rand() % 360;
+			tree1.m_transform->GetPos().y = -3.0f;
+			tree1.m_transform->GetScale() *= 0.75f + ((sinf(rand() % 123124))*0.17);
+			Actors.push_back(tree1);
 		}
 		
 		display.Clear(0.0f,0.0f,0.8f,1.0f);
