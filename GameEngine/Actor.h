@@ -20,24 +20,21 @@ public:
 #if 0
 	Actor(const Actor& other)
 	{
-		m_mesh = new Mesh(other.m_mesh);
-		m_material = new Material(other.m_material);
+
 	}
 
 	Actor& operator=(const Actor& other) 
 	{
-		if (this == &other) { return *this; }
-		this->m_mesh = new Mesh(other.m_mesh);
-		this->m_material = new Material(other.m_material);
-		return *this;
+
 	}
 #endif
 
 	virtual ~Actor();
 
-	Transform *m_transform;
+	std::shared_ptr<Transform> m_transform;
 private:
-	Mesh      *m_mesh;
-	Material  *m_material;
+	std::shared_ptr<Mesh>      m_mesh;
+	std::shared_ptr<Material>  m_material;
+	
 };
 
