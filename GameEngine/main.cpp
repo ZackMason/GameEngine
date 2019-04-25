@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 	skyActor.m_transform->GetPos().y += 80.0f;
 	skyActor.m_transform->GetScale() *= 130;
 
-	Actor boxActor("cube", "mandel");
+	Actor boxActor("cube", "water", "water_02");
 	boxActor.m_transform->GetPos().z -= 37;
 	boxActor.m_transform->GetPos().z -= 37;
 	boxActor.m_transform->GetScale() *= 2.0f;
@@ -111,10 +111,19 @@ int main(int argc, char* argv[])
 	box.m_transform->GetPos().x = -6.0f;
 	box.m_transform->GetPos().y -= 0.5f;
 
-	Actor world("plane", "ground", "grass");
-	world.m_transform->GetPos().y -= 3.0f;
-	world.m_transform->GetScale() *= 200;
-	Actors.push_back(world);
+	for (int x = -3; x < 4; x++)
+	{
+		for (int z = -3; z < 4; z++)
+		{
+			Actor world("plane", "water", "water_02");
+			world.m_transform->GetPos().y -= 3.0f;
+			world.m_transform->GetPos().z = z * 200;
+			world.m_transform->GetPos().x = x * 200;
+			world.m_transform->GetScale() *= 200;
+			Actors.push_back(world);
+		}
+	}
+
 
 	Actor room("torus", "toon");
 	room.m_transform->GetPos().z += 37;
@@ -285,6 +294,7 @@ int main(int argc, char* argv[])
 		{
 			std::string end = "";
 			int pick = (rand() % 12) + 4;
+			pick = 16;
 			if (pick < 10)
 			{
 				end = "0" + std::to_string(pick);
@@ -293,20 +303,20 @@ int main(int argc, char* argv[])
 			{
 				end = std::to_string(pick);
 			}
-
-			Actor tree1("TREES/tree_" + end, "tree", "tree_pallet", ".png");
-			tree1.m_transform->GetPos().z = rand() % 400 - 200;
-			tree1.m_transform->GetPos().x = rand() % 400 - 200;
+			Actor tree1("TREES/tree_" + end, "tree", "tree", ".png");
+			//Actor tree1("TREES/tree_" + end, "tree", "tree_pallet", ".png");
+			tree1.m_transform->GetPos().z = rand() % 1400 - 600;
+			tree1.m_transform->GetPos().x = rand() % 1400 - 600;
 			tree1.m_transform->GetRot().y = rand() % 360;
 			tree1.m_transform->GetPos().y = -3.0f;
-			tree1.m_transform->GetScale() *= 0.75f + ((sinf(rand() % 123124))*0.17);
+			tree1.m_transform->GetScale() *= 4.75f + ((sinf(rand() % 123124))*0.17);
 			Actors.push_back(tree1);
 		}
 		
 		display.Clear(0.0f,0.0f,0.8f,1.0f);
 
 		camera.Update();
-		
+#if 0
 		//TODO make hashtable for this kind of stuff
 		//translate
 		Actors[5].m_transform->GetPos().x += sinf(counter) / 100.0f;
@@ -314,7 +324,7 @@ int main(int argc, char* argv[])
 		Actors[5].m_transform->GetRot().z = counter * 2;
 		Actors[5].m_transform->GetRot().y = counter * 1;
 		Actors[5].m_transform->GetRot().x = counter * 2;
-
+#endif
 		//Drawing begins here, needs abstraction
 
 		for (auto& a : Actors)

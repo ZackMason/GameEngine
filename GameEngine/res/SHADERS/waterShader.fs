@@ -8,16 +8,16 @@ in vec3 position0;
 in vec3 LightDirection_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 Position_worldspace;
-in vec3 world_normal;
-in float distToOrigin;
 
 uniform vec3 LightPosition;
 uniform float Time;
 
 out vec4 color;
 
-float map(float value,float inMin,float inMax,float outMin,float outMax){
-	return outMin+(outMax-outMin)*(value-inMin)/(inMax-inMin);
+float calcWave(float x)
+{
+    float y = (sin(x * 1.0 + Time * 1.0) + sin(x * 2.3 + Time * 1.5) + sin(x * 3.3 + Time * 0.4)) / 3.0;
+    return y;
 }
 
 void main()
@@ -29,7 +29,19 @@ void main()
 	float LightPower = 50.0f;
 	
 	// Material properties
-	vec3 MaterialDiffuseColor = texture( diffuse, texCoord0 ).rgb;
+    vec2 uv = texCoord0 * 20. ;
+    uv.x += Time;
+    //uv.x += calcWave(uv.x);
+    uv.y += sin(uv.x);
+
+	vec3 MaterialDiffuseColor = texture( diffuse, uv ).rgb;
+
+    vec3 inver = 1. - MaterialDiffuseColor;
+
+    inver *= vec3(0.2157, 0.0, 1.0);
+    MaterialDiffuseColor += inver;
+
+
 	vec3 MaterialAmbientColor = vec3(0.21,0.21,0.21) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 
@@ -37,12 +49,9 @@ void main()
 	float distance = length( LightPosition - Position_worldspace );
 
 	// Normal of the computed fragment, in camera space
-	vec3 n = normalize( world_normal );
+	vec3 n = normalize( normal0 );
 	// Direction of the light (from the fragment to the light)
-	vec3 ld = vec3(.2,-.5,.7);
-	distance = 10.;
-	
-	vec3 l = normalize( ld );
+	vec3 l = normalize( LightDirection_cameraspace );
 	// Cosine of the angle between the normal and the light direction, 
 	// clamped above 0
 	//  - light is at the vertical of the triangle -> 1
@@ -59,16 +68,8 @@ void main()
 	//  - Looking into the reflection -> 1
 	//  - Looking elsewhere -> < 1
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
-	
-	if(dot((world_normal).xyz,vec3(0.,1.,0.))>-0.2&&position0.y>17)
-	{
-		MaterialAmbientColor.rgb = mix(vec3(1.2), MaterialAmbientColor, clamp(dot((world_normal).xyz,vec3(0.,1.,0.)),0.,1.));
-	}
-	if(dot((world_normal).xyz,vec3(0.,1.,0.))>-0.43&&position0.y>17)
-	{
-		MaterialAmbientColor.rgb = mix(vec3(.9), MaterialAmbientColor, 0.5);
-	}
-	
+	color.rgb = MaterialDiffuseColor;
+#if 0
 	color.rgb = 
 		// Ambient : simulates indirect lighting
 		MaterialAmbientColor +
@@ -76,6 +77,5 @@ void main()
 		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
 		// Specular : reflective highlight, like a mirror
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
-	// mcolor.rgb = color.rgb * 1.-map(distToOrigin,0.,75.,-0.3250,0.7) ;
+#endif
 }
-
