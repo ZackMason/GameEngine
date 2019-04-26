@@ -21,10 +21,24 @@ Actor::Actor(std::string fn1, std::string fn2, std::string fn3)
 	m_transform = std::make_shared<Transform>();
 }
 
+Actor::Actor(std::string fn1, std::string fn2, std::shared_ptr<Texture> tex)
+{
+	m_mesh = std::make_shared<Mesh>("./res/MESHS/" + fn1 + ".obj");
+	m_material = std::make_shared<Material>(fn2, tex);
+	m_transform = std::make_shared<Transform>();
+}
+
 Actor::Actor(std::string fn1, std::string fn2, std::string fn3, std::string fn4)
 {
 	m_mesh      = std::make_shared<Mesh>("./res/MESHS/" + fn1 + ".obj");
 	m_material  = std::make_shared<Material>(fn2, fn3 , fn4);
+	m_transform = std::make_shared<Transform>();
+}
+
+Actor::Actor(std::shared_ptr<Mesh> mesh, std::string fn2, std::shared_ptr<Texture> tex)
+{
+	m_mesh = mesh;
+	m_material = std::make_shared<Material>(fn2, tex);
 	m_transform = std::make_shared<Transform>();
 }
 

@@ -58,6 +58,8 @@ int main(int argc, char* argv[])
 
 	double time_passed = 0;
 	double delta_time = 0;
+	
+	bool display_fps = false;
 
 	int lastx = 400;
 	int lasty = 400;
@@ -100,8 +102,8 @@ int main(int argc, char* argv[])
 	skyActor.m_transform->GetScale() *= 130;
 
 	Actor boxActor("cube", "water", "water_02");
-	boxActor.m_transform->GetPos().z -= 37;
-	boxActor.m_transform->GetPos().z -= 37;
+	boxActor.m_transform->GetPos().z -= 3;
+	boxActor.m_transform->GetPos().x -= 3;
 	boxActor.m_transform->GetScale() *= 2.0f;
 
 	Actors.push_back(boxActor);
@@ -111,19 +113,27 @@ int main(int argc, char* argv[])
 	box.m_transform->GetPos().x = -6.0f;
 	box.m_transform->GetPos().y -= 0.5f;
 
-	for (int x = -3; x < 4; x++)
+	int water_size = 30;
+	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
+	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/water_02.jpg");
+	for (int x = -water_size; x <= water_size; x++)
 	{
-		for (int z = -3; z < 4; z++)
+		for (int z = -water_size; z <= water_size; z++)
 		{
-			Actor world("plane", "water", "water_02");
+			Actor world(mesh, "water", water_tex);
 			world.m_transform->GetPos().y -= 3.0f;
-			world.m_transform->GetPos().z = z * 200;
-			world.m_transform->GetPos().x = x * 200;
-			world.m_transform->GetScale() *= 200;
+			world.m_transform->GetPos().z = z * 20;
+			world.m_transform->GetPos().x = x * 20;
+			//world.m_transform->GetScale() *= 200;
 			Actors.push_back(world);
 		}
 	}
 
+	Actor waterfall("waterfall", "waterfall", "cloud_01");
+	waterfall.m_transform->GetPos().z = 23;
+	waterfall.m_transform->GetPos().x = 23;
+	waterfall.m_transform->GetPos().y -= 9;
+	Actors.push_back(waterfall);
 
 	Actor room("torus", "toon");
 	room.m_transform->GetPos().z += 37;
@@ -188,11 +198,11 @@ int main(int argc, char* argv[])
 		Actors.push_back(tree1);
 	}
 
-	Actor tree2("rcube", "toon");
-	tree2.m_transform->GetPos().y = -2.0f;
-	tree2.m_transform->GetPos().z = 4.0f;
+	Actor rcube("rcube", "toon");
+	rcube.m_transform->GetPos().y -= 3.0f;
+	rcube.m_transform->GetPos().z = 4.0f;
 
-	Actors.push_back(tree2);
+	Actors.push_back(rcube);
 
 	Camera camera(glm::vec3(0, 0, 7), 70.0f, display.GetAspect(),0.01f, 2000.0f);
 	//Camera altCamera(glm::vec3(0, 0, 0), 70.0f, display.GetAspect(), 0.01f, 2000.0f);
@@ -225,7 +235,8 @@ int main(int argc, char* argv[])
 			//std::cout << time_passed << std::endl;
 			frames = 0;
 			//std::cout << "camera " << camera.GetForward().x << std::endl;
-			std::cout << "FPS: " << fps << std::endl;
+			if(display_fps)
+				std::cout << "FPS: " << fps << std::endl;
 			//std::cout << "x: " << *mousex << ", y: " << *mousey << std::endl;
 		}
 
@@ -275,6 +286,8 @@ int main(int argc, char* argv[])
 			camera.MoveRight(-0.03f);
 		if (state[SDL_SCANCODE_B])
 			display.SetIsClosed(true);
+		if (state[SDL_SCANCODE_V])
+			display_fps = !display_fps;
 		if (state[SDL_SCANCODE_C])
 			camera.m_position.y += 30.0 * delta_time;
 		if (state[SDL_SCANCODE_F]) 
@@ -325,11 +338,24 @@ int main(int argc, char* argv[])
 		Actors[5].m_transform->GetRot().y = counter * 1;
 		Actors[5].m_transform->GetRot().x = counter * 2;
 #endif
+		auto f = [time_passed](float x) -> float
+		{
+			float y = (sin(x*1. + time_passed * 1.) + sin(x*2.3 + time_passed * 1.5) + sin(x*3.3 + time_passed * .4)) / 3.;
+			return y;
+		};
+
+		rcube.m_transform->GetPos().y += f(rcube.m_transform->GetPos().x*0.1)*0.1;
+		rcube.m_transform->GetPos().y += f(rcube.m_transform->GetPos().z*0.1)*0.1;
+
 		//Drawing begins here, needs abstraction
 
 		for (auto& a : Actors)
 		{
-			a.Draw(camera, time_passed);
+			glm::vec3 ray = a.m_transform->GetPos() - camera.GetPos();
+			ray = glm::normalize(ray);
+			ray *= -1.0;
+			//if (glm::dot(ray, camera.GetForward()) > -0.2)
+				a.Draw(camera, time_passed);
 		}
 
 		display.Update();

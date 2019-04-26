@@ -14,6 +14,7 @@ uniform float Time;
 
 out vec4 color;
 
+
 float calcWave(float x)
 {
     float y = (sin(x * 1.0 + Time * 1.0) + sin(x * 2.3 + Time * 1.5) + sin(x * 3.3 + Time * 0.4)) / 3.0;
@@ -29,21 +30,33 @@ void main()
 	float LightPower = 50.0f;
 	
 	// Material properties
-    vec2 uv = texCoord0 * 20. ;
-    uv.x += Time;
-    //uv.x += calcWave(uv.x);
-    uv.y += sin(uv.x);
+    vec2 uv = texCoord0 * 5. ;
+    //uv.x += Time;
+	float y = uv.y;
+    uv.y += calcWave(Position_worldspace.x)*.1;
+    uv.x += calcWave(Position_worldspace.z)*.1;
+	//uv.x += calcWave(y)*.1;
+
+    //uv.y += sin(uv.x);
 
 	vec3 MaterialDiffuseColor = texture( diffuse, uv ).rgb;
+	uv.y += .2;
+	uv.x += .2;
+	vec3 t = texture(diffuse,uv ).rgb;
+
+	t *= vec3(0.0196, 0.0588, 0.2314);
+	t= 1 - t;
+
 
     vec3 inver = 1. - MaterialDiffuseColor;
 
     inver *= vec3(0.2157, 0.0, 1.0);
-    MaterialDiffuseColor += inver;
+    MaterialDiffuseColor += inver * t;
 
 
 	vec3 MaterialAmbientColor = vec3(0.21,0.21,0.21) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
+
 
 	// Distance to the light
 	float distance = length( LightPosition - Position_worldspace );

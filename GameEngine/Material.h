@@ -14,24 +14,30 @@ public:
 
 	Material(std::string filename) 
 	{
-		m_shader  = new Shader ("./res/SHADERS/"  + filename + "Shader");
-		m_texture = new Texture("./res/TEXTURES/" + filename + ".jpg"  );
+		m_shader  = std::make_shared< Shader >("./res/SHADERS/"  + filename + "Shader");
+		m_texture = std::make_shared< Texture>("./res/TEXTURES/" + filename + ".jpg"  );
 		if (!m_texture->IsLoaded())
-			m_texture = new Texture("./res/TEXTURES/" + filename + ".png");
+			m_texture = std::make_shared<Texture>("./res/TEXTURES/" + filename + ".png");
 	}
 
 	Material(std::string fn1, std::string fn2)
 	{
-		m_shader  = new Shader ("./res/SHADERS/"  + fn1 + "Shader");
-		m_texture = new Texture("./res/TEXTURES/" + fn2 + ".jpg"  );
+		m_shader  = std::make_shared<Shader>("./res/SHADERS/"  + fn1 + "Shader");
+		m_texture = std::make_shared<Texture>("./res/TEXTURES/" + fn2 + ".jpg"  );
 		if (!m_texture->IsLoaded())
-			m_texture = new Texture("./res/TEXTURES/" + fn2 + ".png");
+			m_texture =	std::make_shared<Texture>("./res/TEXTURES/" + fn2 + ".png");
 	}
 
 	Material(std::string fn1, std::string fn2, std::string fn3)
 	{
-		m_shader  = new Shader ("./res/SHADERS/"  + fn1 + "Shader");
-		m_texture = new Texture("./res/TEXTURES/" + fn2 + fn3     );
+		m_shader  =  std::make_shared<Shader> ("./res/SHADERS/"  + fn1 + "Shader");
+		m_texture = std::make_shared<Texture>("./res/TEXTURES/" + fn2 + fn3     );
+	}
+
+	Material(std::string fn1, std::shared_ptr<Texture> tex)
+	{
+		m_shader = std::make_shared<Shader>("./res/SHADERS/" + fn1 + "Shader");
+		m_texture = tex;
 	}
 
 	void Update(const Transform &transform, const Camera &camera, double time_passed)
@@ -68,7 +74,7 @@ public:
 	}
 
 private:
-	Shader  *m_shader;
-	Texture *m_texture;
+	std::shared_ptr<Shader>  m_shader;
+	std::shared_ptr<Texture> m_texture;
 };
 

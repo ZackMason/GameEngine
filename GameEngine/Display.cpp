@@ -18,6 +18,8 @@ Display::Display(const std::string& title, int width, int height)
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE , 32);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE  , 16);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
 	m_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_width, m_height, SDL_WINDOW_OPENGL);
 	m_glContext = SDL_GL_CreateContext(m_window);
@@ -37,6 +39,7 @@ Display::Display(const std::string& title, int width, int height)
 	glEnable    (GL_CULL_FACE);
 	glCullFace  (GL_BACK);
 	glDepthFunc (GL_LESS);
+	glEnable	(GL_MULTISAMPLE);
 
 	std::cout << "Window Constructed" << std::endl;
 }
