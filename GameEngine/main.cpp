@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 	
 	std::vector<Actor> Water;
 
-	Actor skyActor("sky", "sky", "nsky");
+	Actor skyActor("sky", "sky", "bsky");
 	skyActor.m_transform->GetPos().y += 80.0f;
 	skyActor.m_transform->GetScale() *= 130;
 
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 	waterfall.m_transform->GetPos().z = 23;
 	waterfall.m_transform->GetPos().x = 23;
 	waterfall.m_transform->GetPos().y -= 9;
-	Actors.push_back(waterfall);
+	//Actors.push_back(waterfall);
 
 	Actor room("torus", "toon");
 	room.m_transform->GetPos().z += 37;
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
 
 
 
-	Camera camera(glm::vec3(0.1, 0.1, 7), 70.0f, display.GetAspect(),0.01f, 2000.0f);
+	Camera camera(glm::vec3(0.1, -10, 7), 70.0f, display.GetAspect(),0.01f, 2000.0f);
 	//Camera altCamera(glm::vec3(0, 0, 0), 70.0f, display.GetAspect(), 0.01f, 2000.0f);
 
 	std::map<float, Actor*> sorted;
@@ -340,6 +340,7 @@ int main(int argc, char* argv[])
 		
 		display.Clear(0.0f,0.0f,0.8f,1.0f);
 
+		camera.LookAt(boxActor.m_transform->GetPos());
 		camera.Update();
 #if 0
 		//TODO make hashtable for this kind of stuff
@@ -367,6 +368,7 @@ int main(int argc, char* argv[])
 
 		boxActor.m_transform->GetRot().y += 0.1*delta_time;
 
+
 		for (auto& a : Actors)
 		{
 			glm::vec3 ray = a.m_transform->GetPos() - camera.GetPos();
@@ -376,6 +378,7 @@ int main(int argc, char* argv[])
 				a.Draw(camera, time_passed);
 		}
 
+#if 0
 		for (unsigned int i = 0; i < Water.size(); i++)
 		{
 			float distance = glm::length(camera.GetPos() - Water[i].m_transform->GetPos());
@@ -387,6 +390,13 @@ int main(int argc, char* argv[])
 			it->second->Draw(camera, time_passed);
 		}
 		sorted.clear();
+#else
+		for (auto &a : Water)
+		{
+			a.Draw(camera, time_passed);
+		}
+
+#endif
 
 		display.Update();
 

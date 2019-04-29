@@ -27,6 +27,8 @@ public:
 	void PosUpdate ();
 	void QuatUpdate();
 
+	void LookAt (glm::vec3 pos);
+
 	void RotY (float angle) { m_yaw   += angle; }
 	void RotZ (float angle) { m_roll  += angle; }
 	void RotX (float angle) { m_pitch += angle; }

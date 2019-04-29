@@ -82,7 +82,7 @@ void main()
 	//  - Looking elsewhere -> < 1
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
 	color.rgb = MaterialDiffuseColor;
-	color.a = .8;
+	color.a = 1.;
 	color.rgb = 
 		// Ambient : simulates indirect lighting
 		MaterialAmbientColor +

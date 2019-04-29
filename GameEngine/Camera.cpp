@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include <iostream>
 
 Camera::Camera(const glm::vec3 &pos, float fov, float aspect, float zNear, float zFar)
 {
@@ -43,6 +44,17 @@ void Camera::QuatUpdate()
     m_up      = glm::vec3(glm::row(m_rot, 1));
     m_right   = glm::vec3(glm::row(m_rot, 0));
     m_forward = glm::vec3(glm::row(m_rot, 2));
+}
+
+void Camera::LookAt(glm::vec3 pos)
+{
+	auto v = glm::normalize(pos - m_position);
+	glm::quat look_quat = glm::lookAt(m_position, m_position + v, m_up);
+	look_quat = glm::normalize(look_quat);
+	//m_pitch = ang.x;
+	std::cout << glm::yaw(look_quat);
+	m_yaw += glm::yaw(look_quat) - m_yaw;
+	//m_roll = ang.z;
 }
 
 void Camera::Update()
