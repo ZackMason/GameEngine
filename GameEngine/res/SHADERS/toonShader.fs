@@ -75,7 +75,7 @@ void main()
 	{
 		color.rgb = vec3(LightColor) * MaterialSpecularColor;
 	}
-	
+	color.a = 1;
 	//color.rgb = 
 	//	// Ambient : simulates indirect lighting
 	//	MaterialAmbientColor +

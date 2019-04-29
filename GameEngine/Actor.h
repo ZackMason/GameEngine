@@ -16,8 +16,9 @@ public:
 	Actor(std::string fn1, std::string fn2, std::string fn3, std::string fn4);
 	Actor(std::string fn1, std::string fn2, std::shared_ptr<Texture> tex);
 	Actor(std::shared_ptr<Mesh> mesh, std::string fn2, std::shared_ptr<Texture> tex);
+	Actor(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> mat, std::shared_ptr<Texture> tex);
 
-	void Draw(const Camera &camera, double time_passed);
+	void Draw(Camera &camera, double time_passed);
 
 #if 0
 	Actor(const Actor& other)

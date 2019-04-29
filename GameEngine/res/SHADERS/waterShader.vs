@@ -18,12 +18,17 @@ uniform mat4 ModelMatrix;
 uniform vec3 LightPosition;
 uniform float Time;
 
-float calcWave(float x)
+float calcxWave(float x)
 {
 	float y=(sin(x*1.+Time*1.)+sin(x*2.3+Time*1.5)+sin(x*3.3+Time*.4))/3.;
 	return y;
 }
 
+float calcyWave(float x)
+{
+	float y=(sin(x*1.+Time*1.)+sin(x*2.8+Time*1.5)+sin(x*3.9+Time*.4))/3.;
+	return y;
+}
 
 void main()
 {
@@ -39,7 +44,7 @@ void main()
 	texCoord0 = texCoord;
 	normal0 = (ViewMatrix * ModelMatrix * vec4(normal,0.0)).xyz;
 	vec3 pos = position;
-	pos.y += calcWave(Position_worldspace.x*.1);
-	pos.y += calcWave(Position_worldspace.z*.1);
+	pos.y += calcxWave(Position_worldspace.x*.051)*3.;
+	pos.y += calcyWave(Position_worldspace.z*.051)*3.;
 	gl_Position = ModelViewProjection * vec4(pos, 1.0);
 }

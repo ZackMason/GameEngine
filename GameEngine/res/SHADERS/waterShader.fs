@@ -30,11 +30,11 @@ void main()
 	float LightPower = 50.0f;
 	
 	// Material properties
-    vec2 uv = texCoord0 * 5. ;
+    vec2 uv = texCoord0 * 1. ;
     //uv.x += Time;
 	float y = uv.y;
-    uv.y += calcWave(Position_worldspace.x)*.1;
-    uv.x += calcWave(Position_worldspace.z)*.1;
+    uv.y += calcWave(Position_worldspace.x)*.021;
+    uv.x += calcWave(Position_worldspace.z)*.021;
 	//uv.x += calcWave(y)*.1;
 
     //uv.y += sin(uv.x);
@@ -82,7 +82,7 @@ void main()
 	//  - Looking elsewhere -> < 1
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
 	color.rgb = MaterialDiffuseColor;
-#if 0
+	color.a = .8;
 	color.rgb = 
 		// Ambient : simulates indirect lighting
 		MaterialAmbientColor +
@@ -90,5 +90,6 @@ void main()
 		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
 		// Specular : reflective highlight, like a mirror
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
+#if 0
 #endif
 }

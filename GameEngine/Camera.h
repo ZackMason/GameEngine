@@ -1,10 +1,8 @@
 #pragma once
 
 #include "include/glm/glm.hpp"
-#define GLM_ENABLE_EXPERIMENTAL
 #include "include/glm/gtc/matrix_transform.hpp"
 #include "include/glm/gtc/quaternion.hpp"
-#include "include/glm/gtx/quaternion.hpp"
 #include "include/glm/gtc/matrix_access.hpp"
 #include "macros.h"
 

@@ -40,6 +40,12 @@ public:
 		m_texture = tex;
 	}
 
+	Material(std::shared_ptr<Shader> sdr, std::shared_ptr<Texture> tex)
+	{
+		m_shader = sdr;
+		m_texture = tex;
+	}
+
 	void Update(const Transform &transform, const Camera &camera, double time_passed)
 	{
 		if (m_shader == nullptr) { return; }

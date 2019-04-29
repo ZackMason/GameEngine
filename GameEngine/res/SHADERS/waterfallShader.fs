@@ -23,7 +23,7 @@ void main()
     float LightPower=50.f;
     
     // Material properties
-    vec2 uv=texCoord0*10.;
+    vec2 uv=texCoord0*5.;
     uv.y /= 3.;
     uv.y -= Time/2.;
     vec3 MaterialDiffuseColor=texture(diffuse,uv).rgb;
@@ -32,9 +32,8 @@ void main()
     t *= 5.;
     t = floor(t);
     t /= 5.;
-    vec3 t2 = 1-t;
-    t = max(t,t2);
-    //t *= vec3(0.0471, 0.2039, 0.9137);
+    // /t *= vec3(0.5569, 0.7922, 0.9882);
+
     MaterialDiffuseColor = t;
 
     vec3 MaterialAmbientColor=vec3(.21,.21,.21)*MaterialDiffuseColor;
@@ -64,6 +63,7 @@ void main()
     //  - Looking elsewhere -> < 1
     float cosAlpha=clamp(dot(E,R),0,1);
     color.rgb=MaterialDiffuseColor;
+    color.a = 1;
     #if 0
     color.rgb=
     // Ambient : simulates indirect lighting

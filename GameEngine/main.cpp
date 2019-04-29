@@ -18,10 +18,12 @@
 #include <time.h>
 #include <chrono>
 #include <vector>
+#include <map>
 #include <stdlib.h>
 
 #include "include/GLEW/GL/glew.h"
 #include "include/SDL2/SDL.h"
+#include "include/imGUI/imgui.h"
 
 #include "Display.h"
 #include "Shader.h"
@@ -96,15 +98,17 @@ int main(int argc, char* argv[])
 	// better way to load info maybe
 
 	std::vector<Actor> Actors;
+	
+	std::vector<Actor> Water;
 
 	Actor skyActor("sky", "sky", "nsky");
 	skyActor.m_transform->GetPos().y += 80.0f;
 	skyActor.m_transform->GetScale() *= 130;
 
-	Actor boxActor("cube", "water", "water_02");
-	boxActor.m_transform->GetPos().z -= 3;
-	boxActor.m_transform->GetPos().x -= 3;
-	boxActor.m_transform->GetScale() *= 2.0f;
+	Actor boxActor("boat", "watermv", "wood");
+	boxActor.m_transform->GetPos().z -= 42;
+	boxActor.m_transform->GetPos().x -= 44;
+	boxActor.m_transform->GetPos().y -= 3;
 
 	Actors.push_back(boxActor);
 	Actors.push_back(skyActor);
@@ -113,19 +117,28 @@ int main(int argc, char* argv[])
 	box.m_transform->GetPos().x = -6.0f;
 	box.m_transform->GetPos().y -= 0.5f;
 
+	Actor rcube("cube", "watermv", "wood");
+	rcube.m_transform->GetPos().y -= 3.5f;
+	rcube.m_transform->GetPos().z = -30.0f;
+	rcube.m_transform->GetPos().x = -43.0f;
+
+	Actors.push_back(rcube);
+
 	int water_size = 30;
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
 	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/water_02.jpg");
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/waterShader");
+	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
 	for (int x = -water_size; x <= water_size; x++)
 	{
 		for (int z = -water_size; z <= water_size; z++)
 		{
-			Actor world(mesh, "water", water_tex);
+			Actor world(mesh, water_mat, water_tex);
 			world.m_transform->GetPos().y -= 3.0f;
 			world.m_transform->GetPos().z = z * 20;
 			world.m_transform->GetPos().x = x * 20;
 			//world.m_transform->GetScale() *= 200;
-			Actors.push_back(world);
+			Water.push_back(world);
 		}
 	}
 
@@ -198,14 +211,13 @@ int main(int argc, char* argv[])
 		Actors.push_back(tree1);
 	}
 
-	Actor rcube("rcube", "toon");
-	rcube.m_transform->GetPos().y -= 3.0f;
-	rcube.m_transform->GetPos().z = 4.0f;
 
-	Actors.push_back(rcube);
 
-	Camera camera(glm::vec3(0, 0, 7), 70.0f, display.GetAspect(),0.01f, 2000.0f);
+	Camera camera(glm::vec3(0.1, 0.1, 7), 70.0f, display.GetAspect(),0.01f, 2000.0f);
 	//Camera altCamera(glm::vec3(0, 0, 0), 70.0f, display.GetAspect(), 0.01f, 2000.0f);
+
+	std::map<float, Actor*> sorted;
+	
 
 	float counter = 0.0f;
 
@@ -338,16 +350,22 @@ int main(int argc, char* argv[])
 		Actors[5].m_transform->GetRot().y = counter * 1;
 		Actors[5].m_transform->GetRot().x = counter * 2;
 #endif
-		auto f = [time_passed](float x) -> float
+		auto f = [time_passed](float x, float s=1) -> float
 		{
-			float y = (sin(x*1. + time_passed * 1.) + sin(x*2.3 + time_passed * 1.5) + sin(x*3.3 + time_passed * .4)) / 3.;
+			float y = (sinf(x*1. + time_passed * s) + sinf(x*2.3 + time_passed * 1.5*s) + sinf(x*3.3 + time_passed * .4*s)) / 3.;
 			return y;
 		};
 
-		rcube.m_transform->GetPos().y += f(rcube.m_transform->GetPos().x*0.1)*0.1;
-		rcube.m_transform->GetPos().y += f(rcube.m_transform->GetPos().z*0.1)*0.1;
+		//std::shared_ptr<Transform> t = rcube.m_transform;
+		//auto v = t->GetModel() * glm::vec4(t->GetPos(), 1.0);
+		//rcube.m_transform->GetPos().y += f(t->GetPos().x*.1)*0.013;
+		//rcube.m_transform->GetPos().y += f(t->GetPos().z*.1)*0.013;
 
+		//rcube.m_transform->GetPos().y += f(v.z,1)*0.023;
+		//rcube.m_transform->GetPos().y += f(v.x,1)*0.023;
 		//Drawing begins here, needs abstraction
+
+		boxActor.m_transform->GetRot().y += 0.1*delta_time;
 
 		for (auto& a : Actors)
 		{
@@ -357,6 +375,18 @@ int main(int argc, char* argv[])
 			//if (glm::dot(ray, camera.GetForward()) > -0.2)
 				a.Draw(camera, time_passed);
 		}
+
+		for (unsigned int i = 0; i < Water.size(); i++)
+		{
+			float distance = glm::length(camera.GetPos() - Water[i].m_transform->GetPos());
+			sorted[distance] = &Water[i];
+		}
+
+		for (std::map<float, Actor*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+		{
+			it->second->Draw(camera, time_passed);
+		}
+		sorted.clear();
 
 		display.Update();
 
