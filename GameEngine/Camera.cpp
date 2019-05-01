@@ -52,7 +52,7 @@ void Camera::LookAt(glm::vec3 pos)
 	glm::quat look_quat = glm::lookAt(m_position, m_position + v, m_up);
 	look_quat = glm::normalize(look_quat);
 	//m_pitch = ang.x;
-	std::cout << glm::yaw(look_quat);
+	std::cout << glm::yaw(look_quat) - m_yaw << "&&" << v.x << "\n";
 	m_yaw += glm::yaw(look_quat) - m_yaw;
 	//m_roll = ang.z;
 }

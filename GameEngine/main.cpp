@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
 	waterfall.m_transform->GetPos().y -= 9;
 	//Actors.push_back(waterfall);
 
-	Actor room("torus", "toon");
+	Actor room("torus", "standard" ,"wood");
 	room.m_transform->GetPos().z += 37;
 	room.m_transform->GetPos().y -= 2;
 	Actors.push_back(room);
@@ -340,7 +340,10 @@ int main(int argc, char* argv[])
 		
 		display.Clear(0.0f,0.0f,0.8f,1.0f);
 
-		camera.LookAt(boxActor.m_transform->GetPos());
+		//camera.LookAt(boxActor.m_transform->GetPos());
+		glm::vec3 v = glm::vec3(boxActor.m_transform->GetPos() - camera.GetPos());
+		v = glm::normalize(v) * ((float)v.length()*0.5f);
+		room.m_transform->SetPos(camera.GetPos() + v);
 		camera.Update();
 #if 0
 		//TODO make hashtable for this kind of stuff
