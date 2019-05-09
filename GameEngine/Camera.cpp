@@ -50,10 +50,11 @@ void Camera::LookAt(glm::vec3 pos)
 {
 	auto v = glm::normalize(pos - m_position);
 	glm::quat look_quat = glm::lookAt(m_position, m_position + v, m_up);
-	look_quat = glm::normalize(look_quat);
+	//look_quat = glm::normalize(look_quat);
 	//m_pitch = ang.x;
-	std::cout << glm::yaw(look_quat) - m_yaw << "&&" << v.x << "\n";
-	m_yaw += glm::yaw(look_quat) - m_yaw;
+	auto f = glm::yaw(look_quat) - m_yaw;
+	std::cout << "delta yaw: " << f << " && x: " << v.x << " z: " << v.z <<  "\n";
+	m_yaw += f;
 	//m_roll = ang.z;
 }
 

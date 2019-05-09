@@ -102,12 +102,12 @@ int main(int argc, char* argv[])
 	std::vector<Actor> Water;
 
 	Actor skyActor("sky", "sky", "bsky");
-	skyActor.m_transform->GetPos().y += 80.0f;
+	//skyActor.m_transform->GetPos().y += 80.0f;
 	skyActor.m_transform->GetScale() *= 130;
 
 	Actor boxActor("boat", "watermv", "wood");
 	boxActor.m_transform->GetPos().z -= 42;
-	boxActor.m_transform->GetPos().x -= 44;
+	boxActor.m_transform->GetPos().x = 44;
 	boxActor.m_transform->GetPos().y -= 3;
 
 	Actors.push_back(boxActor);
@@ -157,8 +157,8 @@ int main(int argc, char* argv[])
 	gun.m_transform->GetPos().x = 230;
 
 	Actor torus("monkey", "toon");
-	torus.m_transform->GetPos().y = 3.0f;
-	torus.m_transform->GetPos().x = 6.0f;
+	torus.m_transform->GetPos().y = 0;
+	torus.m_transform->GetPos().x = 0;
 	torus.m_transform->GetScale() *= 0.5f;
 
 	Actors.push_back(gun);
@@ -340,11 +340,15 @@ int main(int argc, char* argv[])
 		
 		display.Clear(0.0f,0.0f,0.8f,1.0f);
 
-		//camera.LookAt(boxActor.m_transform->GetPos());
-		glm::vec3 v = glm::vec3(boxActor.m_transform->GetPos() - camera.GetPos());
+		camera.LookAt(boxActor.m_transform->GetPos());
+		glm::vec3 v = glm::vec3(camera.GetPos() - boxActor.m_transform->GetPos());
 		v = glm::normalize(v) * ((float)v.length()*0.5f);
-		room.m_transform->SetPos(camera.GetPos() + v);
+		room.m_transform->SetPos(v);
 		camera.Update();
+
+		auto dx = boxActor.m_transform->GetPos();
+		auto vv = glm::vec3(sin(time_passed) * 40, 0, cos(time_passed) * 40);
+		boxActor.m_transform->SetPos(vv);
 #if 0
 		//TODO make hashtable for this kind of stuff
 		//translate
