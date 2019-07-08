@@ -52,7 +52,7 @@ public:
 	glm::vec3 m_right;
 	glm::vec3 m_position;
 	glm::vec3 m_dpos;
-	float     m_pitch = 0.0f;
+	float     m_pitch  = 0.0f;
 	float     m_yaw = 0.0f;// 3.14159f;
 	float     m_roll = 0.0f;
 	glm::quat m_quat;

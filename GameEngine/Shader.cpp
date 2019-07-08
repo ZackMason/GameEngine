@@ -116,7 +116,8 @@ void Shader::Update(const Transform& transform, const Camera& camera, double tim
 	glm::mat4 ModelMatrix         = transform.GetModel();
 	glm::mat4 ViewMatrix          = camera.GetViewProjection();
 	glm::mat4 ModelViewProjection = camera.GetViewProjection() * transform.GetModel();
-	glm::vec3 LightPosition       = glm::vec3(sinf(time_passed) * 6.0f, sinf(time_passed) + 4.0f, cosf(time_passed) * 6.0f) + glm::vec3(-40,0,-40);
+	glm::vec3 LightPosition       = glm::vec3(42.0f, sinf(time_passed) + 4.0f, -44.0f) /*+ glm::vec3(-40,0,-40)*/;
+	//glm::vec3 LightPosition       = glm::vec3(sinf(time_passed) * 40.0f, sinf(time_passed) + 4.0f, cosf(time_passed) * 40.0f) /*+ glm::vec3(-40,0,-40)*/;
 
 	//transpose if matrices are weird
 	glUniformMatrix4fv              (m_uniforms[MVP_U]  , 1, GL_FALSE, &ModelViewProjection[0][0]);

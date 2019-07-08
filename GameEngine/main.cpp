@@ -124,10 +124,10 @@ int main(int argc, char* argv[])
 
 	Actors.push_back(rcube);
 
-	int water_size = 30;
+	int water_size = 50;
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
 	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/water_02.jpg");
-	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/waterShader");
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.2");
 	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
 	for (int x = -water_size; x <= water_size; x++)
 	{
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
 
 
 
-	Camera camera(glm::vec3(0.1, -10, 7), 70.0f, display.GetAspect(),0.01f, 2000.0f);
+	Camera camera(glm::vec3(0.1, -65, 7), 70.0f, display.GetAspect(),0.01f, 4000.0f);
 	//Camera altCamera(glm::vec3(0, 0, 0), 70.0f, display.GetAspect(), 0.01f, 2000.0f);
 
 	std::map<float, Actor*> sorted;
@@ -283,9 +283,9 @@ int main(int argc, char* argv[])
 		if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_J])
 			camera.RotY(-0.056f);
 		if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W])
-			camera.MoveForward(0.03f);
+			camera.MoveForward(0.3f);
 		if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])
-			camera.MoveForward(-0.03f);
+			camera.MoveForward(-0.3f);
 		if (state[SDL_SCANCODE_I])
 			camera.RotX(0.056f);
 		if (state[SDL_SCANCODE_K])
@@ -293,9 +293,9 @@ int main(int argc, char* argv[])
 		if (state[SDL_SCANCODE_SPACE])
 			camera.MoveUp(-0.17f);
 		if (state[SDL_SCANCODE_A])
-			camera.MoveRight(0.03f);
+			camera.MoveRight(0.3f);
 		if (state[SDL_SCANCODE_D])
-			camera.MoveRight(-0.03f);
+			camera.MoveRight(-0.3f);
 		if (state[SDL_SCANCODE_B])
 			display.SetIsClosed(true);
 		if (state[SDL_SCANCODE_V])
@@ -340,15 +340,19 @@ int main(int argc, char* argv[])
 		
 		display.Clear(0.0f,0.0f,0.8f,1.0f);
 
-		camera.LookAt(boxActor.m_transform->GetPos());
+		//camera.LookAt(boxActor.m_transform->GetPos());
 		glm::vec3 v = glm::vec3(camera.GetPos() - boxActor.m_transform->GetPos());
 		v = glm::normalize(v) * ((float)v.length()*0.5f);
 		room.m_transform->SetPos(v);
 		camera.Update();
 
+		skyActor.m_transform->SetPos(camera.GetPos());
+		skyActor.m_transform->GetPos().z *= -1;
+		skyActor.m_transform->GetPos().x *= -1;
+		skyActor.m_transform->GetPos().y *= -1;
 		auto dx = boxActor.m_transform->GetPos();
 		auto vv = glm::vec3(sin(time_passed) * 40, 0, cos(time_passed) * 40);
-		boxActor.m_transform->SetPos(vv);
+		//boxActor.m_transform->SetPos(vv);
 #if 0
 		//TODO make hashtable for this kind of stuff
 		//translate

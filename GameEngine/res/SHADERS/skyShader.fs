@@ -9,5 +9,5 @@ out vec4 color;
 void main()
 {
 	color = texture2D(diffuse, texCoord0);
-
+	color.a = .8;
 }

@@ -36,8 +36,8 @@ void Camera::QuatUpdate()
 {
     glm::quat qPitch = glm::angleAxis(m_pitch, glm::vec3(1, 0, 0));
     glm::quat qYaw   = glm::angleAxis(m_yaw  , glm::vec3(0, 1, 0));
-    glm::quat qRoll  = glm::angleAxis(m_roll , glm::vec3(0, 0,-1));
-    glm::quat orient = qPitch * qYaw;
+    glm::quat qRoll  = glm::angleAxis(m_roll , glm::vec3(0, 0,1));
+    glm::quat orient = qPitch * qYaw * qRoll;
 
     orient    = glm::normalize(orient);
     m_rot     = glm::mat4_cast(orient);

@@ -44,7 +44,19 @@ void main()
 	texCoord0 = texCoord;
 	normal0 = (ViewMatrix * ModelMatrix * vec4(normal,0.0)).xyz;
 	vec3 pos = position;
-	pos.y += calcxWave(Position_worldspace.x*.031)*3.;
-	pos.y += calcyWave(Position_worldspace.z*.031)*3.;
+	float x = Position_worldspace.x*.031;
+	float z = Position_worldspace.z*.031;
+	float s  = 60.;
+
+	x *= s;
+	x = floor(x);
+	x /= s;
+
+	z *= s;
+	z = floor(z);
+	z /= s;
+
+	pos.y += calcxWave(x)*3.;
+	pos.y += calcyWave(z)*3.;
 	gl_Position = ModelViewProjection * vec4(pos, 1.0);
 }

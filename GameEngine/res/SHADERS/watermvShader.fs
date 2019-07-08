@@ -30,30 +30,8 @@ void main()
 	float LightPower = 50.0f;
 	
 	// Material properties
-    vec2 uv = texCoord0 * 1. ;
-    //uv.x += Time;
-	float y = uv.y;
-    uv.y += calcWave(Position_worldspace.x)*.021;
-    uv.x += calcWave(Position_worldspace.z)*.021;
-	//uv.x += calcWave(y)*.1;
 
-    //uv.y += sin(uv.x);
-
-	vec3 MaterialDiffuseColor = texture( diffuse, uv ).rgb;
-	uv.y += .2;
-	uv.x += .2;
-	vec3 t = texture(diffuse,uv ).rgb;
-
-	t *= vec3(0.0196, 0.0588, 0.2314);
-	t= 1 - t;
-
-
-    vec3 inver = 1. - MaterialDiffuseColor;
-
-    inver *= vec3(0.2157, 0.0, 1.0);
-    MaterialDiffuseColor += inver * t;
-
-
+	vec3 MaterialDiffuseColor = texture( diffuse, texCoord0 ).rgb;
 	vec3 MaterialAmbientColor = vec3(0.21,0.21,0.21) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 
@@ -81,7 +59,7 @@ void main()
 	//  - Looking into the reflection -> 1
 	//  - Looking elsewhere -> < 1
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
-	color.a = 1.;
+	color.a = 1;
 	color.rgb = 
 		// Ambient : simulates indirect lighting
 		MaterialAmbientColor +
@@ -89,7 +67,4 @@ void main()
 		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
 		// Specular : reflective highlight, like a mirror
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
-	color.rgb = MaterialDiffuseColor;
-#if 0
-#endif
 }
