@@ -38,7 +38,7 @@ void main()
     float LightPower=50.f;
     
     // Material properties
-    vec3 MaterialDiffuseColor=texture(diffuse,texCoord0).rgb;
+    vec3 MaterialDiffuseColor;
     vec3 MaterialSpecularColor=vec3(.3,.3,.3);
     
     vec3 c1 = vec3(0.0549, 0.5529, 0.0549);
@@ -49,25 +49,29 @@ void main()
 
     if    (position0.y <20)
     {
-        MaterialDiffuseColor=c4*(.43+(noise(Position_worldspace.xz)*0.1));
+        MaterialDiffuseColor=c4*(.73+(noise(Position_worldspace.xz)*0.1));
     }
     else if(position0.y<30)
     {
-        MaterialDiffuseColor=c4*.7;
+        MaterialDiffuseColor=c4*.9;
     }
-    else if(position0.y<35)
+    else if(position0.y+noise(Position_worldspace.xz+Time)*2<35)
     {
         MaterialDiffuseColor = c4;
     }
-    else if(position0.y<40)
+    else if(position0.y<35)
+    {
+        MaterialDiffuseColor = vec3(1);
+    }
+    else if(position0.y+noise(Position_worldspace.xz)*2<40)
     {
         MaterialDiffuseColor=c3;
     }
-    else if(position0.y<70)
+    else if(position0.y+(noise(Position_worldspace.xz)*5)+noise(Position_worldspace.xz/100)*26<70)
     {
         MaterialDiffuseColor=mix(c1,c2,(noise(Position_worldspace.xz)*.4));
     }
-    else if(position0.y<90)
+    else if(position0.y+(noise(Position_worldspace.xz) * 8)+noise(-Position_worldspace.xz/100)*32 <100)
     {
         MaterialDiffuseColor=c1*.6+(noise(Position_worldspace.xz)*.1);
     }
@@ -78,6 +82,7 @@ void main()
 
     //MaterialDiffuseColor =  mix(c2,c1,(position0.y+120)/50.);
     //  MaterialDiffuseColor += vec3(0,1,0) * noise(Position_worldspace.xz) *0.1;
+    #if 0
     float distance=length(LightPosition-Position_worldspace);
     
     vec3 MaterialAmbientColor=vec3(.21,.21,.21)*MaterialDiffuseColor;
@@ -102,7 +107,6 @@ void main()
     //  - Looking into the reflection -> 1
     //  - Looking elsewhere -> < 1
     float cosAlpha=clamp(dot(E,R),0,1);
-    color.a=1;
     color.rgb=
     // Ambient : simulates indirect lighting
     MaterialAmbientColor+
@@ -110,5 +114,7 @@ void main()
     MaterialDiffuseColor*LightColor*LightPower*cosTheta/(distance*distance)+
     // Specular : reflective highlight, like a mirror
     MaterialSpecularColor*LightColor*LightPower*pow(cosAlpha,5)/(distance*distance);
+    #endif
+    color.a=1;
     color.rgb= MaterialDiffuseColor;
 }

@@ -23,16 +23,26 @@ public:
 
 	void SetAspect(float aspect);
 
-	void Update    ();
-	void PosUpdate ();
+	void Update    (double);
+	void PosUpdate (double time_passed);
 	void QuatUpdate();
 
 	void LookAt (glm::vec3 pos);
+
+
 
 	void RotY (float angle) { m_yaw   += angle; }
 	void RotZ (float angle) { m_roll  += angle; }
 	void RotX (float angle) { m_pitch += angle; }
 
+	inline glm::vec3 GetRot() {
+		glm::quat qPitch = glm::angleAxis(m_pitch, glm::vec3(1, 0, 0));
+		glm::quat qYaw = glm::angleAxis(m_yaw, glm::vec3(0, 1, 0));
+		glm::quat qRoll = glm::angleAxis(m_roll, glm::vec3(0, 0, 1));
+		glm::quat orient = qPitch * qYaw * qRoll;
+
+		orient = glm::normalize(orient); 
+		return glm::eulerAngles(orient); }
 	inline glm::vec3 GetPos()     { return m_position; }
 	inline glm::vec3 GetUp()      { return       m_up; }	
 	inline glm::vec3 GetRight()   { return    m_right; }

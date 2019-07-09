@@ -77,18 +77,18 @@ void main()
     texCoord0=texCoord;
     normal0=(ViewMatrix*ModelMatrix*vec4(normal,0.)).xyz;
 
-    float y_scale = 100.0;
-    float xz_scale = 1.0;
+    float y_scale = 150.0;
+    float xz_scale = 3.0;
     float freq = 1;
     float amp = 1;
     float h = 0;
-    float lac = 2.2;
+    float lac = 2.2312 ;//+ sin(Time)*0.2;
     float pers = .12;
     vec3 pos = position;
 
-    int octaves = 8;
+    int octaves = 7;
 
-    Position_worldspace.x+=Time*50;
+    //Position_worldspace.z-=Time*3500;
     for (int i = 0; i < octaves; i++)
     {
         float sx = Position_worldspace.x/ xz_scale * freq;
@@ -99,13 +99,13 @@ void main()
         freq *= lac;
     }
     pos.y = h * y_scale + 130;
+
     position0=(ModelMatrix*vec4(pos,0.)).xyz;
 
     if (pos.y < 35)
     {
         pos.y = 35;
     }
-
 
     gl_Position=ModelViewProjection*vec4(pos,1.);
 }

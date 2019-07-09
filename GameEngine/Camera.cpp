@@ -25,10 +25,13 @@ void Camera::SetAspect(float aspect)
     m_perspective = glm::perspective(m_fov * RAD, m_aspect, m_zNear, m_zFar);
 }
 
-void Camera::PosUpdate()
+void Camera::PosUpdate(double time_passed)
 {
-    m_position += m_dpos;
+	if (m_dpos.length() <= 0) return;
+    m_position += m_dpos * (float)time_passed;
     m_dpos     *= 0.8f;
+	if (m_dpos.length() < 1.5)
+		m_dpos = glm::vec3(0, 0, 0);
     //((m_position.y < 0.0f) ? m_dpos.y += 0.051f : m_dpos.y = 0.0f);
 }
 
@@ -36,7 +39,7 @@ void Camera::QuatUpdate()
 {
     glm::quat qPitch = glm::angleAxis(m_pitch, glm::vec3(1, 0, 0));
     glm::quat qYaw   = glm::angleAxis(m_yaw  , glm::vec3(0, 1, 0));
-    glm::quat qRoll  = glm::angleAxis(m_roll , glm::vec3(0, 0,1));
+    glm::quat qRoll  = glm::angleAxis(m_roll , glm::vec3(0, 0, 1));
     glm::quat orient = qPitch * qYaw * qRoll;
 
     orient    = glm::normalize(orient);
@@ -58,10 +61,10 @@ void Camera::LookAt(glm::vec3 pos)
 	//m_roll = ang.z;
 }
 
-void Camera::Update()
+void Camera::Update(double time_passed)
 {
     QuatUpdate();
-    PosUpdate ();
+    PosUpdate (time_passed);
 }
 
 void Camera::MoveForward(float amt)
