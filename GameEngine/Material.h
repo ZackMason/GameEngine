@@ -46,7 +46,7 @@ public:
 		m_texture = tex;
 	}
 
-	void Update(const Transform &transform, const Camera &camera, double time_passed)
+	void Update( Transform &transform, const Camera &camera, double time_passed)
 	{
 		if (m_shader == nullptr) { return; }
 		m_shader->Bind();

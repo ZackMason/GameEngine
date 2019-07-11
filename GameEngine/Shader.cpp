@@ -111,15 +111,19 @@ void Shader::Bind()
 	glUseProgram(m_program);
 }
 
-void Shader::Update(const Transform& transform, const Camera& camera, double time_passed)
+void Shader::Update( Transform& transform, const Camera& camera, double time_passed)
 {
 	glm::mat4 ModelMatrix         = transform.GetModel();
 	glm::mat4 ViewMatrix          = camera.GetViewProjection();
 	glm::mat4 ModelViewProjection = camera.GetViewProjection() * transform.GetModel();
-	glm::vec3 LightPosition       = glm::vec3(42.0f, sinf(time_passed) + 4.0f, -44.0f) /*+ glm::vec3(-40,0,-40)*/;
+	//glm::vec3 LightPosition       = glm::vec3(42.0f, sinf(time_passed) + 4.0f, -44.0f) /*+ glm::vec3(-40,0,-40)*/;
 	//glm::vec3 LightPosition       = glm::vec3(sinf(time_passed) * 40.0f, sinf(time_passed) + 4.0f, cosf(time_passed) * 40.0f) /*+ glm::vec3(-40,0,-40)*/;
-
+	auto LightPosition = transform.GetPos() + glm::vec3(0,50,0);
 	//transpose if matrices are weird
+	ModelViewProjection = glm::transpose(ModelViewProjection);
+	//ModelMatrix = glm::transpose(ModelMatrix);
+	//ViewMatrix = glm::transpose(ViewMatrix);
+	ModelViewProjection = glm::transpose(ModelViewProjection);
 	glUniformMatrix4fv              (m_uniforms[MVP_U]  , 1, GL_FALSE, &ModelViewProjection[0][0]);
 	glUniformMatrix4fv              (m_uniforms[VIEW_U] , 1, GL_FALSE, &ViewMatrix[0][0]);
 	glUniformMatrix4fv              (m_uniforms[MODEL_U], 1, GL_FALSE, &ModelMatrix[0][0]);

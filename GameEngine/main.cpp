@@ -18,6 +18,7 @@
 #include <time.h>
 #include <chrono>
 #include <vector>
+#include <cmath>
 #include <map>
 #include <stdlib.h>
 
@@ -49,6 +50,75 @@ double UpdateTime()
 
 	return difftime(timer, mktime(&y2k));
 }
+
+float rand(glm::vec2 c) {
+	return glm::fract(sinf(glm::dot(c, glm::vec2(12.9898, 78.233)))*43758.5453);
+}
+
+float noise(glm::vec2 p, float freq) {
+	float unit = 640. / freq;
+	glm::vec2 ij = floor(p / unit);
+	glm::vec2 xy = mod(p, unit) / unit;
+	//xy = 3.*xy*xy-2.*xy*xy*xy;
+	xy = .5f * (1.0f - cos(3.141592f * xy));
+	float a = rand((ij + glm::vec2(0., 0.)));
+	float b = rand((ij + glm::vec2(1., 0.)));
+	float c = rand((ij + glm::vec2(0., 1.)));
+	float d = rand((ij + glm::vec2(1., 1.)));
+	float x1 = glm::mix(a, b, xy.x);
+	float x2 = glm::mix(c, d, xy.x);
+	return glm::mix(x1, x2, xy.y);
+}
+
+float pnoise(glm::vec2 p) {
+	int res = 4;
+	float persistance = .5;
+	float n = 0.;
+	float normK = 0.;
+	float f = 4.;
+	float amp = 1.;
+	int iCount = 0;
+	for (int i = 0; i < 50; i++) {
+		n += amp*noise(p, f);
+		f *= 2.;
+		normK += amp;
+		amp *= persistance;
+		if (iCount == res)break;
+		iCount++;
+	}
+	float nf = n / normK;
+	return nf * nf*nf*nf;
+}
+
+float h(glm::vec2 v)
+{
+	float y_scale = 150.0;
+	float xz_scale = 3.0;
+	float freq = 1;
+	float amp = 1;
+	float l = 0;
+	float lac = 2.2312;//+ sin(Time)*0.2;
+	float pers = .12;
+	float res = 0;
+
+	int octaves = 7;
+
+	//Position_worldspace.z-=Time*3500;
+	for (int i = 0; i < octaves; i++)
+	{
+		float sx = v.x / xz_scale * freq;
+		float sz = v.y / xz_scale * freq;
+		float pv = 2. * pnoise(glm::vec2(sx, sz)) - 1.;
+		l += pv * amp;
+		amp *= pers;
+		freq *= lac;
+	}
+	res = l * y_scale + 190.f;//130 200
+	if (res < 35.)
+		res = 35.;
+	return res;
+}
+
 
 #undef main
 int main(int argc, char* argv[])
@@ -102,11 +172,11 @@ int main(int argc, char* argv[])
 	std::vector<Actor> Water;
 	std::vector<glm::vec2> Water_off;
 
-	Actor skyActor("sky", "sky", "bsky");
+	Actor skyActor("skydome", "skydome", "skydome");
 	//skyActor.m_transform->GetPos().y += 80.0f;
-	skyActor.m_transform->GetScale() *= 780;
+	skyActor.m_transform->GetScale() *= 80;
 
-	Actor PlaneActor("biplane", "unlit", "wood");
+	Actor PlaneActor("biplane", "toon", "wood");
 	PlaneActor.m_transform->GetPos().z -= 42;
 	PlaneActor.m_transform->GetPos().x = 44;
 	PlaneActor.m_transform->GetPos().y -= 3;
@@ -147,8 +217,8 @@ int main(int argc, char* argv[])
 			Water_off.push_back(glm::vec2(x*20*water_scale,z*20*water_scale));
 		}
 	}
-	water_scale = 18;
-	water_size = 20;
+	water_scale = 16;
+	water_size = 22;
 	for (int x = -water_size; x <= water_size; x++)
 	{
 		for (int z = -water_size; z <= water_size; z++)
@@ -226,13 +296,13 @@ int main(int argc, char* argv[])
 		tree1.m_transform->GetPos  ().x = rand() % 400 - 200;
 		tree1.m_transform->GetRot  ().y = rand() % 180;
 		tree1.m_transform->GetPos  ().y = -3.0f;
-		tree1.m_transform->GetScale() *= 3.0f;
+		tree1.m_transform->GetScale()  *= 3.0f;
 		Actors.push_back(tree1);
 	}
 
 
 
-	Camera camera(glm::vec3(0.1, -65, 7), 70.0f, display.GetAspect(),0.01f, 11000.0f);
+	Camera camera(glm::vec3(0.1, -145, 70), 70.0f, display.GetAspect(),1.f, 12000.0f);
 	//Camera altCamera(glm::vec3(0, 0, 0), 70.0f, display.GetAspect(), 0.01f, 2000.0f);
 
 	std::map<float, Actor*> sorted;
@@ -242,11 +312,23 @@ int main(int argc, char* argv[])
 
 	std::chrono::steady_clock::time_point begin, end;
 	begin = std::chrono::steady_clock::now();
-	bool auto_move = false;
+	bool auto_move = true;
+
+	Transform cam_tran;
+	float dv = 0.0f;
+/*
+*******************************************************************************************
+*******************************************************************************************
+*******************************************************************************************
+*******************************************************************************************
+*/
 
 	//std::cout << "mouse grab: " << SDL_SetRelativeMouseMode(SDL_TRUE) << " : " << SDL_CaptureMouse(SDL_TRUE) << std::endl;
 	while (!display.IsClosed())
 	{
+
+		cam_tran.SetPos(camera.GetPos());
+
 		frames++;
 		
 		//TIMER, needs abstraction
@@ -284,8 +366,8 @@ int main(int argc, char* argv[])
 			lasty = thisy;
 			thisx = mousex;
 			thisy = mousey;
-			camera.RotY(-(lastx - thisx) /4.0f * delta_time);
-			camera.RotX(-(lasty - thisy) /4.0f * delta_time);
+			camera.RotY(-(lastx - thisx) /6.0f * delta_time);
+			camera.RotX(-(lasty - thisy) /6.0f * delta_time);
 		}
 
 		//capture mouse when you click on the window
@@ -296,37 +378,34 @@ int main(int argc, char* argv[])
 		}
 
 		if (auto_move)
-			camera.MoveForward(0.7f);
+			camera.MoveForward(21.f);
 
 		// release the mouse
 		if (state[SDL_SCANCODE_E])
 			auto_move = !auto_move;
 		if (state[SDL_SCANCODE_ESCAPE])
 			SDL_SetRelativeMouseMode(SDL_FALSE);
-		if (state[SDL_SCANCODE_RIGHT] || state[SDL_SCANCODE_L])
-			camera.RotY(0.056f);
-		if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_J])
-			camera.RotY(-0.056f);
+		
 		if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W])
-			camera.MoveForward(0.6f);
+			camera.MoveForward(19.f);
 		if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])
-			camera.MoveForward(-0.3f);
+			camera.MoveForward(-14.f);
 		if (state[SDL_SCANCODE_I])
-			camera.RotX(0.056f);
+			camera.RotX(0.016f);
 		if (state[SDL_SCANCODE_K])
-			camera.RotX(-0.056f);
+			camera.RotX(-0.016f);
 		if (state[SDL_SCANCODE_SPACE])
-			camera.MoveUp(-0.17f);
+			camera.MoveUp(-14.f);
 		if (state[SDL_SCANCODE_A])
-			camera.MoveRight(0.3f);
+			camera.MoveRight(14.f);
 		if (state[SDL_SCANCODE_D])
-			camera.MoveRight(-0.3f);
+			camera.MoveRight(-14.f);
 		if (state[SDL_SCANCODE_B])
 			display.SetIsClosed(true);
 		if (state[SDL_SCANCODE_V])
 			display_fps = !display_fps;
 		if (state[SDL_SCANCODE_C])
-			camera.m_position.y += 30.0f * delta_time;
+			camera.MoveUp(14.f);
 		if (state[SDL_SCANCODE_F]) 
 		{
 			SDL_SetWindowFullscreen(display.GetWindow(), SDL_WINDOW_FULLSCREEN);
@@ -369,21 +448,47 @@ int main(int argc, char* argv[])
 		glm::vec3 v = glm::vec3(camera.GetPos() - PlaneActor.m_transform->GetPos());
 		v = glm::normalize(v) * ((float)v.length()*0.5f);
 		room.m_transform->SetPos(v);
-		camera.Update(time_passed);
+
+		auto height_v = cam_tran.GetPos();
+		
+		//if (camera.m_position.y > -35.f)
+		//camera.m_position.y = -h(glm::vec2(height_v.x, height_v.z));
+		camera.Update(delta_time);
 
 		skyActor.m_transform->SetPos(camera.GetPos());
 		skyActor.m_transform->GetPos().z *= -1;
 		skyActor.m_transform->GetPos().x *= -1;
 		skyActor.m_transform->GetPos().y *= -1;
 
-		//PlaneActor.m_transform->SetPos(camera.GetPos());
+		PlaneActor.m_transform->SetPos(camera.GetPos());
 		PlaneActor.m_transform->GetPos() *= -1;
-		PlaneActor.m_transform->SetRot(camera.GetRot());
-		PlaneActor.m_transform->GetRot().x *= -1;
-		PlaneActor.m_transform->GetRot().y *= -1;
+		auto lll = glm::lookAtRH(PlaneActor.m_transform->GetPos(), PlaneActor.m_transform->GetPos() - camera.GetForward() *5.f, camera.m_up);
+		//PlaneActor.m_transform->GetRot().x = camera.GetRot().x;
+		//PlaneActor.m_transform->GetRot().y = -camera.GetRot().y;
+		//PlaneActor.m_transform->GetRot().x = glm::conjugate(glm::quat_cast(lll)).x;
+		PlaneActor.m_transform->GetRot().x += -glm::pitch(glm::quat_cast(lll)) - PlaneActor.m_transform->GetRot().x;
+		PlaneActor.m_transform->GetRot().y += -glm::yaw(glm::quat_cast(lll)) - PlaneActor.m_transform->GetRot().y;
+		PlaneActor.m_transform->GetRot().z += glm::roll(glm::quat_cast(lll)) - PlaneActor.m_transform->GetRot().z;
+
 		PlaneActor.m_transform->GetPos() -= camera.GetForward() * 50.0f;
 		PlaneActor.m_transform->GetPos().y -= 10.0f;
 
+		if (state[SDL_SCANCODE_RIGHT] || state[SDL_SCANCODE_L])
+		{
+			//if (dv < 1 && dv > -1)
+				dv += pow(0.1,2-abs(dv));
+			camera.RotY(0.016f);
+		}
+		if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_J])
+		{
+			//if (dv < 1 && dv > -1)
+				dv -= pow(0.1,2-abs(dv));
+			camera.RotY(-0.016f);
+		}
+		PlaneActor.m_transform->GetRot().z += dv;
+		PlaneActor.m_transform->QUpdate();
+
+		dv *= 0.9;
 #if 0
 		//TODO make hashtable for this kind of stuff
 		//translate
@@ -409,6 +514,9 @@ int main(int argc, char* argv[])
 		//Drawing begins here, needs abstraction
 
 
+		glDepthMask(GL_FALSE);
+		skyActor.Draw(camera, time_passed);
+		glDepthMask(GL_TRUE);
 
 		for (auto& a : Actors)
 		{
@@ -444,7 +552,6 @@ int main(int argc, char* argv[])
 		}
 
 #endif
-		skyActor.Draw(camera, time_passed);
 		display.Update();
 
 		counter += 0.01f;

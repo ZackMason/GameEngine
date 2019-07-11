@@ -11,7 +11,7 @@ public:
 	Shader(const std::string& fileName);
 
 	void Bind  ();
-	void Update(const Transform& transform, const Camera& camera, double time_passed);
+	void Update(Transform& transform, const Camera& camera, double time_passed);
 
 	virtual ~Shader();
 

@@ -39,7 +39,7 @@ void Camera::QuatUpdate()
 {
     glm::quat qPitch = glm::angleAxis(m_pitch, glm::vec3(1, 0, 0));
     glm::quat qYaw   = glm::angleAxis(m_yaw  , glm::vec3(0, 1, 0));
-    glm::quat qRoll  = glm::angleAxis(m_roll , glm::vec3(0, 0, 1));
+    glm::quat qRoll  = glm::angleAxis(m_roll , glm::vec3(0, 0, -1));
     glm::quat orient = qPitch * qYaw * qRoll;
 
     orient    = glm::normalize(orient);
@@ -70,7 +70,7 @@ void Camera::Update(double time_passed)
 void Camera::MoveForward(float amt)
 {
     glm::vec3 t = m_forward;
-    t.y         = 0;
+    //t.y         = 0;
     t           = glm::normalize(t);
     m_dpos     += t * amt;
 }

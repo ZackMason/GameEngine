@@ -8,6 +8,7 @@ in vec3 position0;
 in vec3 LightDirection_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 Position_worldspace;
+in vec4 viewspace;
 
 uniform vec3 LightPosition;
 uniform float Time;
@@ -28,6 +29,71 @@ float noise(vec2 p){
         mix(rand(ip+vec2(0.,1.)),rand(ip+vec2(1.,1.)),u.x),u.y);
         return res*res;
     }
+
+float rand2(vec2 c){
+    return fract(sin(dot(c.xy,vec2(12.9898,78.233)))*43758.5453);
+}
+
+float noise2(vec2 p,float freq){
+    float unit=640./freq;
+    vec2 ij=floor(p/unit);
+    vec2 xy=mod(p,unit)/unit;
+    //xy = 3.*xy*xy-2.*xy*xy*xy;
+    xy=.5*(1.-cos(3.141592*xy));
+    float a=rand2((ij+vec2(0.,0.)));
+    float b=rand2((ij+vec2(1.,0.)));
+    float c=rand2((ij+vec2(0.,1.)));
+    float d=rand2((ij+vec2(1.,1.)));
+    float x1=mix(a,b,xy.x);
+    float x2=mix(c,d,xy.x);
+    return mix(x1,x2,xy.y);
+}
+
+float pnoise(vec2 p){
+    int res=4;
+    float persistance=.5;
+    float n=0.;
+    float normK=0.;
+    float f=4.;
+    float amp=1.;
+    int iCount=0;
+    for(int i=0;i<50;i++){
+        n+=amp*noise2(p,f);
+        f*=2.;
+        normK+=amp;
+        amp*=persistance;
+        if(iCount==res)break;
+        iCount++;
+    }
+    float nf=n/normK;
+    return nf*nf*nf*nf;
+}
+
+float h(vec2 p)
+{
+    float xz_scale=3.;
+    
+    float freq=1;
+    float amp=1;
+    float he=0;
+    float lac=2.2312;//+ sin(Time)*0.2;
+    float pers=.12;
+    
+    int octaves=7;
+    
+    //Position_worldspace.z-=Time*3500;
+    for(int i=0;i<octaves;i++)
+    {
+        float sx=p.x/xz_scale*freq;
+        float sz=p.y/xz_scale*freq;
+        float pv=2*pnoise(vec2(sx,sz))-1;
+        he+=pv*amp;
+        amp*=pers;
+        freq*=lac;
+    }
+    return he;
+}
+
 
 void main()
 {
@@ -71,7 +137,7 @@ void main()
     {
         MaterialDiffuseColor=mix(c1,c2,(noise(Position_worldspace.xz)*.4));
     }
-    else if(position0.y+(noise(Position_worldspace.xz) * 8)+noise(-Position_worldspace.xz/100)*32 <100)
+    else if(position0.y+(noise(Position_worldspace.xz) * 8)+noise(-Position_worldspace.xz/100)*32 <140)
     {
         MaterialDiffuseColor=c1*.6+(noise(Position_worldspace.xz)*.1);
     }
@@ -80,6 +146,21 @@ void main()
         MaterialDiffuseColor = vec3(0.8);
     }
 
+    
+
+
+    float dist=0;
+    dist = abs(viewspace.z);
+
+    float fogend = 8000.;
+
+    float fogFactor = (fogend - dist)/(fogend - 20.);
+   fogFactor = clamp( fogFactor, 0.0, 1.0 );
+ 
+   //if you inverse color in glsl mix function you have to
+   //put 1.0 - fogFactor
+   vec3 finalColor = mix(vec3(0.8), MaterialDiffuseColor, fogFactor);
+    //MaterialDiffuseColor *= finalColor;
     //MaterialDiffuseColor =  mix(c2,c1,(position0.y+120)/50.);
     //  MaterialDiffuseColor += vec3(0,1,0) * noise(Position_worldspace.xz) *0.1;
     #if 0
@@ -87,7 +168,15 @@ void main()
     
     vec3 MaterialAmbientColor=vec3(.21,.21,.21)*MaterialDiffuseColor;
     // Normal of the computed fragment, in camera space
-    vec3 n=normalize(normal0);
+    float o = pnoise(Position_worldspace.xz);
+    float t = pnoise(vec2(Position_worldspace.x, Position_worldspace.z + .1));
+    float b = pnoise(vec2(Position_worldspace.x, Position_worldspace.z - .1));
+    float r = pnoise(vec2(Position_worldspace.x + .1, Position_worldspace.z));
+    float ll = pnoise(vec2(Position_worldspace.x - .1, Position_worldspace.z));
+    
+    vec3 no = vec3(.25*(2*(r -ll)),2*(b-t),-4);
+
+    vec3 n=normalize(no);
     // Direction of the light (from the fragment to the light)
     vec3 l=normalize(LightDirection_cameraspace);
     distance = 5;
@@ -107,6 +196,7 @@ void main()
     //  - Looking into the reflection -> 1
     //  - Looking elsewhere -> < 1
     float cosAlpha=clamp(dot(E,R),0,1);
+    MaterialDiffuseColor = finalColor;
     color.rgb=
     // Ambient : simulates indirect lighting
     MaterialAmbientColor+
@@ -115,6 +205,11 @@ void main()
     // Specular : reflective highlight, like a mirror
     MaterialSpecularColor*LightColor*LightPower*pow(cosAlpha,5)/(distance*distance);
     #endif
+    float ex = 1.2;
+    color.rgb = finalColor;
+    //color.rgb = color.xyz / (color.xyz + vec3(1.0));
+    //color.rgb = pow(color.xyz, vec3(1.0/2.2));
+	color.rgb=ex-exp(-ex*color.rgb);
+
     color.a=1;
-    color.rgb= MaterialDiffuseColor;
 }

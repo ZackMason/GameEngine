@@ -11,6 +11,7 @@ out vec3 position0;
 out vec3 LightDirection_cameraspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 Position_worldspace;
+out vec4 viewspace;
 
 uniform mat4 ModelViewProjection;
 uniform mat4 ViewMatrix;
@@ -57,11 +58,38 @@ float pnoise(vec2 p){
     return nf*nf*nf*nf;
 }
 
+float h(vec2 p)
+{
+    float xz_scale=3.;
+    
+    float freq=1;
+    float amp=1;
+    float he=0;
+    float lac=2.2312;
+    float pers=.12;
+    
+    int octaves=7;
+    
+    //Position_worldspace.z-=Time*3500;
+    for(int i=0;i<octaves;i++)
+    {
+        float sx=p.x/xz_scale*freq;
+        float sz=p.y/xz_scale*freq;
+        float pv=2*pnoise(vec2(sx,sz))-1;
+        he+=pv*amp;
+        amp*=pers;
+        freq*=lac;
+    }
+    return he;
+}
+
 float calcWave(float x)
 {
     float y=(sin(x*1.+(Time*1.)+345)+sin(x*2.8+(Time*1.5)+345)+sin(x*3.9+(Time*.4)+345))/3.;
     return y;
 }
+
+
 
 
 void main()
@@ -71,34 +99,16 @@ void main()
     vec3 vertexPosition_cameraspace=(ViewMatrix*ModelMatrix*vec4(position,1)).xyz;
     EyeDirection_cameraspace=vec3(0,0,0)-vertexPosition_cameraspace;
     
-    vec3 LightPosition_cameraspace=(ViewMatrix*vec4(Position_worldspace+vec3(1),1)).xyz;
+    vec3 LightPosition_cameraspace=(ViewMatrix*vec4(LightPosition,1)).xyz;
     LightDirection_cameraspace=LightPosition_cameraspace+EyeDirection_cameraspace;
     
     texCoord0=texCoord;
     normal0=(ViewMatrix*ModelMatrix*vec4(normal,0.)).xyz;
 
     float y_scale = 150.0;
-    float xz_scale = 3.0;
-    float freq = 1;
-    float amp = 1;
-    float h = 0;
-    float lac = 2.2312 ;//+ sin(Time)*0.2;
-    float pers = .12;
-    vec3 pos = position;
-
-    int octaves = 7;
-
-    //Position_worldspace.z-=Time*3500;
-    for (int i = 0; i < octaves; i++)
-    {
-        float sx = Position_worldspace.x/ xz_scale * freq;
-        float sz = Position_worldspace.z/ xz_scale * freq;
-        float pv = 2*pnoise(vec2(sx,sz)) - 1;
-        h += pv * amp;
-        amp *= pers;
-        freq *= lac;
-    }
-    pos.y = h * y_scale + 130;
+    vec3 pos=position;
+    float l = h(Position_worldspace.xz);    
+    pos.y = l * y_scale + 190;//130 200
 
     position0=(ModelMatrix*vec4(pos,0.)).xyz;
 
@@ -106,6 +116,7 @@ void main()
     {
         pos.y = 35;
     }
+    viewspace = (ModelViewProjection*vec4(position,1));
 
     gl_Position=ModelViewProjection*vec4(pos,1.);
 }

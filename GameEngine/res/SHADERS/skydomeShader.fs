@@ -14,23 +14,51 @@ uniform float Time;
 
 out vec4 color;
 
+float rand(vec2 n){
+	return fract(sin(dot(n,vec2(12.9898,4.1414)))*43758.5453);
+}
+
+float noise(vec2 p){
+	vec2 ip=floor(p);
+	vec2 u=fract(p);
+	u=u*u*(3.-2.*u);
+	
+	float res=mix(
+		mix(rand(ip),rand(ip+vec2(1.,0.)),u.x),
+		mix(rand(ip+vec2(0.,1.)),rand(ip+vec2(1.,1.)),u.x),u.y);
+	return res*res;
+}
+
+
 void main()
 {
-	float lit = 0.1;
-	float unlit = 0.4;
-	vec3 unlitc = vec3(0.5);
 	vec3 LightColor = vec3(1,0.1,0.1);
 	vec3 col2 = vec3 (0.,.0,1.);
 	LightColor = mix(LightColor,col2, abs(sin(Time)));
-	LightColor = vec3(1.0, 1.0, 1.0);
+	LightColor = vec3(1);
 	float LightPower = 50.0f;
 	
 	// Material properties
-	vec3 MaterialDiffuseColor = vec3(0.6588, 0.1098, 0.1098);
+	//vec3 MaterialDiffuseColor = texture( diffuse, texCoord0 ).rgb;
+	vec3 hor = vec3(0.4863, 0.9294, 0.9882);
+
+	vec3 MaterialDiffuseColor =mix(hor, vec3(0.1451, 0.549, 0.9255), min(Position_worldspace.y/400.,1.0)); 
+	MaterialDiffuseColor = mix(MaterialDiffuseColor,MaterialDiffuseColor*.4,min(Position_worldspace.y/4500.,1.0));
 	vec3 MaterialAmbientColor = vec3(0.21,0.21,0.21) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
+	
+	float n1 = noise(Position_worldspace.xz/5.);
+	float n2 = noise(Position_worldspace.xy/500.);
+	float n3 = noise(Position_worldspace.zy/500.);
+	float n4 = noise(Position_worldspace.zx/300.);
+	float r1 = n1+n2+n3+n4;
+	if(min((n1*.5)+.5,1.)>0.97 && Position_worldspace.y > 2000)
+	{
+		MaterialDiffuseColor = vec3(1);
+	}
 
 	// Distance to the light
+	#if 0
 	float distance = length( LightPosition - Position_worldspace );
 
 	// Normal of the computed fragment, in camera space
@@ -53,28 +81,15 @@ void main()
 	//  - Looking into the reflection -> 1
 	//  - Looking elsewhere -> < 1
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
-
-	float atten = 1.;
-	float thres = 0.1;
-
-	float intensity;
-	intensity = dot(normalize(l),n);
-
-	if (intensity > 0.95)
-		color = vec4(1.0,0.5,0.5,1.0);
-	else if (intensity > 0.5)
-		color = vec4(0.6,0.3,0.3,1.0);
-	else if (intensity > 0.25)
-		color = vec4(0.4,0.2,0.2,1.0);
-	else
-		color = vec4(0.2,0.1,0.1,1.0);
-	
+	color.rgb = 
+		// Ambient : simulates indirect lighting
+		MaterialAmbientColor +
+		// Diffuse : "color" of the object
+		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
+		// Specular : reflective highlight, like a mirror
+		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
+	#endif
 	color.a = 1;
-	//color.rgb = 
-	//	// Ambient : simulates indirect lighting
-	//	MaterialAmbientColor +
-	//	// Diffuse : "color" of the object
-	//	MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
-	//	// Specular : reflective highlight, like a mirror
-	//	MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
+	color.rgb = MaterialDiffuseColor + MaterialAmbientColor;
+	color.rgb=1.-exp(-1.*color.rgb);
 }

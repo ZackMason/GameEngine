@@ -3,7 +3,7 @@
 #include "include/SDL2/SDL.h"
 #include <string>
 
-#define W_SIZE 1
+#define W_SIZE 2
 
 #if W_SIZE == 1
 
