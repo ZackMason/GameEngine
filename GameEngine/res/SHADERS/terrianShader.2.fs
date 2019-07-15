@@ -94,6 +94,17 @@ float h(vec2 p)
     return he;
 }
 
+float grid(vec3 st,float res)
+{
+    vec3 grid=fract(st*res);
+    return(step(res,grid.x)*step(res,grid.y)*step(res,grid.z));
+}
+
+float gridf(float st,float res)
+{
+    float grid=fract(st*res);
+    return(step(res,grid));
+}
 
 void main()
 {
@@ -210,6 +221,10 @@ void main()
     //color.rgb = color.xyz / (color.xyz + vec3(1.0));
     //color.rgb = pow(color.xyz, vec3(1.0/2.2));
 	color.rgb=ex-exp(-ex*color.rgb);
-
+    //color.rgb*=vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
+    //color.rgb = vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
+    //color.r = gridf(Position_worldspace.x,0.1);
+    //color.g = gridf(position0.y-35, 0.1);
+    //color.b = gridf(Position_worldspace.z,0.1);
     color.a=1;
 }

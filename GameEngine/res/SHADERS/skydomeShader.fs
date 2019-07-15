@@ -30,6 +30,7 @@ float noise(vec2 p){
 }
 
 
+
 void main()
 {
 	vec3 LightColor = vec3(1,0.1,0.1);
@@ -40,9 +41,9 @@ void main()
 	
 	// Material properties
 	//vec3 MaterialDiffuseColor = texture( diffuse, texCoord0 ).rgb;
-	vec3 hor = vec3(0.4863, 0.9294, 0.9882);
+	vec3 hor = vec3(1.5);
 
-	vec3 MaterialDiffuseColor =mix(hor, vec3(0.1451, 0.549, 0.9255), min(Position_worldspace.y/400.,1.0)); 
+	vec3 MaterialDiffuseColor =mix(hor, vec3(0.1451, 0.549, 0.9255), min(Position_worldspace.y/600.,1.0)); 
 	MaterialDiffuseColor = mix(MaterialDiffuseColor,MaterialDiffuseColor*.4,min(Position_worldspace.y/4500.,1.0));
 	vec3 MaterialAmbientColor = vec3(0.21,0.21,0.21) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);

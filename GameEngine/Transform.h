@@ -29,13 +29,13 @@ public:
 		m_right = glm::vec3(glm::row(m_qrot, 0));
 		m_forward = glm::vec3(glm::row(m_qrot, 2));
 
-		m_rot.z *= 0.99;
+		m_rot.z *= 0.99f;
 	}
 
 	inline glm::mat4 GetModel() const
 	{
-		glm::mat4 posMatrix   = glm::translate(glm::mat4(1.f),m_pos);
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), m_scale);
+		glm::mat4 posMatrix   = glm::translate(glm::mat4(1),m_pos);
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1), m_scale);
 
 		//switch to quaternions
 #if 0

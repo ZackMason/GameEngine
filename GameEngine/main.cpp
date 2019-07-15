@@ -114,8 +114,8 @@ float h(glm::vec2 v)
 		freq *= lac;
 	}
 	res = l * y_scale + 190.f;//130 200
-	if (res < 35.)
-		res = 35.;
+	//if (res < 35.)
+		//res = 35.;
 	return res;
 }
 
@@ -168,7 +168,8 @@ int main(int argc, char* argv[])
 	// better way to load info maybe
 
 	std::vector<Actor> Actors;
-	
+	std::vector<Actor> Winds;
+
 	std::vector<Actor> Water;
 	std::vector<glm::vec2> Water_off;
 
@@ -180,26 +181,14 @@ int main(int argc, char* argv[])
 	PlaneActor.m_transform->GetPos().z -= 42;
 	PlaneActor.m_transform->GetPos().x = 44;
 	PlaneActor.m_transform->GetPos().y -= 3;
-
 	Actors.push_back(PlaneActor);
-
-	Actor box("monkey", "standard", "UVgrid");
-	box.m_transform->GetPos().x = -6.0f;
-	box.m_transform->GetPos().y -= 0.5f;
-
-	Actor rcube("cube", "watermv", "wood");
-	rcube.m_transform->GetPos().y -= 3.5f;
-	rcube.m_transform->GetPos().z = -30.0f;
-	rcube.m_transform->GetPos().x = -43.0f;
-
-	Actors.push_back(rcube);
 
 	int water_size = 3 * 5;
 	int water_scale = 3;
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
-	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/water_02.jpg");
+	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/rock_grey.png");
 	//std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.2");
-	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.2");
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.3");
 	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
 
 	for (int x = -water_size; x <= water_size; x++)
@@ -218,7 +207,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	water_scale = 16;
-	water_size = 22;
+	water_size = 30;
 	for (int x = -water_size; x <= water_size; x++)
 	{
 		for (int z = -water_size; z <= water_size; z++)
@@ -235,25 +224,6 @@ int main(int argc, char* argv[])
 			Water_off.push_back(glm::vec2(x * 20. * water_scale, z * 20. * water_scale));
 		}
 	}
-
-
-	Actor room("torus", "standard" ,"wood");
-	room.m_transform->GetPos().z += 37;
-	room.m_transform->GetPos().y -= 2;
-	Actors.push_back(room);
-
-	Actor gun("torus", "toon");
-	gun.m_transform->GetPos().x = 230;
-
-	Actor torus("monkey", "toon");
-	torus.m_transform->GetPos().y = 0;
-	torus.m_transform->GetPos().x = 0;
-	torus.m_transform->GetScale() *= 0.5f;
-
-	Actors.push_back(gun);
-	Actors.push_back(torus);
-
-	Actors.push_back(box);
 
 	for (int i = 0; i < 0; i++)
 	{
@@ -300,6 +270,16 @@ int main(int argc, char* argv[])
 		Actors.push_back(tree1);
 	}
 
+	std::shared_ptr<Mesh> wind_mesh = std::make_shared<Mesh>("./res/MESHS/wind_01.obj");
+	std::shared_ptr<Texture> wind_tex = std::make_shared<Texture>("./res/TEXTURES/rain_grey.png");
+	std::shared_ptr<Shader> wind_sdr = std::make_shared<Shader>("./res/SHADERS/windShader");
+	std::shared_ptr<Material> wind_mat = std::make_shared<Material>(wind_sdr, wind_tex);
+	for (int i = 60; i >= 0; i--)
+	{
+		Actor wind(wind_mesh, wind_mat, wind_tex);
+		wind.m_transform->GetScale() *= 3.0f;
+		Winds.push_back(wind);
+	}
 
 
 	Camera camera(glm::vec3(0.1, -145, 70), 70.0f, display.GetAspect(),1.f, 12000.0f);
@@ -391,9 +371,9 @@ int main(int argc, char* argv[])
 		if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])
 			camera.MoveForward(-14.f);
 		if (state[SDL_SCANCODE_I])
-			camera.RotX(0.016f);
+			camera.RotX(0.16f * delta_time);
 		if (state[SDL_SCANCODE_K])
-			camera.RotX(-0.016f);
+			camera.RotX(-0.16f * delta_time);
 		if (state[SDL_SCANCODE_SPACE])
 			camera.MoveUp(-14.f);
 		if (state[SDL_SCANCODE_A])
@@ -432,6 +412,7 @@ int main(int argc, char* argv[])
 			{
 				end = std::to_string(pick);
 			}
+
 			Actor tree1("TREES/tree_" + end, "tree", "tree", ".png");
 			//Actor tree1("TREES/tree_" + end, "tree", "tree_pallet", ".png");
 			tree1.m_transform->GetPos().z = rand() % 1400 - 600;
@@ -445,14 +426,12 @@ int main(int argc, char* argv[])
 		display.Clear(0.5f,0.5f,0.5f,1.0f);
 
 		//camera.LookAt(PlaneActor.m_transform->GetPos());
-		glm::vec3 v = glm::vec3(camera.GetPos() - PlaneActor.m_transform->GetPos());
-		v = glm::normalize(v) * ((float)v.length()*0.5f);
-		room.m_transform->SetPos(v);
 
 		auto height_v = cam_tran.GetPos();
-		
-		//if (camera.m_position.y > -35.f)
-		//camera.m_position.y = -h(glm::vec2(height_v.x, height_v.z));
+
+		if (camera.m_position.y > -h(glm::vec2(height_v.x, height_v.z)))
+			camera.m_position.y = -h(glm::vec2(height_v.x, height_v.z));
+		//std::cout << "-h = " << -h(glm::vec2(height_v.x, height_v.z)) << "\n";
 		camera.Update(delta_time);
 
 		skyActor.m_transform->SetPos(camera.GetPos());
@@ -473,22 +452,22 @@ int main(int argc, char* argv[])
 		PlaneActor.m_transform->GetPos() -= camera.GetForward() * 50.0f;
 		PlaneActor.m_transform->GetPos().y -= 10.0f;
 
+		
+		
 		if (state[SDL_SCANCODE_RIGHT] || state[SDL_SCANCODE_L])
 		{
-			//if (dv < 1 && dv > -1)
-				dv += pow(0.1,2-abs(dv));
-			camera.RotY(0.016f);
+			dv += 0.03 * (2-abs(dv));
+			camera.RotY(0.16f * delta_time);
 		}
 		if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_J])
 		{
-			//if (dv < 1 && dv > -1)
-				dv -= pow(0.1,2-abs(dv));
-			camera.RotY(-0.016f);
+			dv -= 0.03 * (2-abs(dv));
+			camera.RotY(-0.16f * delta_time);
 		}
 		PlaneActor.m_transform->GetRot().z += dv;
 		PlaneActor.m_transform->QUpdate();
 
-		dv *= 0.9;
+		dv *= .94;
 #if 0
 		//TODO make hashtable for this kind of stuff
 		//translate
@@ -533,6 +512,8 @@ int main(int argc, char* argv[])
 			Water[i].m_transform->GetPos().x = -camera.GetPos().x + Water_off[i].x;
 		}
 
+		
+
 #if 0
 		for (unsigned int i = 0; i < Water.size(); i++)
 		{
@@ -552,10 +533,32 @@ int main(int argc, char* argv[])
 		}
 
 #endif
+
+		for (auto& w : Winds)
+		{
+			auto wind_look = glm::lookAtRH(w.m_transform->GetPos(), w.m_transform->GetPos() + camera.GetForward() *-30.f, glm::vec3(0, -1, 0));
+			w.m_transform->GetRot().x += -glm::pitch(glm::quat_cast(wind_look)) - w.m_transform->GetRot().x;
+			w.m_transform->GetRot().y += -glm::yaw(glm::quat_cast(wind_look)) - w.m_transform->GetRot().y;
+			w.m_transform->GetRot().z += glm::roll(glm::quat_cast(wind_look)) - w.m_transform->GetRot().z;
+			w.m_transform->QUpdate();
+
+			if (glm::length(-camera.GetPos() - w.m_transform->GetPos()) > 300.f)
+			{
+				auto wv = camera.GetForward() * -200.f * ((rand() % 1000) / 1000.f);
+				wv += 30.f * camera.GetRight() * ((rand() % 1000) - 500.f) / 1000.f;
+				wv += 30.f * camera.GetUp() * ((rand() % 1000) - 500.f) / 1000.f;
+				w.m_transform->SetPos(-camera.GetPos() + wv);
+			}
+			//glDepthMask(GL_FALSE);
+			w.Draw(camera, time_passed);
+			//glDepthMask(GL_TRUE);
+		}
+
 		display.Update();
 
 		counter += 0.01f;
 	}
-
+	char ssss;
+	//std::cin >> ssss;
 	return 0;
 }
