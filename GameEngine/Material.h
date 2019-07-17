@@ -54,6 +54,8 @@ public:
 			m_texture->Bind(0);
 		m_shader->Update(transform, camera, time_passed);
 	}
+	
+	std::shared_ptr<Texture> GetTex() {return m_texture;}
 
 #if 0
 	Material(const Material& other)

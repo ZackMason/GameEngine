@@ -14,22 +14,57 @@ uniform float Time;
 
 out vec4 color;
 
-float rand(vec2 n){
-	return fract(sin(dot(n,vec2(12.9898,4.1414)))*43758.5453);
+float hash( float n )
+{
+  return fract(cos(n)*41415.92653);
 }
 
-float noise(vec2 p){
-	vec2 ip=floor(p);
-	vec2 u=fract(p);
-	u=u*u*(3.-2.*u);
-	
-	float res=mix(
-		mix(rand(ip),rand(ip+vec2(1.,0.)),u.x),
-		mix(rand(ip+vec2(0.,1.)),rand(ip+vec2(1.,1.)),u.x),u.y);
-	return res*res;
+// 2d noise function
+float noise( in vec2 x )
+{
+  vec2 p  = floor(x);
+  vec2 f  = smoothstep(0.0, 1.0, fract(x));
+  float n = p.x + p.y*57.0;
+
+  return mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+    mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y);
 }
 
+float noise( in vec3 x )
+{
+  vec3 p  = floor(x);
+  vec3 f  = smoothstep(0.0, 1.0, fract(x));
+  float n = p.x + p.y*57.0 + 113.0*p.z;
 
+  return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+    mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+    mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+    mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+}
+
+mat3 m = mat3( 0.00,  1.60,  1.20, -1.60,  0.72, -0.96, -1.20, -0.96,  1.28 );
+
+// Fractional Brownian motion
+float fbmslow( vec3 p )
+{
+  float f = 0.5000*noise( p ); p = m*p*1.2;
+  f += 0.2500*noise( p ); p = m*p*1.3;
+  f += 0.1666*noise( p ); p = m*p*1.4;
+  f += 0.0834*noise( p ); p = m*p*1.84;
+  return f;
+}
+
+float fbm( vec3 p )
+{
+  float f = 0., a = 1., s=0.;
+  f += a*noise( p ); p = m*p*1.149; s += a; a *= .75;
+  f += a*noise( p ); p = m*p*1.41; s += a; a *= .75;
+  f += a*noise( p ); p = m*p*1.51; s += a; a *= .65;
+  f += a*noise( p ); p = m*p*1.21; s += a; a *= .35;
+  f += a*noise( p ); p = m*p*1.41; s += a; a *= .75;
+  f += a*noise( p ); 
+  return f/s;
+}
 
 void main()
 {
@@ -49,9 +84,7 @@ void main()
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 	
 	float n1 = noise(texCoord0*800.);
-	float n2 = noise(Position_worldspace.xy/500.);
-	float n3 = noise(Position_worldspace.zy/500.);
-	float n4 = noise(Position_worldspace.zx/300.);
+
 	float r1 = n1+n2+n3+n4;
 	if(min((n1*.5)+.5,1.)>0.97 && Position_worldspace.y > 2000)
 	{

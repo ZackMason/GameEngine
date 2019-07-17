@@ -283,5 +283,6 @@ void main()
     //color.b = gridf(Position_worldspace.z,0.1);
     //color.rgb *= vec3(abs(h(Position_worldspace.xz)));
     color.rgb =MaterialDiffuseColor;
+    color.rgb = color.rgb / vec3(1.) + color.rgb;
     color.a=1;
 }

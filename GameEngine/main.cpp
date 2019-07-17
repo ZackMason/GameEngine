@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 	std::vector<Actor> Water;
 	std::vector<glm::vec2> Water_off;
 
-	Actor skyActor("skydome", "skydome", "skydome");
+	Actor skyActor("skydome2", "skydome", "skydome");
 	//skyActor.m_transform->GetPos().y += 80.0f;
 	skyActor.m_transform->GetScale() *= 80;
 
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 	{
 		for (int z = -water_size; z <= water_size; z++)
 		{
-			Actor world(mesh, water_mat, water_tex);
+			Actor world(mesh, water_mat);
 			world.m_transform->GetPos().y -= 3.0f;
 			world.m_transform->GetPos().z = z * 20.;
 			world.m_transform->GetPos().x = x * 20.;
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
 		for (int z = -water_size; z <= water_size; z++)
 		{
 			if (abs(z*20*water_scale) < 3 * 20 * 15 && abs(x*20*water_scale) < 3 * 20 * 15) continue;
-			Actor world(mesh, water_mat, water_tex);
+			Actor world(mesh, water_mat);
 			world.m_transform->GetPos().y -= 3.0f;
 			world.m_transform->GetPos().z = z * 20.;
 			world.m_transform->GetPos().x = x * 20.;
@@ -276,7 +276,7 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Material> wind_mat = std::make_shared<Material>(wind_sdr, wind_tex);
 	for (int i = 40; i >= 0; i--)
 	{
-		Actor wind(wind_mesh, wind_mat, wind_tex);
+		Actor wind(wind_mesh, wind_mat);
 		wind.m_transform->GetScale() *= 3.0f;
 		Winds.push_back(wind);
 	}

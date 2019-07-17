@@ -283,9 +283,9 @@ void main()
     vec3 finalColor = mix(vec3(0.8), MaterialDiffuseColor, fogFactor);
     float ex = .91;
     color.rgb = finalColor;
-    //color.rgb = color.xyz / (color.xyz + vec3(1.0));
+    color.rgb = color.xyz / (color.xyz + vec3(1.0));
     //color.rgb = pow(color.xyz, vec3(1.0/2.2));
-	color.rgb=ex-exp(-ex*color.rgb);
+	//color.rgb=ex-exp(-ex*color.rgb);
     //color.rgb*=vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
     //color.rgb = vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
     //color.r = gridf(Position_worldspace.x,0.1);

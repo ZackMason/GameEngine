@@ -42,17 +42,8 @@ public:
 
 private:
 
-#if 0
-	Mesh(const Mesh& other)
-	{
-		std::cout << "copy" << std::endl;
+	Mesh(const Mesh& other) : Mesh(other.m_filename) {}
 
-		m_drawCount = other.m_drawCount;
-		m_vertexArrayObject = other.m_vertexArrayObject;
-		//m_vertexArrayBuffers[NUM_BUFFERS];
-
-		glCopyBufferSubData(*other.m_vertexArrayBuffers, *m_vertexArrayBuffers, 0, 0, sizeof(other.m_vertexArrayBuffers) * NUM_BUFFERS);
-	}
 
 	Mesh& operator=(const Mesh& other)
 	{
@@ -69,7 +60,6 @@ private:
 
 		return *this;
 	}
-#endif
 
 	void InitMesh(const IndexedModel& model);
 
@@ -82,6 +72,7 @@ private:
 		NUM_BUFFERS
 	};
 
+	std::string	 m_filename;
 	GLuint       m_vertexArrayObject;
 	GLuint       m_vertexArrayBuffers[NUM_BUFFERS];
 	unsigned int m_drawCount;

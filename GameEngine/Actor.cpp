@@ -42,7 +42,7 @@ Actor::Actor(std::shared_ptr<Mesh> mesh, std::string fn, std::shared_ptr<Texture
 	m_transform = std::make_shared<Transform>();
 }
 
-Actor::Actor(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> mat, std::shared_ptr<Texture> tex)
+Actor::Actor(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> mat)
 {
 	m_mesh = mesh;
 	m_material = mat;
