@@ -15,7 +15,6 @@ uniform float Time;
 
 out vec4 color;
 
-
 float rand(vec2 n){
     return fract(sin(dot(n,vec2(12.9898,4.1414)))*43758.5453);
 }
@@ -119,53 +118,50 @@ void main()
     vec3 MaterialDiffuseColor;
     vec3 MaterialSpecularColor=vec3(.3,.3,.3);
     
-    vec3 c1 = vec3(0.0353, 0.8784, 0.0353);
-    vec3 c2 = vec3(0.4745, 0.302, 0.2235);
+    vec3 c1 = vec3(0.0549, 0.5529, 0.0549);
+    vec3 c2 = vec3(0.2431, 0.2667, 0.0196);
     vec3 c3 = vec3(0.5569, 0.8667, 0.349);
     vec3 c4 = vec3(0.149, 0.2431, 0.99686);
     // Distance to the light
-
     vec2 p0 = Position_worldspace.xz;
     vec2 p1 = Position_worldspace.xz;
-    vec2 p3 = p0;
-    p0.x -= .3;
-    p3.y -= .3;
-    p1.y += .3;
+    p1.y += 1.;
+    
     vec2 p2 = Position_worldspace.xz;
-    p2.x += .3;
-    float y_scale = 300;    
+    p2.x += 1.;
+    float y_scale = 400;    
     vec3 pp0;
     pp0.x = p0.x;
     pp0.z = p0.y;
-    pp0.y = h(p0)*y_scale*2.+580;
+    pp0.y = abs(h(p0))*y_scale;//*2.+580;
+    pp0.y -= 200;
     vec3 pp1;
     pp1.x = p1.x;
     pp1.z = p1.y;
-    pp1.y = h(p1)*y_scale*2.+580;
+    //pp1.y = h(p1)*y_scale*2.+580;
+    pp1.y = abs(h(p1))*y_scale;//*2.+580;
+    pp1.y-=200;
     vec3 pp2;
-    vec3 pp3;
     pp2.x = p2.x;
     pp2.z = p2.y;
-    pp2.y = h(p2)*y_scale*2.+580;
-    pp3.x = p3.x;
-    pp3.z = p3.y;
-    pp3.y = h(p3)*y_scale*2.+580;
+    pp2.y = abs(h(p2))*y_scale;//*2.+580;
+    pp2.y-=200;
+    
+    //pp2.y = h(p2)*y_scale*2.+580;
     if (pp0.y < 35)
         pp0.y = 35;
     if (pp1.y < 35)
         pp1.y = 35;
     if (pp2.y < 35)
         pp2.y = 35;
-    if (pp3.y < 35)
-        pp3.y = 35;
-    vec3 a = pp0 - pp2;
-    vec3 b = pp1 - pp3;
+    vec3 a = pp0 - pp1;
+    vec3 b = pp0 - pp2;
     vec3 n = cross(a,b);
     n=normalize(n);
 
     if    (position0.y <20)
     {
-        MaterialDiffuseColor=c4*(.73);
+        MaterialDiffuseColor=c4*(.73+(noise(Position_worldspace.xz*0.1)*0.1));
     }
     else if(position0.y<30)
     {
@@ -183,26 +179,21 @@ void main()
     {
         MaterialDiffuseColor=c3;
     }
-    else if(position0.y+(noise(Position_worldspace.xz) * 68)+noise(-Position_worldspace.xz/100)*163 <340)
+    else if(position0.y+(noise(Position_worldspace.xz)*25)+noise(Position_worldspace.xz/100)*63<170)
+    //else if(position0.y+(noise(Position_worldspace.xz) * 68)+noise(-Position_worldspace.xz/100)*163 <340)
     {
-        //c2 =mix(c1,c2,(noise(Position_worldspace.xz)*.4));
-        //c1= c1*.13  +(noise(Position_worldspace.xz/100)*.1);
-        float l = dot(n,vec3(0,1,0));
-        //l = 1 - l*l;
-        #if 0
-        vec3 proj;
-        vec3 ba = abs(n);
-        ba /= ba.x + ba.y + ba.z;
-        proj.y =texture(diffuse,Position_worldspace.xz/30.).r * ba.y;
-        proj.x =texture(diffuse,Position_worldspace.yz/30.).r * ba.x;
-        proj.z =texture(diffuse,Position_worldspace.xy/30.).r * ba.z;
-
-        #endif
-
-        //c1 = (proj.x + proj.y + proj.z)/3. * c1;
-        MaterialDiffuseColor = mix(c2*.3,c1,l*l*l*l*l*l);
+        //c1 =mix(c1,c2,(noise(Position_worldspace.xz)*.4));
+        MaterialDiffuseColor = c1;
+        //c2=c1*.3  +(noise(Position_worldspace.xz)*.1);
+        //MaterialDiffuseColor = mix(c2,c1,dot(n,vec3(0,1,0))*dot(n,vec3(0,1,0))*dot(n,vec3(0,1,0))*dot(n,vec3(0,1,0)));
+        //MaterialDiffuseColor = texture(diffuse, Position_worldspace.xz/10.).rgb * c1;
     //}
     //{
+    }
+    else if (position0.y < 340)
+    {
+        MaterialDiffuseColor = c2;
+
     }
     else
     {
@@ -210,16 +201,14 @@ void main()
 
         //if (dot(n,vec3(0,1,0)) < 0.6)
           //  MaterialDiffuseColor=c1*.3  +(noise(Position_worldspace.xz)*.1);
-        //float l=dot(n,vec3(0,1,0));
         //else
-        //c1= c1*.13  +(noise(Position_worldspace.xz)*.1);
-
-        //MaterialDiffuseColor=mix(c1,vec3(0.8),l*l*l*l);
-
-        MaterialDiffuseColor = vec3(0.8);   
+        MaterialDiffuseColor = vec3(0.8);// * dot(n,vec3(0,1,0));
+        //MaterialDiffuseColor = n;   
     }
 
-     
+#if 0
+        
+    
     //MaterialDiffuseColor = vec3(dot(n,vec3(0,1,1)));
 
 
@@ -245,6 +234,7 @@ void main()
     float cosAlpha=clamp(dot(E,R),0,1);
     MaterialDiffuseColor += MaterialDiffuseColor *0.1;
     MaterialDiffuseColor=(MaterialDiffuseColor*.31) + (MaterialDiffuseColor*LightColor*LightPower*cosTheta/(distance*distance));
+#endif
 
     #if 0
     float distance=length(LightPosition-Position_worldspace);
@@ -280,16 +270,18 @@ void main()
     // Specular : reflective highlight, like a mirror
     MaterialSpecularColor*LightColor*LightPower*pow(cosAlpha,5)/(distance*distance);
     #endif
-    vec3 finalColor = mix(vec3(0.8), MaterialDiffuseColor, fogFactor);
-    float ex = .91;
-    color.rgb = finalColor;
+    //vec3 finalColor = mix(vec3(0.8), MaterialDiffuseColor, fogFactor);
+    float ex = 1.2;
+   // color.rgb = finalColor;
     //color.rgb = color.xyz / (color.xyz + vec3(1.0));
     //color.rgb = pow(color.xyz, vec3(1.0/2.2));
-	color.rgb=ex-exp(-ex*color.rgb);
+	//color.rgb=ex-exp(-ex*color.rgb);
     //color.rgb*=vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
-    //color.rgb = vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
+    //color.rgb = vec3(grid(Position_worldspace,.1));
     //color.r = gridf(Position_worldspace.x,0.1);
     //color.g = gridf(position0.y-35, 0.1);
     //color.b = gridf(Position_worldspace.z,0.1);
+    //color.rgb *= vec3(abs(h(Position_worldspace.xz)));
+    color.rgb =MaterialDiffuseColor;
     color.a=1;
 }

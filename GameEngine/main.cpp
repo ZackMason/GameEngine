@@ -274,7 +274,7 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Texture> wind_tex = std::make_shared<Texture>("./res/TEXTURES/rain_grey.png");
 	std::shared_ptr<Shader> wind_sdr = std::make_shared<Shader>("./res/SHADERS/windShader");
 	std::shared_ptr<Material> wind_mat = std::make_shared<Material>(wind_sdr, wind_tex);
-	for (int i = 60; i >= 0; i--)
+	for (int i = 40; i >= 0; i--)
 	{
 		Actor wind(wind_mesh, wind_mat, wind_tex);
 		wind.m_transform->GetScale() *= 3.0f;
@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
 			SDL_SetRelativeMouseMode(SDL_FALSE);
 		
 		if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W])
-			camera.MoveForward(19.f);
+			camera.MoveForward(29.f);
 		if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])
 			camera.MoveForward(-14.f);
 		if (state[SDL_SCANCODE_I])
@@ -441,6 +441,7 @@ int main(int argc, char* argv[])
 
 		PlaneActor.m_transform->SetPos(camera.GetPos());
 		PlaneActor.m_transform->GetPos() *= -1;
+
 		auto lll = glm::lookAtRH(PlaneActor.m_transform->GetPos(), PlaneActor.m_transform->GetPos() - camera.GetForward() *5.f, camera.m_up);
 		//PlaneActor.m_transform->GetRot().x = camera.GetRot().x;
 		//PlaneActor.m_transform->GetRot().y = -camera.GetRot().y;
