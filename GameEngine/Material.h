@@ -57,12 +57,12 @@ public:
 	
 	std::shared_ptr<Texture> GetTex() {return m_texture;}
 
-#if 0
 	Material(const Material& other)
 	{
 		m_shader = other.m_shader;
 		m_texture = other.m_texture;
 	}
+#if 0
 	Material& operator=(const Material& other)
 	{
 		if (this == &other)

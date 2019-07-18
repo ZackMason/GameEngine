@@ -15,6 +15,11 @@ public:
 
 	virtual ~Shader();
 
+	void SetInt(const std::string &name, int val) const
+	{
+		glUniform1i(glGetUniformLocation(m_program, name.c_str()), val);
+	}
+
 private:
 	static const unsigned int NUM_SHADERS = 2;
 	Shader(const Shader& other)
@@ -62,6 +67,7 @@ private:
 		MODEL_U ,
 		LIGHT_U ,
 		TIME_U  ,
+		DIFFUSE_U,
 
 		NUM_UNIFORMS
 	};

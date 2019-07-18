@@ -40,6 +40,8 @@ public:
 
 	virtual ~Mesh();
 
+	GLuint GetVAO() { return m_vertexArrayObject; }
+
 private:
 
 	Mesh(const Mesh& other) : Mesh(other.m_filename) {}

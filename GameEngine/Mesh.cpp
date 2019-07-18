@@ -21,7 +21,7 @@ Mesh::Mesh(Vertex* vertices, unsigned int numVertices)
 		texCoords.push_back(*vertices[i].GetTexCoord());
 	}
 
-	glGenBuffers(NUM_BUFFERS    , m_vertexArrayBuffers);
+	glGenBuffers(2    , m_vertexArrayBuffers);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[POSITION_VB]);
 
 	// put data on gpu

@@ -15,7 +15,6 @@ public:
 
 	virtual ~Texture();
 
-private:
 	Texture(const Texture& other)
 	{
 		m_texture = other.m_texture;
@@ -30,9 +29,9 @@ private:
 			this->m_loaded = other.m_loaded;
 		}
 	}
+protected:
 
 	GLuint m_texture;
-
 	bool m_loaded;
 };
 

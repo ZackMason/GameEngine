@@ -29,6 +29,7 @@ Shader::Shader(const std::string& fileName)
 	m_uniforms[MODEL_U] = glGetUniformLocation(m_program, "ModelMatrix");
 	m_uniforms[LIGHT_U] = glGetUniformLocation(m_program, "LightPosition");
 	m_uniforms[TIME_U]  = glGetUniformLocation(m_program, "Time");
+	m_uniforms[DIFFUSE_U] = glGetUniformLocation(m_program, "diffuse");
 }
 
 Shader::~Shader()

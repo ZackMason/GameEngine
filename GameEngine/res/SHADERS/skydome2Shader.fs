@@ -68,28 +68,40 @@ float fbm( vec3 p )
 
 void main()
 {
-	vec3 LightColor = vec3(1,0.1,0.1);
-	vec3 col2 = vec3 (0.,.0,1.);
-	LightColor = mix(LightColor,col2, abs(sin(Time)));
-	LightColor = vec3(1);
+	vec3 LightColor = vec3(1);
 	float LightPower = 50.0f;
-	
 	// Material properties
 	//vec3 MaterialDiffuseColor = texture( diffuse, texCoord0 ).rgb;
 	vec3 hor = vec3(1.5);
 
-	vec3 MaterialDiffuseColor =mix(hor, vec3(0.1451, 0.549, 0.9255), min(Position_worldspace.y/600.,1.0)); 
+	vec2 moon = vec2 (.50,.7);
+	moon = texCoord0 - moon;
+	
+
+	vec3 c1 = pow(fbmslow(-position0/500.),3.) * vec3(0.8588, 0.4941, 0.0784);
+	vec3 c2 = pow(fbmslow((Position_worldspace+ vec3(555))/500.),5.)* vec3(0.8392, 0.9922, 0.1647);
+	c1 = mix(c2,c1,fbm((position0+ vec3(555))/500.));
+	c1 = smoothstep(0.,.6,c1);
+	vec3 sky = pow(fbmslow(position0/500.),2) * vec3(0.1451, 0.549, 0.9255);
+
+	sky = mix(sky,c1,.7-pow(fbmslow(position0/500.),2));
+
+	vec3 MaterialDiffuseColor = mix(hor, sky, min(Position_worldspace.y/600.,1.0)); 
 	MaterialDiffuseColor = mix(MaterialDiffuseColor,MaterialDiffuseColor*.4,min(Position_worldspace.y/4500.,1.0));
 	vec3 MaterialAmbientColor = vec3(0.21,0.21,0.21) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 	
-	float n1 = noise(texCoord0*800.);
+	float n1 = noise(texCoord0*200.);
 
-	float r1 = n1+n2+n3+n4;
-	if(min((n1*.5)+.5,1.)>0.97 && Position_worldspace.y > 2000)
+
+	if(min((n1*.5)+.5,1.)>0.99 && Position_worldspace.y > 2000)
 	{
 		MaterialDiffuseColor = vec3(1);
 	}
+
+	if (length(moon) < .1)
+		MaterialDiffuseColor = vec3(1);
+
 
 	// Distance to the light
 	#if 0
@@ -125,5 +137,5 @@ void main()
 	#endif
 	color.a = 1;
 	color.rgb = MaterialDiffuseColor + MaterialAmbientColor;
-	color.rgb=1.-exp(-1.*color.rgb);
+	//color.rgb=1.-exp(-1.*color.rgb);
 }

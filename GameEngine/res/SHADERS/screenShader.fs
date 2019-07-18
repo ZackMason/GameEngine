@@ -9,4 +9,5 @@ out vec4 color;
 void main ()
 {
 	color = texture(diffuse, uv);
+	//color.rg = uv;
 }
