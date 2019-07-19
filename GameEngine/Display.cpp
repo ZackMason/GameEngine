@@ -42,7 +42,6 @@ Display::Display(const std::string& title, int width, int height)
 	glCullFace  (GL_BACK);
 	glDepthFunc (GL_LESS);
 	glEnable	(GL_MULTISAMPLE);
-
 	std::cout << "Window Constructed" << std::endl;
 }
 

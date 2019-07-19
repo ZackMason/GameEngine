@@ -20,6 +20,12 @@ public:
 		glUniform1i(glGetUniformLocation(m_program, name.c_str()), val);
 	}
 
+	int setFloat(const std::string &name, float value) const
+	{
+		glUniform1f(glGetUniformLocation(m_program, name.c_str()), value);
+		return glGetUniformLocation(m_program, name.c_str());
+	}
+
 private:
 	static const unsigned int NUM_SHADERS = 2;
 	Shader(const Shader& other)

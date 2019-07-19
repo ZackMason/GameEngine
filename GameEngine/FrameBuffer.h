@@ -11,12 +11,14 @@ public:
 	FrameBuffer();
 	~FrameBuffer();
 
-	void OnInit();
-
 	void Bind();
 	void Unbind();
 
-	TextureAttachment GetColor() { return m_tex_color_buffer; }
+	GLint GetTexUnit() { return GL_TEXTURE0 + 1; }
+	GLuint GetBuffer() { return m_framebuffer; }
+	GLuint GetColor() { return m_tex_color_buffer; }
+
+	operator unsigned int() { return m_framebuffer; }
 
 private:
 	bool m_bound;

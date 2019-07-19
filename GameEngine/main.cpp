@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
 	std::vector<Actor> Water;
 	std::vector<glm::vec2> Water_off;
 
-	Actor skyActor("skydome2", "skydome2", "skydome");
+	Actor skyActor("skydome2", "skydome", "skydome");
 	//skyActor.m_transform->GetPos().y += 80.0f;
 	skyActor.m_transform->GetScale() *= 80;
 
@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
 			Water_off.push_back(glm::vec2(x*20*water_scale,z*20*water_scale));
 		}
 	}
-	water_scale = 16;
+	water_scale = 56;
 	water_size = 30;
 	for (int x = -water_size; x <= water_size; x++)
 	{
@@ -305,11 +305,11 @@ int main(int argc, char* argv[])
 
 	FrameBuffer mfbo;
 
-	mfbo.Bind();
-	mfbo.Unbind();
+	Shader screen_shader("./res/SHADERS/outlineShader");
+	//screen_shader.SetInt("diffuse", 0);
+	//if (screen_shader.setFloat("Time", time_passed) == -1)
+		//std::cout << "FAIL\n";
 
-	Shader screen_shader("./res/SHADERS/screenShader");
-	screen_shader.SetInt("diffuse", 0);
 	Mesh screen(vertices0, 6);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -510,12 +510,11 @@ int main(int argc, char* argv[])
 		//rcube.m_transform->GetPos().y += f(v.x,1)*0.023;
 		//Drawing begins here, needs abstraction
 
-
 #if 1
 		mfbo.Bind();
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
+		glClearColor(0.1f, 1.f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
 
 
@@ -580,14 +579,19 @@ int main(int argc, char* argv[])
 			//glDepthMask(GL_TRUE);
 		}
 
+
 #if 1
 		mfbo.Unbind();
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
 		screen_shader.Bind();
+		//screen_shader.SetInt("diffuse", 0);
+		screen_shader.setFloat("Time", time_passed);
+
 		glBindVertexArray(screen.GetVAO());
+		glActiveTexture(0);
 		glBindTexture(GL_TEXTURE_2D, mfbo.GetColor());
+		glGenerateMipmap(GL_TEXTURE_2D);
 		glDisable(GL_DEPTH_TEST);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 #endif

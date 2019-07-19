@@ -9,6 +9,7 @@ public:
 	~TextureAttachment();
 
 	operator unsigned int() { return m_texture; }
+
 	TextureAttachment& operator=(const TextureAttachment& other)
 	{
 		if (this != &other)
