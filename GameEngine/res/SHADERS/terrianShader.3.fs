@@ -109,9 +109,9 @@ float gridf(float st,float res)
 
 void main()
 {
-    vec3 LightColor=vec3(1);
+    vec3 LightColor=vec3(0.9529, 0.9333, 0.6353);
 
-    float LightPower=23.f;
+    float LightPower=19.f;
     
     // Material properties
     vec3 MaterialDiffuseColor;
@@ -234,7 +234,7 @@ void main()
     //MaterialDiffuseColor *= finalColor;
     //MaterialDiffuseColor =  mix(c2,c1,(position0.y+120)/50.);
     //  MaterialDiffuseColor += vec3(0,1,0) * noise(Position_worldspace.xz) *0.1;
-    float distance = 3.;
+    float distance = 3.5;
     vec3 l = vec3(1,1,0);
     l = normalize(l);
     float cosTheta=clamp(dot(n,l),0,1);
@@ -279,12 +279,13 @@ void main()
     MaterialSpecularColor*LightColor*LightPower*pow(cosAlpha,5)/(distance*distance);
     #endif
     vec3 finalColor = mix(vec3(0.8), MaterialDiffuseColor, fogFactor);
-    float ex = 1.2;
     color.rgb = finalColor;
-    color.rgb = color.xyz / (color.xyz + vec3(1.0));
+    //float gamma = 2.2;
+    //color.rgb = pow(color.rgb, vec3(1.0/gamma));
+    //color.rgb = color.xyz / (color.xyz + vec3(1.0));
     
     //color.rgb = pow(color.xyz, vec3(1.0/2.2));
-	color.rgb=ex-exp(-ex*color.rgb);
+	//color.rgb=ex-exp(-ex*color.rgb);
     //color.rgb*=vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
     //color.rgb = vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
     //color.r = gridf(Position_worldspace.x,0.1);
