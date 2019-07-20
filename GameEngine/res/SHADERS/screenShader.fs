@@ -1,6 +1,7 @@
 #version 460
 
-uniform sampler2D diffuse;
+layout (location = 0) uniform sampler2D diffuse;
+layout (location = 1) uniform sampler2D depth;
 uniform float Time;
 
 in vec2 uv;
@@ -29,6 +30,7 @@ void main ()
 
 	float bright = dot(color.rgb,vec3(0.2627,0.678,.0593));
 	color.rgb *= bright;
+	float d = texture(depth,uv).r;
 	#endif
 	color.a = 1;
 	//color.rg = uv;

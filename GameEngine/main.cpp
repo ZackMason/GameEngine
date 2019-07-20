@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
 			Water_off.push_back(glm::vec2(x*20*water_scale,z*20*water_scale));
 		}
 	}
-	water_scale = 56;
+	water_scale = 16;
 	water_size = 30;
 	for (int x = -water_size; x <= water_size; x++)
 	{
@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
 	Transform cam_tran;
 	float dv = 0.0f;
 
-	FrameBuffer mfbo;
+	FrameBuffer mfbo(true);
 
 	Shader screen_shader("./res/SHADERS/outlineShader");
 	//screen_shader.SetInt("diffuse", 0);
@@ -513,14 +513,15 @@ int main(int argc, char* argv[])
 #if 1
 		mfbo.Bind();
 		glEnable(GL_DEPTH_TEST);
-		glClearColor(0.1f, 1.f, 0.1f, 1.0f);
+		glClearColor(0.1f, .1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
 
 
-		glDepthMask(GL_FALSE);
+		//glDepthMask(GL_FALSE);
 		skyActor.Draw(camera, time_passed);
-		glDepthMask(GL_TRUE);
+		//glDepthMask(GL_TRUE);
+		glClear(GL_DEPTH_BUFFER_BIT);
 
 		for (auto& a : Actors)
 		{
@@ -585,13 +586,17 @@ int main(int argc, char* argv[])
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		screen_shader.Bind();
-		//screen_shader.SetInt("diffuse", 0);
 		screen_shader.setFloat("Time", time_passed);
 
 		glBindVertexArray(screen.GetVAO());
 		glActiveTexture(0);
 		glBindTexture(GL_TEXTURE_2D, mfbo.GetColor());
 		glGenerateMipmap(GL_TEXTURE_2D);
+		mfbo.Bind_DTA(1);
+		//glActiveTexture(1);
+		//glBindTexture(GL_TEXTURE_2D, mfbo.GetDepth());
+		screen_shader.SetInt("diffuse", 0);
+		screen_shader.SetInt("depth", 1);
 		glDisable(GL_DEPTH_TEST);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 #endif

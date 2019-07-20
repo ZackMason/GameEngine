@@ -5,10 +5,8 @@ class TextureAttachment :
 {
 public:
 	TextureAttachment();
-	TextureAttachment(GLuint fbo);
 	~TextureAttachment();
 
-	operator unsigned int() { return m_texture; }
 
 	TextureAttachment& operator=(const TextureAttachment& other)
 	{
@@ -18,7 +16,6 @@ public:
 			this->m_loaded = other.m_loaded;
 		}
 	}
-
 
 };
 

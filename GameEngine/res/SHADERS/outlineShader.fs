@@ -1,6 +1,7 @@
 #version 460
 
-uniform sampler2D diffuse;
+layout (location = 0) uniform sampler2D diffuse;
+layout (location = 1) uniform sampler2D depth;
 
 in vec2 uv;
 
@@ -23,13 +24,13 @@ void main()
         vec2(offset,-offset)// bottom-right
     );
     
+    #if 1
     float kernel[9]=float[](
-        1,1,1,
-        1,-8,1,
-        1,1,1
+        1, 1, 1,
+        1,-8, 1,
+        1, 1, 1
     );
-    #if 0
-    
+    #else
     float kernel[9]=float[](
         1./16,2./16,1./16,
         2./16,4./16,2./16,
@@ -46,8 +47,10 @@ void main()
     for(int i=0;i<9;i++)
     col+=sampleTex[i]*kernel[i];
     
-    color=vec4(col,1.);
+	float d = texture(depth,uv).r;
+    color.rgb = mix(col.rgb,texture(diffuse,uv).rgb, smoothstep(0.6,.9,(1-d))).rgb;
     //color.rgb=mix(texture(diffuse,uv).rgb,color.rgb,color.rgb);
+    //color.rgb = vec3(d);
     color.a=1;
     //color.rg = uv;
 }

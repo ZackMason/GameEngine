@@ -14,6 +14,10 @@ Shader::Shader(const std::string& fileName)
 		glAttachShader(m_program, m_shaders[i]);
 	}
 
+	glBindFragDataLocation(m_program, 0, "color");
+	glBindFragDataLocation(m_program, 1, "dcolor");
+
+
 	glBindAttribLocation(m_program, 0, "position");
 	glBindAttribLocation(m_program, 1, "texCoord");
 	glBindAttribLocation(m_program, 2, "normal");

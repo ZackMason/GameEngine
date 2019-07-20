@@ -12,7 +12,8 @@ in vec3 Position_worldspace;
 uniform vec3 LightPosition;
 uniform float Time;
 
-out vec4 color;
+layout (location = 0) out vec4 color;
+layout (location = 1) out vec4 dcolor;
 
 float hash( float n )
 {
@@ -137,5 +138,6 @@ void main()
 	#endif
 	color.a = 1;
 	color.rgb = MaterialDiffuseColor + MaterialAmbientColor;
+	dcolor = vec4(1);
 	//color.rgb=1.-exp(-1.*color.rgb);
 }

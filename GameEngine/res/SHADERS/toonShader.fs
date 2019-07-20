@@ -12,7 +12,17 @@ in vec3 Position_worldspace;
 uniform vec3 LightPosition;
 uniform float Time;
 
-out vec4 color;
+layout (location = 0) out vec4 color;
+layout (location = 1) out vec4 dcolor;
+
+float near = 0.1; 
+float far  = 50.0; 
+  
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
 
 void main()
 {
@@ -70,6 +80,11 @@ void main()
 		color = vec4(0.2,0.1,0.1,1.0);
 	
 	color.a = 1;
+	color.rgb = vec3(0);
+
+	float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
+    dcolor = vec4(1.0);
+    //dcolor = vec4(vec3(depth), 1.0);
 	//color.rgb = 
 	//	// Ambient : simulates indirect lighting
 	//	MaterialAmbientColor +

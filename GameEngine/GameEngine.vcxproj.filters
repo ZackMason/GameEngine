@@ -40,6 +40,15 @@
     <ClCompile Include="Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextureAttachment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthAttachment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h" />
@@ -55,5 +64,8 @@
     <ClInclude Include="macros.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextureAttachment.h" />
+    <ClInclude Include="DepthAttachment.h" />
+    <ClInclude Include="FrameBuffer.h" />
   </ItemGroup>
 </Project>

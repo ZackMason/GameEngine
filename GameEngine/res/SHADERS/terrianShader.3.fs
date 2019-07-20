@@ -13,7 +13,8 @@ in vec4 viewspace;
 uniform vec3 LightPosition;
 uniform float Time;
 
-out vec4 color;
+layout (location = 0) out vec4 color;
+layout (location = 1) out vec4 dcolor;
 
 
 float rand(vec2 n){
@@ -107,11 +108,20 @@ float gridf(float st,float res)
     return(step(res,grid));
 }
 
+float near = .1; 
+float far  = 150.0; 
+  
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
+
 void main()
 {
     vec3 LightColor=vec3(0.9529, 0.9333, 0.6353);
 
-    float LightPower=19.f;
+    float LightPower=14.f;
     
     // Material properties
     vec3 MaterialDiffuseColor;
@@ -199,6 +209,7 @@ void main()
 
         //c1 = (proj.x + proj.y + proj.z)/3. * c1;
         MaterialDiffuseColor = mix(c2*.3,c1,l*l*l*l*l*l);
+        //MaterialDiffuseColor = c1;
     //}
     //{
     }
@@ -292,4 +303,6 @@ void main()
     //color.g = gridf(position0.y-35, 0.1);
     //color.b = gridf(Position_worldspace.z,0.1);
     color.a=1;
-}
+    float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
+    dcolor = vec4(vec3(depth), 1.0);
+ }

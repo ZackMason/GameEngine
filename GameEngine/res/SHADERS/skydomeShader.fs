@@ -12,7 +12,8 @@ in vec3 Position_worldspace;
 uniform vec3 LightPosition;
 uniform float Time;
 
-out vec4 color;
+layout (location = 0) out vec4 color;
+layout (location = 1) out vec4 dcolor;
 
 float rand(vec2 n){
 	return fract(sin(dot(n,vec2(12.9898,4.1414)))*43758.5453);
@@ -29,6 +30,11 @@ float noise(vec2 p){
 	return res*res;
 }
 
+float grid(vec3 st,float res)
+{
+    vec3 grid=fract(st*res);
+    return(step(res,grid.x)*step(res,grid.y)*step(res,grid.z));
+}
 
 
 void main()
@@ -57,7 +63,7 @@ void main()
 	{
 		MaterialDiffuseColor = vec3(1);
 	}
-
+	MaterialDiffuseColor *= vec3(1.)-vec3(grid(abs(Position_worldspace/6.),0.01));
 	// Distance to the light
 	#if 0
 	float distance = length( LightPosition - Position_worldspace );
@@ -93,4 +99,6 @@ void main()
 	color.a = 1;
 	color.rgb = MaterialDiffuseColor + MaterialAmbientColor;
 	color.rgb=1.-exp(-1.*color.rgb);
+	dcolor = vec4(1);
+
 }
