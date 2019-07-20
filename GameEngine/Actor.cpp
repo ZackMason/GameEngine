@@ -14,7 +14,7 @@ Actor::Actor(std::string fn1, std::string fn2)
 	m_transform = std::make_shared<Transform>();
 }
 
-Actor::Actor(std::string fn1, std::string fn2, std::string fn3)
+Actor::Actor(const std::string& fn1, const std::string& fn2, const std::string& fn3)
 {
 	m_mesh      = std::make_shared<Mesh>("./res/MESHS/" + fn1 + ".obj");
 	m_material  = std::make_shared<Material>(fn2,fn3);

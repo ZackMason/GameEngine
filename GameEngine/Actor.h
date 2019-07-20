@@ -12,7 +12,7 @@ public:
 	Actor();
 	Actor(std::string filename);
 	Actor(std::string fn1, std::string fn2);
-	Actor(std::string fn1, std::string fn2, std::string fn3);
+	Actor(const std::string& fn1, const std::string& fn2, const std::string& fn3);
 	Actor(std::string fn1, std::string fn2, std::string fn3, std::string fn4);
 	Actor(std::string fn1, std::string fn2, std::shared_ptr<Texture> tex);
 	Actor(std::shared_ptr<Mesh> mesh, std::string fn2, std::shared_ptr<Texture> tex);

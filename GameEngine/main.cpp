@@ -36,22 +36,13 @@
 #include "Material.h"
 #include "macros.h"
 #include "FrameBuffer.h"
+#include "Clock.h"
+#include "Application.h"
 
 //scene -> models --> shaders --> draw
 //				  \_> texture _/
 
-double UpdateTime()
-{
-	time_t timer;
-	struct tm y2k = { 0 };
 
-	y2k.tm_hour = 0;   y2k.tm_min = 0; y2k.tm_sec = 0;
-	y2k.tm_year = 100; y2k.tm_mon = 0; y2k.tm_mday = 1;
-
-	time(&timer);  /* get current time; same as: timer = time(NULL)  */
-
-	return difftime(timer, mktime(&y2k));
-}
 
 float rand(glm::vec2 c) {
 	return glm::fract(sinf(glm::dot(c, glm::vec2(12.9898, 78.233)))*43758.5453);
@@ -126,12 +117,10 @@ float h(glm::vec2 v)
 int main(int argc, char* argv[])
 {
 	srand(time(NULL));
-
+#if 0
 	int mousex;
 	int mousey;
 
-	double time_passed = 0;
-	double delta_time = 0;
 	
 	bool display_fps = true;
 
@@ -140,11 +129,6 @@ int main(int argc, char* argv[])
 	int thisx = 400;
 	int thisy = 400;
 
-	double last_time  = 0.0;
-	double start_time = UpdateTime();
-
-	double fps = 0.0;
-	int frames = 0;
 	//SDL_KeyboardEvent s_event;
 
 	//used line ~123
@@ -155,7 +139,7 @@ int main(int argc, char* argv[])
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	//oh, look how far we've come
-	Vertex vertices0[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
+	Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
 						   Vertex(glm::vec3(-1.0,-1.0,0.0),glm::vec2(0.0,0.0)),
 						   Vertex(glm::vec3(1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
 						   Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
@@ -172,6 +156,8 @@ int main(int argc, char* argv[])
 
 	//Build and load mesh, needs more abstraction
 	// better way to load info maybe
+
+	Clock clock;
 
 	std::vector<Actor> Actors;
 	std::vector<Actor> Winds;
@@ -296,8 +282,6 @@ int main(int argc, char* argv[])
 
 	float counter = 0.0f;
 
-	std::chrono::steady_clock::time_point begin, end;
-	begin = std::chrono::steady_clock::now();
 	bool auto_move = true;
 
 	Transform cam_tran;
@@ -310,7 +294,7 @@ int main(int argc, char* argv[])
 	//if (screen_shader.setFloat("Time", time_passed) == -1)
 		//std::cout << "FAIL\n";
 
-	Mesh screen(vertices0, 6);
+	Mesh screen(screen_quad, 6);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 /*
@@ -324,31 +308,10 @@ int main(int argc, char* argv[])
 	while (!display.IsClosed())
 	{
 
+		clock.Update();
+
 		cam_tran.SetPos(camera.GetPos());
 
-		frames++;
-		
-		//TIMER, needs abstraction
-
-		end = std::chrono::steady_clock::now();
-
-		last_time = UpdateTime();
-		delta_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / 1000.0f;
-		time_passed += delta_time;
-
-		begin = std::chrono::steady_clock::now();
-
-		if (last_time - start_time > 6.25 && frames > 10)
-		{
-			fps = (double)frames / (last_time - start_time);
-			start_time = last_time;
-			//std::cout << time_passed << std::endl;
-			frames = 0;
-			std::cout << "camera x:" << camera.GetPos().x <<"y:"<< camera.GetPos().z << std::endl;
-			if(display_fps)
-				std::cout << "FPS: " << fps << std::endl;
-			//std::cout << "x: " << *mousex << ", y: " << *mousey << std::endl;
-		}
 
 		//INPUT BEGIN HERE, NEEDS ABSTRACTION
 
@@ -363,8 +326,8 @@ int main(int argc, char* argv[])
 			lasty = thisy;
 			thisx = mousex;
 			thisy = mousey;
-			camera.RotY(-(lastx - thisx) /6.0f * delta_time);
-			camera.RotX(-(lasty - thisy) /6.0f * delta_time);
+			camera.RotY(-(lastx - thisx) /6.0f * clock.Get_DT());
+			camera.RotX(-(lasty - thisy) /6.0f * clock.Get_DT());
 		}
 
 		//capture mouse when you click on the window
@@ -388,9 +351,9 @@ int main(int argc, char* argv[])
 		if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])
 			camera.MoveForward(-14.f);
 		if (state[SDL_SCANCODE_I])
-			camera.RotX(0.16f * delta_time);
+			camera.RotX(0.16f * clock.Get_DT());
 		if (state[SDL_SCANCODE_K])
-			camera.RotX(-0.16f * delta_time);
+			camera.RotX(-0.16f * clock.Get_DT());
 		if (state[SDL_SCANCODE_SPACE])
 			camera.MoveUp(-14.f);
 		if (state[SDL_SCANCODE_A])
@@ -449,7 +412,7 @@ int main(int argc, char* argv[])
 		if (camera.m_position.y > -h(glm::vec2(height_v.x, height_v.z)))
 			camera.m_position.y = -h(glm::vec2(height_v.x, height_v.z));
 		//std::cout << "-h = " << -h(glm::vec2(height_v.x, height_v.z)) << "\n";
-		camera.Update(delta_time);
+		camera.Update(clock.Get_DT());
 
 		skyActor.m_transform->SetPos(camera.GetPos());
 		skyActor.m_transform->GetPos().z *= -1;
@@ -475,12 +438,12 @@ int main(int argc, char* argv[])
 		if (state[SDL_SCANCODE_RIGHT] || state[SDL_SCANCODE_L])
 		{
 			dv += 0.03 * (2-abs(dv));
-			camera.RotY(0.16f * delta_time);
+			camera.RotY(0.16f * clock.Get_DT());
 		}
 		if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_J])
 		{
 			dv -= 0.03 * (2-abs(dv));
-			camera.RotY(-0.16f * delta_time);
+			camera.RotY(-0.16f * clock.Get_DT());
 		}
 		PlaneActor.m_transform->GetRot().z += dv;
 		PlaneActor.m_transform->QUpdate();
@@ -495,19 +458,7 @@ int main(int argc, char* argv[])
 		Actors[5].m_transform->GetRot().y = counter * 1;
 		Actors[5].m_transform->GetRot().z = counter * 2;
 #endif
-		auto f = [time_passed](float x, float s=1) -> float
-		{
-			float y = (sinf(x*1. + time_passed * s) + sinf(x*2.3 + time_passed * 1.5*s) + sinf(x*3.3 + time_passed * .4*s)) / 3.;
-			return y;
-		};
 
-		//std::shared_ptr<Transform> t = rcube.m_transform;
-		//auto v = t->GetModel() * glm::vec4(t->GetPos(), 1.0);
-		//rcube.m_transform->GetPos().y += f(t->GetPos().x*.1)*0.013;
-		//rcube.m_transform->GetPos().y += f(t->GetPos().z*.1)*0.013;
-
-		//rcube.m_transform->GetPos().y += f(v.z,1)*0.023;
-		//rcube.m_transform->GetPos().y += f(v.x,1)*0.023;
 		//Drawing begins here, needs abstraction
 
 #if 1
@@ -519,7 +470,7 @@ int main(int argc, char* argv[])
 
 
 		//glDepthMask(GL_FALSE);
-		skyActor.Draw(camera, time_passed);
+		skyActor.Draw(camera, clock.Get_Time_Passed());
 		//glDepthMask(GL_TRUE);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -529,7 +480,7 @@ int main(int argc, char* argv[])
 			ray = glm::normalize(ray);
 			ray *= -1.0;
 			//if (glm::dot(ray, camera.GetForward()) > -0.2)
-				a.Draw(camera, time_passed);
+				a.Draw(camera, clock.Get_Time_Passed());
 		}
 
 		for (unsigned int i = 0; i < Water.size(); i++)
@@ -555,7 +506,7 @@ int main(int argc, char* argv[])
 #else
 		for (auto &a : Water)
 		{
-			a.Draw(camera, time_passed);
+			a.Draw(camera, clock.Get_Time_Passed());
 		}
 
 #endif
@@ -576,7 +527,7 @@ int main(int argc, char* argv[])
 				w.m_transform->SetPos(-camera.GetPos() + wv);
 			}
 			//glDepthMask(GL_FALSE);
-			w.Draw(camera, time_passed);
+			w.Draw(camera, clock.Get_Time_Passed());
 			//glDepthMask(GL_TRUE);
 		}
 
@@ -586,7 +537,7 @@ int main(int argc, char* argv[])
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		screen_shader.Bind();
-		screen_shader.setFloat("Time", time_passed);
+		screen_shader.setFloat("Time", clock.Get_Time_Passed());
 
 		glBindVertexArray(screen.GetVAO());
 		glActiveTexture(0);
@@ -605,6 +556,13 @@ int main(int argc, char* argv[])
 
 
 		counter += 0.01f;
+	}
+#endif
+	Application myapp;
+	myapp.OnStart();
+	while (!myapp.GetDisplay().IsClosed())
+	{
+		myapp.OnUpdate();
 	}
 	return 0;
 }

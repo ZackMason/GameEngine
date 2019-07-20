@@ -63,7 +63,7 @@ void main()
 	{
 		MaterialDiffuseColor = vec3(1);
 	}
-	MaterialDiffuseColor *= vec3(1.)-vec3(grid(abs(Position_worldspace/6.),0.01));
+	//MaterialDiffuseColor *= vec3(1.)-vec3(grid(abs(Position_worldspace/6.),0.05));
 	// Distance to the light
 	#if 0
 	float distance = length( LightPosition - Position_worldspace );

@@ -1,5 +1,4 @@
 #version 460
-
 uniform sampler2D diffuse;
 
 in vec2 texCoord0;
@@ -102,6 +101,13 @@ float grid(vec3 st,float res)
     return(step(res,grid.x)*step(res,grid.y)*step(res,grid.z));
 }
 
+float grid2(vec2 st)
+{
+    vec2 grid = abs(fract(st-0.5)-0.5)/fwidth(st);
+    float line = min(grid.x,grid.y);
+    return line;
+}
+
 float gridf(float st,float res)
 {
     float grid=fract(st*res);
@@ -121,7 +127,7 @@ void main()
 {
     vec3 LightColor=vec3(0.9529, 0.9333, 0.6353);
 
-    float LightPower=14.f;
+    float LightPower=12.f;
     
     // Material properties
     vec3 MaterialDiffuseColor;
@@ -193,8 +199,8 @@ void main()
     }
     else if(position0.y+(noise(Position_worldspace.xz) * 68)+noise(-Position_worldspace.xz/100)*163 <340)
     {
-        //c2 =mix(c1,c2,(noise(Position_worldspace.xz)*.4));
-        //c1= c1*.13  +(noise(Position_worldspace.xz/100)*.1);
+        c2 = c2+ noise(Position_worldspace.xz/10.)*.4;
+        c1= c1+(noise(Position_worldspace.xz/100)*.1);
         float l = dot(n,vec3(0,1,0));
         //l = 1 - l*l;
         #if 0
@@ -297,12 +303,16 @@ void main()
     
     //color.rgb = pow(color.xyz, vec3(1.0/2.2));
 	//color.rgb=ex-exp(-ex*color.rgb);
-    //color.rgb*=vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
+    float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
+    //vec3 fc = color.rgb*vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.015));
+    vec3 fc = color.rgb*vec3(1.-grid2(Position_worldspace.xz/30.));
+    color.rgb = fc;
+   // color.rgb = mix(fc, color.rgb, smoothstep(0.36,.9,(1-depth*depth))).rgb;
     //color.rgb = vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
     //color.r = gridf(Position_worldspace.x,0.1);
     //color.g = gridf(position0.y-35, 0.1);
     //color.b = gridf(Position_worldspace.z,0.1);
+    //color.rgb = vec3(grid2(Position_worldspace.xz/100.));
     color.a=1;
-    float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
     dcolor = vec4(vec3(depth), 1.0);
  }

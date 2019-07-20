@@ -80,7 +80,7 @@ void main()
 		color = vec4(0.2,0.1,0.1,1.0);
 	
 	color.a = 1;
-	color.rgb = vec3(0);
+	color.rgb = vec3(1);
 
 	float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
     dcolor = vec4(1.0);

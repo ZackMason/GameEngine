@@ -38,7 +38,7 @@ public:
 
 	void Clear   (float r, float g, float b, float a);
 	void Update  ();
-	bool IsClosed();
+	bool IsClosed() const;
 
 	void SetWindowSize(int width, int height)
 	{
