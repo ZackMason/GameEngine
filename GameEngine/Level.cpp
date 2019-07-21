@@ -87,12 +87,14 @@ void Level::OnUpdate(Display& display, const Uint8 * state)
 		m_camera.RotX(-(lasty - thisy) / 6.0f * m_clock.Get_DT());
 	}
 
+#if 0
 	//capture mouse when you click on the window
 	if (SDL_GetMouseState(&mousex, &mousey))
 	{
 		SDL_CaptureMouse(SDL_TRUE);
 		SDL_SetRelativeMouseMode(SDL_TRUE);
 	}
+#endif
 
 	if (auto_move)
 		m_camera.MoveForward(51.f);
@@ -276,6 +278,7 @@ void Level::OnUpdate(Display& display, const Uint8 * state)
 	glDisable(GL_DEPTH_TEST);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 #endif
+
 
 
 

@@ -24,7 +24,9 @@
 
 #include "include/GLEW/GL/glew.h"
 #include "include/SDL2/SDL.h"
-#include "include/imGUI/imgui.h"
+#include "imGUI/imgui.h"
+#include "imGUI/imgui_impl_sdl.h"
+#include "imGUI/imgui_impl_opengl3.h"
 
 #include "Display.h"
 #include "Shader.h"
@@ -489,12 +491,27 @@ int main(int argc, char* argv[])
 #endif
 	Application *myapp = new Application;
 	Display *display = new Display("game", 1920, 1080);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	Level *level = new Level(*display);
 	myapp->SetDisplay(display);
 	myapp->SetLevel(level);
 	myapp->OnStart();
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.DisplaySize = ImVec2(1920, 1080);
+	ImGui::StyleColorsDark();
+	ImGui_ImplSDL2_InitForOpenGL(display->GetWindow(), display->GetContext());
+	ImGui_ImplOpenGL3_Init("#version 430");
+
 	while (!myapp->GetDisplay().IsClosed())
 	{
+
+		
 		myapp->OnUpdate();
 	}
 	delete myapp, display, level;

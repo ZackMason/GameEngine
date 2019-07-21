@@ -47,6 +47,8 @@ public:
 		SDL_SetWindowSize(m_window, m_width, m_height);
 	}
 
+	SDL_GLContext GetContext() { return m_glContext; }
+
 	void SetIsClosed(bool val) { m_isClosed = val; }
 
 	inline SDL_Window *GetWindow() const { return m_window; }
