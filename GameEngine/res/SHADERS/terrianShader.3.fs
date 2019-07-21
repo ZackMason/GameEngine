@@ -297,6 +297,7 @@ void main()
     #endif
     vec3 finalColor = mix(vec3(0.8), MaterialDiffuseColor, fogFactor);
     color.rgb = finalColor;
+    color.rgb = MaterialDiffuseColor;
     //float gamma = 2.2;
     //color.rgb = pow(color.rgb, vec3(1.0/gamma));
     //color.rgb = color.xyz / (color.xyz + vec3(1.0));
@@ -305,7 +306,7 @@ void main()
 	//color.rgb=ex-exp(-ex*color.rgb);
     float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
     //vec3 fc = color.rgb*vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.015));
-    vec3 fc = color.rgb*vec3(1.-grid2(Position_worldspace.xz/30.));
+    vec3 fc = color.rgb*vec3(1.-grid2(Position_worldspace.xz/100.));
     color.rgb = fc;
    // color.rgb = mix(fc, color.rgb, smoothstep(0.36,.9,(1-depth*depth))).rgb;
     //color.rgb = vec3(grid(vec3(Position_worldspace.x,position0.y,Position_worldspace.z),.1));
@@ -314,5 +315,6 @@ void main()
     //color.b = gridf(Position_worldspace.z,0.1);
     //color.rgb = vec3(grid2(Position_worldspace.xz/100.));
     color.a=1;
-    dcolor = vec4(vec3(depth), 1.0);
+    dcolor = vec4(vec3(1),1.);
+//    dcolor = vec4(vec3(depth), 1.0);
  }

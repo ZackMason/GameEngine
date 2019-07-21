@@ -24,6 +24,13 @@ float LinearizeDepth(float depth)
     return (2.0 * near * far) / (far + near - z * (far - near));	
 }
 
+float grid2(vec2 st)
+{
+	vec2 grid=abs(fract(st-.5)-.5)/fwidth(st);
+	float line=min(grid.x,grid.y);
+	return line;
+}
+
 void main()
 {
 	float lit = 0.1;
@@ -80,10 +87,10 @@ void main()
 		color = vec4(0.2,0.1,0.1,1.0);
 	
 	color.a = 1;
-	color.rgb = vec3(1);
+	color.rgb = vec3(1.5,0,0) * vec3(1-grid2(texCoord0*10.));
 
 	float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
-    dcolor = vec4(1.0);
+    dcolor = vec4(1);
     //dcolor = vec4(vec3(depth), 1.0);
 	//color.rgb = 
 	//	// Ambient : simulates indirect lighting

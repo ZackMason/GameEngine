@@ -29,7 +29,7 @@ void main ()
 	//color.rgb = vec3(dot(pp,vec2(cos(Time),sin(Time))));
 
 	float bright = dot(color.rgb,vec3(0.2627,0.678,.0593));
-	color.rgb *= bright;
+	//color.rgb *= bright;
 	float d = texture(depth,uv).r;
 	#endif
 	color.a = 1;

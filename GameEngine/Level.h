@@ -29,6 +29,7 @@ public:
 private:
 	std::vector<Actor>	m_actors;
 	std::vector<Actor>	m_terrain;
+	std::vector<Actor>	m_winds;
 	Actor					m_sky;
 	Actor					m_player;
 	Camera					m_camera;

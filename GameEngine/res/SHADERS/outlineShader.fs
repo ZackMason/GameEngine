@@ -53,10 +53,10 @@ void main()
     vec3 sampleTex[9] = vec3[9](1);
     vec3 col1 = run_kernel(edge,sampleTex);
     //offset = 1./300.;
-    //vec3 col2 = run_kernel(blur,sampleTex);
+    vec3 col2 = run_kernel(blur,sampleTex);
 	float d = texture(depth,uv).r;
-    //color.rgb = mix(col1.rgb,texture(diffuse,uv).rgb, smoothstep(0.36,.9,(1-d))).rgb;
-    color.rgb = col1;
+    color.rgb =col1 + col2*col2;
+    color.rgb = mix(col1.rgb,texture(diffuse,uv).rgb, smoothstep(0.36,.9,(1-d))).rgb;
     //color.rgb=mix(texture(diffuse,uv).rgb,color.rgb,color.rgb);
     //color.rgb = vec3(d);
     color.a=1;

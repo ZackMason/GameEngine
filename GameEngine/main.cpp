@@ -42,77 +42,6 @@
 //scene -> models --> shaders --> draw
 //				  \_> texture _/
 
-
-
-float rand(glm::vec2 c) {
-	return glm::fract(sinf(glm::dot(c, glm::vec2(12.9898, 78.233)))*43758.5453);
-}
-
-float noise(glm::vec2 p, float freq) {
-	float unit = 640. / freq;
-	glm::vec2 ij = floor(p / unit);
-	glm::vec2 xy = mod(p, unit) / unit;
-	//xy = 3.*xy*xy-2.*xy*xy*xy;
-	xy = .5f * (1.0f - cos(3.141592f * xy));
-	float a = rand((ij + glm::vec2(0., 0.)));
-	float b = rand((ij + glm::vec2(1., 0.)));
-	float c = rand((ij + glm::vec2(0., 1.)));
-	float d = rand((ij + glm::vec2(1., 1.)));
-	float x1 = glm::mix(a, b, xy.x);
-	float x2 = glm::mix(c, d, xy.x);
-	return glm::mix(x1, x2, xy.y);
-}
-
-float pnoise(glm::vec2 p) {
-	int res = 4;
-	float persistance = .5;
-	float n = 0.;
-	float normK = 0.;
-	float f = 4.;
-	float amp = 1.;
-	int iCount = 0;
-	for (int i = 0; i < 50; i++) {
-		n += amp*noise(p, f);
-		f *= 2.;
-		normK += amp;
-		amp *= persistance;
-		if (iCount == res)break;
-		iCount++;
-	}
-	float nf = n / normK;
-	return nf * nf*nf*nf;
-}
-
-float h(glm::vec2 v)
-{
-	float y_scale = 150.0;
-	float xz_scale = 3.0;
-	float freq = 1;
-	float amp = 1;
-	float l = 0;
-	float lac = 2.2312;//+ sin(Time)*0.2;
-	float pers = .12;
-	float res = 0;
-
-	int octaves = 7;
-
-	//Position_worldspace.z-=Time*3500;
-	for (int i = 0; i < octaves; i++)
-	{
-		float sx = v.x / xz_scale * freq;
-		float sz = v.y / xz_scale * freq;
-		float pv = 2. * pnoise(glm::vec2(sx, sz)) - 1.;
-		l += pv * amp;
-		amp *= pers;
-		freq *= lac;
-	}
-	res = l * y_scale + 190.f;//130 200
-	//if (res < 35.)
-		//res = 35.;
-	return res;
-}
-
-
 #undef main
 int main(int argc, char* argv[])
 {
@@ -558,11 +487,16 @@ int main(int argc, char* argv[])
 		counter += 0.01f;
 	}
 #endif
-	Application myapp;
-	myapp.OnStart();
-	while (!myapp.GetDisplay().IsClosed())
+	Application *myapp = new Application;
+	Display *display = new Display("game", 1920, 1080);
+	Level *level = new Level(*display);
+	myapp->SetDisplay(display);
+	myapp->SetLevel(level);
+	myapp->OnStart();
+	while (!myapp->GetDisplay().IsClosed())
 	{
-		myapp.OnUpdate();
+		myapp->OnUpdate();
 	}
+	delete myapp, display, level;
 	return 0;
 }
