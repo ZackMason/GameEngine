@@ -2,10 +2,10 @@
 #include <string>
 #include <filesystem>
 #include "Application.h"
-#include "Level.h"
+#include "Level2.h"
 #include "Config.h"
 
-Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
+Vertex screen_quad2[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
 						   Vertex(glm::vec3(-1.0,-1.0,0.0),glm::vec2(0.0,0.0)),
 						   Vertex(glm::vec3(1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
 						   Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
@@ -13,10 +13,10 @@ Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
 						   Vertex(glm::vec3(1.0,1.0,0.0),glm::vec2(1.0,1.0))
 };
 
-Level::Level(const Display &d) : m_camera(glm::vec3(0.1, -145, 70), 70.0f, d.GetAspect(), 1.f, 12000.0f),
+Level2::Level2(const Display &d) : m_camera(glm::vec3(0.1, -145, 70), 70.0f, d.GetAspect(), 1.f, 12000.0f),
 m_ofbo(true),
-m_screen_sdr("./res/SHADERS/outlineShader"),
-m_screen(screen_quad, 6),
+m_screen_sdr("./res/SHADERS/screenShader"),
+m_screen(screen_quad2, 6),
 m_player("biplane", "toon", "wood"),
 m_sky("skydome2", "skydome", "skydome")
 {
@@ -27,26 +27,26 @@ m_sky("skydome2", "skydome", "skydome")
 }
 
 
-Level::Level() : m_camera(glm::vec3(0.1, -145, 70), 70.0f, 1920./1080., 1.f, 12000.0f),
+Level2::Level2() : m_camera(glm::vec3(0.1, -145, 70), 70.0f, 1920. / 1080., 1.f, 12000.0f),
 m_ofbo(true),
 m_screen_sdr("./res/SHADERS/outlineShader"),
-m_screen(screen_quad, 6),
+m_screen(screen_quad2, 6),
 m_sky("skydome2", "skydome", "skydome"),
 m_player("biplane", "toon", "wood")
 {
 
 }
 
-Level::~Level()
+Level2::~Level2()
 {
 }
 
-void Level::Add_Actor(std::shared_ptr<Actor> actor)
+void Level2::Add_Actor(std::shared_ptr<Actor> actor)
 {
 
 }
 
-void Level::Display_Levels()
+void Level2::Display_Levels()
 {
 	namespace fs = std::experimental::filesystem;
 	std::string path = "./res/LEVELS";
@@ -55,28 +55,28 @@ void Level::Display_Levels()
 
 }
 
-bool Level::Load_Levels()
+bool Level2::Load_Levels()
 {
 
 	return true;
 }
 
-void Level::Render_Level()
+void Level2::Render_Level()
 {
 
 }
 
-void Level::OnUpdate()
+void Level2::OnUpdate()
 {
 	auto  display = Application::Get().GetDisplay();
 	auto  state = Application::Get().GetState();
 	m_clock.Update();
 
-		//INPUT BEGIN HERE, NEEDS ABSTRACTION
+	//INPUT BEGIN HERE, NEEDS ABSTRACTION
 
-	//SDL_PumpEvents();
+//SDL_PumpEvents();
 
-		//mouse recording
+	//mouse recording
 
 	(SDL_GetMouseState(&mousex, &mousey));
 	if (SDL_GetRelativeMouseMode())
@@ -97,9 +97,6 @@ void Level::OnUpdate()
 		SDL_SetRelativeMouseMode(SDL_TRUE);
 	}
 #endif
-
-	if (auto_move)
-		m_camera.MoveForward(Config::Get().playerSpeed);
 
 	// release the mouse
 	if (state[SDL_SCANCODE_B])
@@ -146,45 +143,16 @@ void Level::OnUpdate()
 	m_sky.m_transform->GetPos().x *= -1;
 	m_sky.m_transform->GetPos().y *= -1;
 
-	m_player.m_transform->SetPos(m_camera.GetPos());
-	m_player.m_transform->GetPos() *= -1;
-
-	auto lll = glm::lookAtRH(m_player.m_transform->GetPos(), m_player.m_transform->GetPos() - m_camera.GetForward() *5.f, m_camera.m_up);
-	//PlaneActor.m_transform->GetRot().x = camera.GetRot().x;
-	//PlaneActor.m_transform->GetRot().y = -camera.GetRot().y;
-	//PlaneActor.m_transform->GetRot().x = glm::conjugate(glm::quat_cast(lll)).x;
-	m_player.m_transform->GetRot().x += -glm::pitch(glm::quat_cast(lll)) - m_player.m_transform->GetRot().x;
-	m_player.m_transform->GetRot().y += -glm::yaw(glm::quat_cast(lll)) - m_player.m_transform->GetRot().y;
-	m_player.m_transform->GetRot().z += glm::roll(glm::quat_cast(lll)) - m_player.m_transform->GetRot().z;
-
-	m_player.m_transform->GetPos() -= m_camera.GetForward() * 50.0f;
-	m_player.m_transform->GetPos().y -= 10.0f;
-
-
 
 	if (state[SDL_SCANCODE_RIGHT] || state[SDL_SCANCODE_L])
 	{
-		dv += 0.03 * (2 - abs(dv));
-		m_camera.RotY(0.16f * m_clock.Get_DT());
+		m_camera.RotY(0.816f * m_clock.Get_DT());
 	}
 	if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_J])
 	{
-		dv -= 0.03 * (2 - abs(dv));
-		m_camera.RotY(-0.16f * m_clock.Get_DT());
+		m_camera.RotY(-0.816f * m_clock.Get_DT());
 	}
-	m_player.m_transform->GetRot().z += dv;
-	m_player.m_transform->QUpdate();
 
-	dv *= .94;
-#if 0
-	//TODO make hashtable for this kind of stuff
-	//translate
-	Actors[5].m_transform->GetPos().x += sinf(counter) / 100.0f;
-	//rotate
-	Actors[5].m_transform->GetRot().x = counter * 2;
-	Actors[5].m_transform->GetRot().y = counter * 1;
-	Actors[5].m_transform->GetRot().z = counter * 2;
-#endif
 
 	//Drawing begins here, needs abstraction
 
@@ -210,12 +178,6 @@ void Level::OnUpdate()
 		a.Draw(m_camera, m_clock.Get_Time_Passed());
 	}
 
-	for (unsigned int i = 0; i < m_terrain.size(); i++)
-	{
-		m_terrain[i].m_transform->GetPos().z = -m_camera.GetPos().z + Water_off[i].y;
-		m_terrain[i].m_transform->GetPos().x = -m_camera.GetPos().x + Water_off[i].x;
-	}
-
 	m_player.Draw(m_camera, m_clock.Get_Time_Passed());
 
 #if 0
@@ -233,33 +195,10 @@ void Level::OnUpdate()
 #else
 	for (auto &a : m_terrain)
 	{
-		a.Draw(m_camera, m_clock.Get_Time_Passed());
+		a.Draw(m_camera, m_clock.Get_Time_Passed(), [](void) mutable -> void {return; });
 	}
 
 #endif
-
-#if 1
-	for (auto& w : m_winds)
-	{
-		auto wind_look = glm::lookAtRH(w.m_transform->GetPos(), w.m_transform->GetPos() + m_camera.GetForward() *-30.f, glm::vec3(0, -1, 0));
-		w.m_transform->GetRot().x += -glm::pitch(glm::quat_cast(wind_look)) - w.m_transform->GetRot().x;
-		w.m_transform->GetRot().y += -glm::yaw(glm::quat_cast(wind_look)) - w.m_transform->GetRot().y;
-		w.m_transform->GetRot().z += glm::roll(glm::quat_cast(wind_look)) - w.m_transform->GetRot().z;
-		w.m_transform->QUpdate();
-
-		if (glm::length(-m_camera.GetPos() - w.m_transform->GetPos()) > 300.f)
-		{
-			auto wv = m_camera.GetForward() * -200.f * ((rand() % 1000) / 1000.f);
-			wv += 30.f * m_camera.GetRight() * ((rand() % 1000) - 500.f) / 1000.f;
-			wv += 30.f * m_camera.GetUp() * ((rand() % 1000) - 500.f) / 1000.f;
-			w.m_transform->SetPos(-m_camera.GetPos() + wv);
-		}
-		//glDepthMask(GL_FALSE);
-		w.Draw(m_camera, m_clock.Get_Time_Passed());
-		//glDepthMask(GL_TRUE);
-	}
-#endif
-
 
 #if 1
 	m_ofbo.Unbind();
@@ -281,21 +220,15 @@ void Level::OnUpdate()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 #endif
 
-
-
-
-	counter += 0.01f;
-	
 }
 
-void Level::OnAttach()
+void Level2::OnAttach()
 {
 	int water_size = 3 * 5;
-	int water_scale = 3;
+	int water_scale = 12;
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
-	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/rock_grey.png");
-	//std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.2");
-	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.3");
+	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/grass.png");
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/standardShader");
 	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
 
 	for (int x = -water_size; x <= water_size; x++)
@@ -304,41 +237,12 @@ void Level::OnAttach()
 		{
 			Actor world(mesh, water_mat);
 			world.m_transform->GetPos().y -= 3.0f;
-			world.m_transform->GetPos().z = z * 20.;
-			world.m_transform->GetPos().x = x * 20.;
+			world.m_transform->GetPos().z = z * 20. * water_scale;
+			world.m_transform->GetPos().x = x * 20. * water_scale;
 			world.m_transform->GetScale() *= water_scale;
 			world.m_transform->GetScale().y = 1;
 
 			m_terrain.push_back(world);
-			Water_off.push_back(glm::vec2(x * 20 * water_scale, z * 20 * water_scale));
 		}
-	}
-	water_scale = 16;
-	water_size = 30;
-	for (int x = -water_size; x <= water_size; x++)
-	{
-		for (int z = -water_size; z <= water_size; z++)
-		{
-			if (abs(z * 20 * water_scale) < 3 * 20 * 15 && abs(x * 20 * water_scale) < 3 * 20 * 15) continue;
-			Actor world(mesh, water_mat);
-			world.m_transform->GetPos().y -= 3.0f;
-			world.m_transform->GetPos().z = z * 20.;
-			world.m_transform->GetPos().x = x * 20.;
-			world.m_transform->GetScale() *= water_scale;
-			world.m_transform->GetScale().y = 1;
-
-			m_terrain.push_back(world);
-			Water_off.push_back(glm::vec2(x * 20. * water_scale, z * 20. * water_scale));
-		}
-	}
-	std::shared_ptr<Mesh> wind_mesh = std::make_shared<Mesh>("./res/MESHS/wind_01.obj");
-	std::shared_ptr<Texture> wind_tex = std::make_shared<Texture>("./res/TEXTURES/rain_grey.png");
-	std::shared_ptr<Shader> wind_sdr = std::make_shared<Shader>("./res/SHADERS/windShader");
-	std::shared_ptr<Material> wind_mat = std::make_shared<Material>(wind_sdr, wind_tex);
-	for (int i = 30; i >= 0; i--)
-	{
-		Actor wind(wind_mesh, wind_mat);
-		wind.m_transform->GetScale() *= 3.0f;
-		m_winds.push_back(wind);
 	}
 }

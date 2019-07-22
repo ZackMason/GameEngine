@@ -65,3 +65,5 @@ void Actor::Draw(Camera &camera, double time_passed)
 
 	m_mesh->V_Draw();
 }
+
+

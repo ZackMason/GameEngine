@@ -33,7 +33,7 @@
 class Display
 {
 public:
-	Display(const std::string& title, int width = WIDTH, int height = HEIGHT);
+	Display(const std::string& title);
 	virtual ~Display();
 
 	void Clear   (float r, float g, float b, float a);

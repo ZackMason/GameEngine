@@ -1,4 +1,5 @@
 #pragma once
+#include "Layer.h"
 
 #include <vector>
 
@@ -11,12 +12,12 @@
 #include "Layer.h"
 
 
-class Level : public Layer
+class Level2 : public Layer
 {
 public:
-	Level();
-	Level(const Display & d);
-	~Level();
+	Level2();
+	Level2(const Display & d);
+	~Level2();
 
 	void Add_Actor(std::shared_ptr<Actor>);
 	void Display_Levels();
@@ -40,6 +41,6 @@ private:
 	Clock					m_clock;
 	bool auto_move = true;
 	float dv = 0, counter = 0;
-	int mousex, mousey,lastx,thisx,lasty,thisy;
+	int mousex, mousey, lastx, thisx, lasty, thisy;
 };
 

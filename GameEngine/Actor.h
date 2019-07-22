@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Material.h"
 
+#include <functional>
 #include <string>
 
 class Actor
@@ -19,6 +20,19 @@ public:
 	Actor(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> mat);
 
 	void Draw(Camera &camera, double time_passed);
+	template <typename fn>
+	void Draw(Camera &camera, double time_passed, fn lambda)
+	{
+		glm::vec3 ray = m_transform->GetPos() - camera.GetPos();
+		ray = glm::normalize(ray);
+		ray *= -1.0;
+		//if (glm::dot(ray, camera.GetForward()) < -0.2) { return; }
+
+		m_material->Update(*m_transform, camera, time_passed);
+		lambda();
+
+		m_mesh->V_Draw();
+	}
 
 
 	Actor(const Actor& other) : Actor(other.m_mesh, other.m_material)

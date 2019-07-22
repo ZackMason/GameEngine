@@ -4,10 +4,10 @@
 
 #include <iostream>
 
-Display::Display(const std::string& title, int width, int height)
+Display::Display(const std::string& title)
 {
-	m_width  = width;
-	m_height = height;
+	m_width  = WIDTH;
+	m_height = HEIGHT;
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 

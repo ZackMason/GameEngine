@@ -9,6 +9,7 @@
 #include "imGUI/imgui.h"
 #include "imGUI/imgui_impl_sdl.h"
 #include "imGUI/imgui_impl_opengl3.h"
+#include "LayerStack.h"
 
 
 class Application
@@ -18,14 +19,16 @@ public:
 	~Application();
 
 	void SetDisplay(Display* d) { m_display = d; }
-	void SetLevel(Level* l) { m_level = l; }
+	void AddLayer(Layer* l) { m_LayerStack.PushLayer(l); }
+	void AddOverlay(Layer* l) { m_LayerStack.PushOverlay(l); }
 
 	void OnUpdate();
 	void OnStart();
 
-	const Display& GetDisplay() { return *m_display; }
+	Display * GetDisplay() { return m_display; }
+	const Uint8* GetState() { return state; }
 
-	inline Application& Get()
+	inline static Application& Get()
 	{
 		return *s_Instance;
 	}
@@ -34,6 +37,7 @@ private:
 	Display* m_display;
 	Level* m_level;
 	static Application* s_Instance;
+	LayerStack m_LayerStack;
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 };
 
