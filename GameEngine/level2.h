@@ -7,9 +7,12 @@
 #include "Camera.h"
 #include "Clock.h"
 #include "FrameBuffer.h"
-#include "Shader.h"
 #include "Display.h"
 #include "Layer.h"
+#include "Light.h"
+#include "DirectionalLight.h"
+#include "PointLight.h"
+#include "lightShader.h"
 
 
 class Level2 : public Layer
@@ -37,6 +40,7 @@ private:
 	FrameBuffer				m_ofbo;  //off screen frame buffer
 	Mesh					m_screen;
 	Shader					m_screen_sdr;
+	std::vector<Light*>		m_lights;
 	std::vector<glm::vec2> Water_off;
 	Clock					m_clock;
 	bool auto_move = true;

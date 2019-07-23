@@ -15,19 +15,19 @@ Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
 
 Level::Level(const Display &d) : m_camera(glm::vec3(0.1, -145, 70), 70.0f, d.GetAspect(), 1.f, 12000.0f),
 m_ofbo(true),
-m_screen_sdr("./res/SHADERS/outlineShader"),
+m_screen_sdr("./res/SHADERS/screen2Shader"),
 m_screen(screen_quad, 6),
 m_player("biplane", "toon", "wood"),
 m_sky("skydome2", "skydome", "skydome")
 {
-	m_sky.m_transform->GetScale() *= 80;
+	m_sky.m_transform->GetScale() *= 40;
 	m_player.m_transform->GetPos().z -= 42;
 	m_player.m_transform->GetPos().x = 44;
 	m_player.m_transform->GetPos().y -= 3;
 }
 
 
-Level::Level() : m_camera(glm::vec3(0.1, -145, 70), 70.0f, 1920./1080., 1.f, 12000.0f),
+Level::Level() : m_camera(glm::vec3(0.1, -145, 70), 70.0f, Application::Get().GetDisplay()->GetAspect(), 1.f, 12000.0f),
 m_ofbo(true),
 m_screen_sdr("./res/SHADERS/outlineShader"),
 m_screen(screen_quad, 6),
@@ -198,6 +198,7 @@ void Level::OnUpdate()
 
 	//glDepthMask(GL_FALSE);
 	m_player.Draw(m_camera, m_clock.Get_Time_Passed());
+	m_sky.Draw(m_camera, m_clock.Get_Time_Passed());
 	//glDepthMask(GL_TRUE);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -266,11 +267,12 @@ void Level::OnUpdate()
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	m_screen_sdr.Bind();
-	m_screen_sdr.setFloat("Time", m_clock.Get_Time_Passed());
+	//m_screen_sdr.setFloat("Time", m_clock.Get_Time_Passed());
 
 	glBindVertexArray(m_screen.GetVAO());
-	glActiveTexture(0);
-	glBindTexture(GL_TEXTURE_2D, m_ofbo.GetColor());
+	//glActiveTexture(0);
+	m_ofbo.Bind_TA(0);
+	//glBindTexture(GL_TEXTURE_2D, m_ofbo.GetColor());
 	glGenerateMipmap(GL_TEXTURE_2D);
 	m_ofbo.Bind_DTA(1);
 	//glActiveTexture(1);
@@ -281,18 +283,14 @@ void Level::OnUpdate()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 #endif
 
-
-
-
 	counter += 0.01f;
-	
 }
 
 void Level::OnAttach()
 {
 	int water_size = 3 * 5;
 	int water_scale = 3;
-	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
+	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_03.obj");
 	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/rock_grey.png");
 	//std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.2");
 	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.3");
@@ -310,7 +308,7 @@ void Level::OnAttach()
 			world.m_transform->GetScale().y = 1;
 
 			m_terrain.push_back(world);
-			Water_off.push_back(glm::vec2(x * 20 * water_scale, z * 20 * water_scale));
+			Water_off.push_back(glm::vec2(x * 20. * water_scale, z * 20 * water_scale));
 		}
 	}
 	water_scale = 16;

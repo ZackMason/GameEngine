@@ -4,6 +4,7 @@
 
 #include "Display.h"
 
+#if 0
 FrameBuffer::FrameBuffer() : m_TA()
 {
 	glGenFramebuffers(1, &m_framebuffer);
@@ -31,6 +32,7 @@ FrameBuffer::FrameBuffer() : m_TA()
 	m_bound = false;
 
 }
+#endif
 
 FrameBuffer::FrameBuffer(bool type) : m_TA() , m_DTA()
 {
@@ -53,46 +55,6 @@ FrameBuffer::FrameBuffer(bool type) : m_TA() , m_DTA()
 	glDrawBuffers(2, buffers);
 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER::FRAMEBUFFER NOT COMPLETE\n";
-	else
-		std::cout << "FRAMEBUFFER::FRAMEBUFFER IS COMPLETE\n";
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	m_bound = false;
-
-}
-
-FrameBuffer::FrameBuffer(int type) : m_TA(), m_DA()
-{
-	// create frame buffer
-	glGenFramebuffers(1, &m_framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-
-	// bind texture to frame buffer
-	glBindTexture(GL_TEXTURE_2D, m_TA.GetTex());
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TA.GetTex(), 0);
-
-	if (type & FB_DEPTH_RENDERBUFFER)
-	{
-		glGenRenderbuffers(1, &m_rbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
-	}
-
-	if (type & FB_DEPTH_ATTACHMENT)
-	{
-		glBindTexture(GL_TEXTURE_2D, m_DA.GetTex());
-		glActiveTexture(GL_TEXTURE1);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DA.GetTex(), 0);
-
-	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER::FRAMEBUFFER NOT COMPLETE\n";

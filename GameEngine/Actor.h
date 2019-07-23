@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "Camera.h"
 #include "Material.h"
+#include "Light.h"
 
 #include <functional>
 #include <string>
@@ -20,6 +21,8 @@ public:
 	Actor(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> mat);
 
 	void Draw(Camera &camera, double time_passed);
+	void Draw(Camera &camera, double time_passed, const std::vector<Light*>& light);
+	
 	template <typename fn>
 	void Draw(Camera &camera, double time_passed, fn lambda)
 	{

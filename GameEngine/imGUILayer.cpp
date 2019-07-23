@@ -2,10 +2,14 @@
 
 #include "include/SDL2/SDL.h"
 #include "imGUI/imgui.h"
+#include "imGUI/imconfig.h"
+#include "imGUI/imgui_internal.h"
 #include "imGUI/imgui_impl_sdl.h"
 #include "imGUI/imgui_impl_opengl3.h"
 #include "Application.h"
 #include "Config.h"
+
+
 
 imGUILayer::imGUILayer()
 {
@@ -23,6 +27,8 @@ void imGUILayer::OnAttach()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	io.DisplaySize = ImVec2(1920, 1080);
 	ImGui::StyleColorsDark();
 	ImGui_ImplSDL2_InitForOpenGL(display->GetWindow(), display->GetContext());
@@ -46,6 +52,9 @@ void imGUILayer::OnUpdate()
 	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 
 	ImGui::SliderFloat("speed", &c.playerSpeed, 0.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::SliderFloat("shine", &c.shine, 0.01f, 50.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::SliderFloat("expos", &c.expos, 0.01f, 3.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::SliderFloat("gamma", &c.gamma, 0.1f, 5.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
 	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)

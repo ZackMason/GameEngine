@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include "Config.h"
 #include <iostream>
 #include <fstream>
 
@@ -120,7 +121,7 @@ void Shader::Update( Transform& transform, const Camera& camera, double time_pas
 {
 	glm::mat4 ModelMatrix         = transform.GetModel();
 	glm::mat4 ViewMatrix          = camera.GetViewProjection();
-	glm::mat4 ModelViewProjection = camera.GetViewProjection() * transform.GetModel();
+	glm::mat4 ModelViewProjection = camera.GetViewProjection() * ModelMatrix;
 	//glm::vec3 LightPosition       = glm::vec3(42.0f, sinf(time_passed) + 4.0f, -44.0f) /*+ glm::vec3(-40,0,-40)*/;
 	//glm::vec3 LightPosition       = glm::vec3(sinf(time_passed) * 40.0f, sinf(time_passed) + 4.0f, cosf(time_passed) * 40.0f) /*+ glm::vec3(-40,0,-40)*/;
 	//auto LightPosition = transform.GetPos() + glm::vec3(0,50,0);
@@ -134,4 +135,34 @@ void Shader::Update( Transform& transform, const Camera& camera, double time_pas
 	glUniformMatrix4fv              (m_uniforms[MODEL_U], 1, GL_FALSE, &ModelMatrix[0][0]);
 	//glUniform3f		                (m_uniforms[LIGHT_U], LightPosition.x, LightPosition.y, LightPosition.z);
 	glUniform1f		                (m_uniforms[TIME_U] , time_passed);
+}
+
+void Shader::Update(Transform& transform, const Camera& camera, double time_passed, const std::vector<Light*>& lights)
+{
+	glm::mat4 ModelMatrix = transform.GetModel();
+	glm::mat4 ViewMatrix = camera.GetViewProjection();
+	glm::mat4 ModelViewProjection = camera.GetViewProjection() * transform.GetModel();
+	glUniformMatrix4fv(m_uniforms[MVP_U], 1, GL_FALSE, &ModelViewProjection[0][0]);
+	glUniformMatrix4fv(m_uniforms[VIEW_U], 1, GL_FALSE, &ViewMatrix[0][0]);
+	glUniformMatrix4fv(m_uniforms[MODEL_U], 1, GL_FALSE, &ModelMatrix[0][0]);
+	glUniform1f(m_uniforms[TIME_U], time_passed);
+
+	setInt("material.diffuse", 0);
+	setInt("material.specular", 1);
+	setFloat("material.shininess", Config::Get().shine);
+
+	GLuint i = 0;
+	for (auto&l : lights)
+	{
+		std::string number = std::to_string(i);
+		glUniform4f(glGetUniformLocation(m_program, ("pointLights[" + number + "].position").c_str()), lights[i]->m_position.x, lights[i]->m_position.y, lights[i]->m_position.z, lights[i]->m_position.w);
+		glUniform4f(glGetUniformLocation(m_program, ("pointLights[" + number + "].color").c_str()), lights[i]->m_color.x, lights[i]->m_color.y, lights[i]->m_color.z, lights[i]->m_position.w);
+		glUniform3f(glGetUniformLocation(m_program, ("pointLights[" + number + "].ambient").c_str()), lights[i]->m_ads.r, lights[i]->m_ads.r, lights[i]->m_ads.r);
+		glUniform3f(glGetUniformLocation(m_program, ("pointLights[" + number + "].diffuse").c_str()), lights[i]->m_ads.g, lights[i]->m_ads.g, lights[i]->m_ads.g);
+		glUniform3f(glGetUniformLocation(m_program, ("pointLights[" + number + "].specular").c_str()), lights[i]->m_ads.b, lights[i]->m_ads.b, lights[i]->m_ads.b);
+		glUniform1f(glGetUniformLocation(m_program, ("pointLights[" + number + "].constant").c_str()), lights[i]->m_clq.x);
+		glUniform1f(glGetUniformLocation(m_program, ("pointLights[" + number + "].linear").c_str()), lights[i]->m_clq.y);
+		glUniform1f(glGetUniformLocation(m_program, ("pointLights[" + number + "].quadratic").c_str()), lights[i]->m_clq.z);
+		i++;
+	}
 }

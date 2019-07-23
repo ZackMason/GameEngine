@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "Transform.h"
+#include "Light.h"
 
 class Material
 {
@@ -16,7 +17,7 @@ public:
 	Material(std::string filename) 
 	{
 		m_shader  = std::make_shared< Shader >("./res/SHADERS/"  + filename + "Shader");
-		m_textures.push_back(std::make_shared< Texture>("./res/TEXTURES/" + filename + ".jpg"  ));
+		m_textures.push_back(std::make_shared<Texture>("./res/TEXTURES/" + filename + ".jpg"  ));
 		if (!m_textures[0]->IsLoaded())
 			m_textures.push_back(std::make_shared< Texture>("./res/TEXTURES/" + filename + ".png"));
 	}
@@ -47,7 +48,7 @@ public:
 		m_textures.push_back(tex);
 	}
 
-	void Update( Transform &transform, const Camera &camera, double time_passed)
+	void Update(Transform &transform, const Camera &camera, double time_passed)
 	{
 		if (m_shader == nullptr) { return; }
 		m_shader->Bind();
@@ -57,10 +58,20 @@ public:
 			if (t->IsLoaded())
 				t->Bind(i++);
 		}
-		if (m_shader->updatefn)
-			m_shader->callupdate();
-		else
-			m_shader->Update(transform, camera, time_passed);
+		m_shader->Update(transform, camera, time_passed);
+	}
+
+	void Update(Transform &transform, const Camera &camera, double time_passed, const std::vector<Light*>& l)
+	{
+		if (m_shader == nullptr) { return; }
+		m_shader->Bind();
+		int i = 0;
+		for (auto& t : m_textures)
+		{
+			if (t->IsLoaded())
+				t->Bind(i++);
+		}
+		m_shader->Update(transform, camera, time_passed, l);
 	}
 	
 	std::shared_ptr<Texture> GetTex() {return m_textures[0];}
@@ -89,6 +100,8 @@ public:
 		//delete m_shader;
 		//delete m_texture;
 	}
+
+	void Add(std::shared_ptr<Texture> t) { m_textures.push_back(t); }
 
 private:
 	std::shared_ptr<Shader>  m_shader;

@@ -12,8 +12,6 @@
 class FrameBuffer
 {
 public:
-	FrameBuffer();
-	FrameBuffer(int type);
 	FrameBuffer(bool type);
 	~FrameBuffer();
 

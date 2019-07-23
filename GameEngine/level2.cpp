@@ -13,7 +13,7 @@ Vertex screen_quad2[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
 						   Vertex(glm::vec3(1.0,1.0,0.0),glm::vec2(1.0,1.0))
 };
 
-Level2::Level2(const Display &d) : m_camera(glm::vec3(0.1, -145, 70), 70.0f, d.GetAspect(), 1.f, 12000.0f),
+Level2::Level2(const Display &d) : m_camera(glm::vec3(0.1, -4, 0), 70.0f, d.GetAspect(), 1.f, 12000.0f),
 m_ofbo(true),
 m_screen_sdr("./res/SHADERS/screenShader"),
 m_screen(screen_quad2, 6),
@@ -106,13 +106,13 @@ void Level2::OnUpdate()
 	if (state[SDL_SCANCODE_ESCAPE])
 		SDL_SetRelativeMouseMode(SDL_FALSE);
 	if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W])
-		m_camera.MoveForward(29.f);
+		m_camera.MoveForward(Config::Get().playerSpeed);
 	if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])
 		m_camera.MoveForward(-14.f);
 	if (state[SDL_SCANCODE_I])
-		m_camera.RotX(0.16f * m_clock.Get_DT());
+		m_camera.RotX(0.46f * m_clock.Get_DT());
 	if (state[SDL_SCANCODE_K])
-		m_camera.RotX(-0.16f * m_clock.Get_DT());
+		m_camera.RotX(-0.46f * m_clock.Get_DT());
 	if (state[SDL_SCANCODE_SPACE])
 		m_camera.MoveUp(-14.f);
 	if (state[SDL_SCANCODE_A])
@@ -131,7 +131,7 @@ void Level2::OnUpdate()
 		m_camera.SetAspect(display->GetAspect());
 	}
 
-	display->Clear(0.5f, 0.5f, 0.5f, 1.0f);
+	display->Clear(0.5f, 0.5f, 1.f, 1.0f);
 
 	//camera.LookAt(PlaneActor.m_transform->GetPos());
 
@@ -165,7 +165,7 @@ void Level2::OnUpdate()
 
 
 	//glDepthMask(GL_FALSE);
-	m_player.Draw(m_camera, m_clock.Get_Time_Passed());
+	m_sky.Draw(m_camera, m_clock.Get_Time_Passed());
 	//glDepthMask(GL_TRUE);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -195,7 +195,15 @@ void Level2::OnUpdate()
 #else
 	for (auto &a : m_terrain)
 	{
-		a.Draw(m_camera, m_clock.Get_Time_Passed(), [](void) mutable -> void {return; });
+		a.Draw(m_camera, m_clock.Get_Time_Passed(), m_lights);
+	}
+
+	for (auto &l :m_lights)
+	{
+		if (l->m_position.w > 0.0f)
+			continue;
+		l->m_position.x += (rand() % 3 - 1);
+		l->m_position.z += (rand() % 3 - 1);
 	}
 
 #endif
@@ -204,17 +212,17 @@ void Level2::OnUpdate()
 	m_ofbo.Unbind();
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	m_screen_sdr.Bind();
-	m_screen_sdr.setFloat("Time", m_clock.Get_Time_Passed());
 
+	m_screen_sdr.Bind();
 	glBindVertexArray(m_screen.GetVAO());
-	glActiveTexture(0);
-	glBindTexture(GL_TEXTURE_2D, m_ofbo.GetColor());
+	m_ofbo.Bind_TA(0);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	m_ofbo.Bind_DTA(1);
-	//glActiveTexture(1);
-	//glBindTexture(GL_TEXTURE_2D, mfbo.GetDepth());
+	m_screen_sdr.setFloat("Time", m_clock.Get_Time_Passed());
+	m_screen_sdr.setFloat("gamma", Config::Get().gamma);
+	m_screen_sdr.setFloat("expos", Config::Get().expos);
 	m_screen_sdr.setInt("diffuse", 0);
+
 	m_screen_sdr.setInt("depth", 1);
 	glDisable(GL_DEPTH_TEST);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -224,13 +232,15 @@ void Level2::OnUpdate()
 
 void Level2::OnAttach()
 {
-	int water_size = 3 * 5;
+	int water_size = 40;
 	int water_scale = 12;
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
 	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/grass.png");
-	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/standardShader");
-	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
+	std::shared_ptr<Texture> water_spec = std::make_shared<Texture>("./res/TEXTURES/white.png");
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/lightShader");
 
+	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
+	water_mat->Add(water_spec);
 	for (int x = -water_size; x <= water_size; x++)
 	{
 		for (int z = -water_size; z <= water_size; z++)
@@ -245,4 +255,39 @@ void Level2::OnAttach()
 			m_terrain.push_back(world);
 		}
 	}
+
+	std::shared_ptr<Mesh> bmesh = std::make_shared<Mesh>("./res/MESHS/cube.obj");
+	std::shared_ptr<Texture> btex = std::make_shared<Texture>("./res/TEXTURES/box_diffuse.png");
+	std::shared_ptr<Texture> bspec = std::make_shared<Texture>("./res/TEXTURES/box_specular.png");
+	std::shared_ptr<Shader> b_sdr = std::make_shared<Shader>("./res/SHADERS/lightShader");
+	std::shared_ptr<Material> bmat = std::make_shared<Material>(b_sdr, btex);
+	bmat->Add(bspec);
+	for (int i = 0; i < 40; i++)
+	{
+		Actor box(bmesh, bmat);
+		box.m_transform->GetPos().z = rand() % 100;
+		box.m_transform->GetPos().x = rand() % 100;
+		m_terrain.push_back(box);
+	}
+
+	for (int i = 0; i < 50; i++)
+	{
+		Light *l = new Light();
+		l->m_position.z =  100.f * (rand() % 100 / 100.);
+		l->m_position.x =  100.f * (rand() % 100 / 100.);
+		l->m_ads = glm::vec3(0.1, 0.9, 1.0);
+		l->m_color = glm::vec4((rand()%1000)/1000., (rand() % 1000) / 1000., (rand() % 1000) / 1000.,1.0);
+		//l->m_color += glm::vec4(0.5, 0.5, 0.5, 0.0);
+		l->m_clq = glm::vec3(1., 0.009, 0.0032);
+		m_lights.push_back(l);
+	}
+	Light *l = new Light();
+	l->m_ads = glm::vec3(0.1, 0.1,.0);
+	l->m_position.w = 1.0f;
+	l->m_position.y = -1.0f;
+	l->m_position.z = 1.0f;
+	//m_lights.push_back(l);
+	delete l;
+
+
 }

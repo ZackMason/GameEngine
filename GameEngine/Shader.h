@@ -1,17 +1,19 @@
 #pragma once
 #include <string>
+#include <vector>
 #include "include/GLEW/GL/glew.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Light.h"
 
 class Shader
 {
 public:
-	Shader();
 	Shader(const std::string& fileName);
 
 	void Bind  ();
 	void Update(Transform& transform, const Camera& camera, double time_passed);
+	void Update(Transform& transform, const Camera& camera, double time_passed, const std::vector<Light*>& lights);
 
 	virtual ~Shader();
 
@@ -75,14 +77,7 @@ public:
 	}
 
 
-	typedef void(*fnPtr)();
-	fnPtr updatefn = nullptr;
-
-	void setupdate(fnPtr fn) { updatefn = fn; }
-	void callupdate() { updatefn(); }
-
-
-private:
+protected:
 	static const unsigned int NUM_SHADERS = 2;
 	Shader(const Shader& other)
 	{

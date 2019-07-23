@@ -20,7 +20,7 @@ void Application::OnUpdate()
 	for (auto& layer : m_LayerStack)
 		layer->OnUpdate();
 	
-	SDL_GL_SwapWindow(m_display->GetWindow());
+	//SDL_GL_SwapWindow(m_display->GetWindow());
 	m_display->Update();
 
 }
