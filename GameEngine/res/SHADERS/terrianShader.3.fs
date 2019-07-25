@@ -176,11 +176,11 @@ void main()
     vec3 n = cross(a,b);
     n=normalize(n);
 
-    if(position0.y <20)
+    if(position0.y <10)
     {
         MaterialDiffuseColor=c4*(.73);
     }
-    else if(position0.y<30)
+    else if(position0.y<20)
     {
         MaterialDiffuseColor=c4*.9;
     }

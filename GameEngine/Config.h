@@ -1,4 +1,6 @@
 #pragma once
+#include "imGUI/imgui.h"
+#include "include/glm/glm.hpp"
 class Config
 {
 public:
@@ -11,6 +13,8 @@ public:
 	static float shine;
 	static float gamma;
 	static float expos;
+	static float mesh_size;
+	static glm::vec4 shader_color;
 	static Config* s_Instance;
 };
 

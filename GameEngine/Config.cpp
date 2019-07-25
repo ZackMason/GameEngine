@@ -12,6 +12,8 @@ float Config::playerSpeed = 30.0;
 float Config::shine = 30.0;
 float Config::gamma = 2.20f;
 float Config::expos = 1.20f;
+float Config::mesh_size = 100.f;
+glm::vec4 Config::shader_color = glm::vec4(1, 0, 0, 1);
 
 Config::~Config()
 {

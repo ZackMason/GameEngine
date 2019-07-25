@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	Application *myapp = new Application;
 	Display *display = new Display("game");
 	myapp->SetDisplay(display);
-	Layer *level = new Level(*display);
+	Layer *level = new RayLevel(*display);
 	Config *config = new Config();
 	imGUILayer * gui = new imGUILayer();
 	gui->SetName("Trip");

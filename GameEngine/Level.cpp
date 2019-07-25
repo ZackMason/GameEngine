@@ -13,7 +13,7 @@ Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
 						   Vertex(glm::vec3(1.0,1.0,0.0),glm::vec2(1.0,1.0))
 };
 
-Level::Level(const Display &d) : m_camera(glm::vec3(0.1, -145, 70), 70.0f, d.GetAspect(), 1.f, 12000.0f),
+Level::Level(const Display &d) : m_camera(glm::vec3(0.1, -145, 70), 70.0f, d.GetAspect(), 10.f, 12000.0f),
 m_ofbo(true),
 m_screen_sdr("./res/SHADERS/screen2Shader"),
 m_screen(screen_quad, 6),
@@ -288,8 +288,9 @@ void Level::OnUpdate()
 
 void Level::OnAttach()
 {
-	int water_size = 3 * 5;
-	int water_scale = 3;
+	int water_size = 40;
+	int water_scale = 2;
+	float mesh_size = 200.f;
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_03.obj");
 	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/rock_grey.png");
 	//std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.2");
@@ -302,15 +303,16 @@ void Level::OnAttach()
 		{
 			Actor world(mesh, water_mat);
 			world.m_transform->GetPos().y -= 3.0f;
-			world.m_transform->GetPos().z = z * 20.;
-			world.m_transform->GetPos().x = x * 20.;
+			world.m_transform->GetPos().z = z * mesh_size;
+			world.m_transform->GetPos().x = x * mesh_size;
 			world.m_transform->GetScale() *= water_scale;
 			world.m_transform->GetScale().y = 1;
 
 			m_terrain.push_back(world);
-			Water_off.push_back(glm::vec2(x * 20. * water_scale, z * 20 * water_scale));
+			Water_off.push_back(glm::vec2(x * mesh_size * water_scale, z * mesh_size * water_scale));
 		}
 	}
+#if 0
 	water_scale = 16;
 	water_size = 30;
 	for (int x = -water_size; x <= water_size; x++)
@@ -329,6 +331,7 @@ void Level::OnAttach()
 			Water_off.push_back(glm::vec2(x * 20. * water_scale, z * 20. * water_scale));
 		}
 	}
+#endif
 	std::shared_ptr<Mesh> wind_mesh = std::make_shared<Mesh>("./res/MESHS/wind_01.obj");
 	std::shared_ptr<Texture> wind_tex = std::make_shared<Texture>("./res/TEXTURES/rain_grey.png");
 	std::shared_ptr<Shader> wind_sdr = std::make_shared<Shader>("./res/SHADERS/windShader");
