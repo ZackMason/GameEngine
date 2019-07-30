@@ -19,11 +19,14 @@ public:
 	~Application();
 
 	void SetDisplay(Display* d) { m_display = d; }
-	void AddLayer(Layer* l) { m_LayerStack.PushLayer(l); }
-	void AddOverlay(Layer* l) { m_LayerStack.PushOverlay(l); }
+	void AddLayer(Layer* l)		{ m_LayerStack.PushLayer  (l); }
+	void PopLayer(Layer* l)		{ m_LayerStack.PopLayer	  (l); }
+	void AddOverlay(Layer* l)	{ m_LayerStack.PushOverlay(l); }
+	void PopOverlay(Layer* l)	{ m_LayerStack.PopOverlay (l); }
 
 	void OnUpdate();
 	void OnStart();
+	void OnExit();
 
 	Display * GetDisplay() { return m_display; }
 	const Uint8* GetState() { return state; }

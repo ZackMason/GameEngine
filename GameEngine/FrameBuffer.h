@@ -12,7 +12,7 @@
 class FrameBuffer
 {
 public:
-	FrameBuffer(bool type);
+	FrameBuffer();
 	~FrameBuffer();
 
 	void Bind();

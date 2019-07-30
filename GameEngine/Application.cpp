@@ -22,9 +22,12 @@ void Application::OnUpdate()
 	
 	//SDL_GL_SwapWindow(m_display->GetWindow());
 	m_display->Update();
-
 }
 
 void Application::OnStart()
+{
+}
+
+void Application::OnExit()
 {
 }

@@ -35,15 +35,18 @@ int main(int argc, char* argv[])
 	myapp->SetDisplay(display);
 	Layer *level = new RayLevel(*display);
 	Config *config = new Config();
-	imGUILayer * gui = new imGUILayer();
+	imGUILayer *gui = new imGUILayer();
 	gui->SetName("Trip");
 	myapp->AddLayer(level);
 	myapp->AddOverlay(gui);
+	glEnable(GL_DEBUG_OUTPUT);
 	//myapp->OnStart();
 
+
 	while (!myapp->GetDisplay()->IsClosed())
-	{	
+	{
 		myapp->OnUpdate();
+		glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, 1, GL_DEBUG_SEVERITY_HIGH,200,"OPENGL ERROR: ");
 	}
 	delete myapp, display, level, gui, config;
 	return 0;

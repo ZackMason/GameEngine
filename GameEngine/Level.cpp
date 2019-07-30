@@ -5,7 +5,7 @@
 #include "Level.h"
 #include "Config.h"
 
-Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
+static Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
 						   Vertex(glm::vec3(-1.0,-1.0,0.0),glm::vec2(0.0,0.0)),
 						   Vertex(glm::vec3(1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
 						   Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
@@ -14,27 +14,16 @@ Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
 };
 
 Level::Level(const Display &d) : m_camera(glm::vec3(0.1, -145, 70), 70.0f, d.GetAspect(), 10.f, 12000.0f),
-m_ofbo(true),
+m_ofbo(),
 m_screen_sdr("./res/SHADERS/screen2Shader"),
 m_screen(screen_quad, 6),
 m_player("biplane", "toon", "wood"),
 m_sky("skydome2", "skydome", "skydome")
-{
+{	
 	m_sky.m_transform->GetScale() *= 40;
 	m_player.m_transform->GetPos().z -= 42;
 	m_player.m_transform->GetPos().x = 44;
 	m_player.m_transform->GetPos().y -= 3;
-}
-
-
-Level::Level() : m_camera(glm::vec3(0.1, -145, 70), 70.0f, Application::Get().GetDisplay()->GetAspect(), 1.f, 12000.0f),
-m_ofbo(true),
-m_screen_sdr("./res/SHADERS/outlineShader"),
-m_screen(screen_quad, 6),
-m_sky("skydome2", "skydome", "skydome"),
-m_player("biplane", "toon", "wood")
-{
-
 }
 
 Level::~Level()

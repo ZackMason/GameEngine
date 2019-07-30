@@ -13,6 +13,9 @@ public:
 	static float shine;
 	static float gamma;
 	static float expos;
+	static float bias;
+	static float scale;
+	static float power;
 	static float mesh_size;
 	static glm::vec4 shader_color;
 	static Config* s_Instance;

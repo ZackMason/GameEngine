@@ -309,7 +309,7 @@ void main()
     //color.r = gridf(Position_worldspace.x,0.1);
     //color.g = gridf(position0.y-35, 0.1);
     //color.b = gridf(Position_worldspace.z,0.1);
-    //color.rgb = vec3(grid2(Position_worldspace.xz/100.));
+    color.rgb = vec3(grid2(Position_worldspace.xz/100.));
     color.a=1;
     dcolor = vec4(vec3(depth), 1.0);
  }

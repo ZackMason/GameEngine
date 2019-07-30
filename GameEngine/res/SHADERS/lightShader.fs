@@ -20,7 +20,7 @@ struct Light{
 	vec3 specular;
 };
 
-#define NR_POINT_LIGHTS 50
+#define NR_POINT_LIGHTS 10
 
 in vec3 FragPos;
 in vec3 Normal;

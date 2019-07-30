@@ -5,28 +5,20 @@
 #include "RayLevel.h"
 #include "Config.h"
 
-Vertex screen_quad3[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
-						   Vertex(glm::vec3(-1.0,-1.0,0.0),glm::vec2(0.0,0.0)),
-						   Vertex(glm::vec3(1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
-						   Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
-						   Vertex(glm::vec3(1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
-						   Vertex(glm::vec3(1.0,1.0,0.0),glm::vec2(1.0,1.0))
-};
+static Vertex screen_quad[] = { Vertex(glm::vec3(-1.0, 1.0,0.0),glm::vec2(0.0,1.0)),
+								Vertex(glm::vec3(-1.0,-1.0,0.0),glm::vec2(0.0,0.0)),
+								Vertex(glm::vec3( 1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
+								Vertex(glm::vec3(-1.0, 1.0,0.0),glm::vec2(0.0,1.0)),
+								Vertex(glm::vec3( 1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
+								Vertex(glm::vec3( 1.0, 1.0,0.0),glm::vec2(1.0,1.0))  };
 
 RayLevel::RayLevel(const Display &d) : m_camera(glm::vec3(0.1, -4, 0), 70.0f, d.GetAspect(), 1.f, 12000.0f),
-m_ofbo(true),
-m_screen_sdr("./res/SHADERS/rayShader"),
-m_screen(screen_quad3, 6)
+m_ofbo(),
+m_screen_sdr("./res/SHADERS/ray2Shader"),
+m_screen(screen_quad, 6)
 {
 }
 
-
-RayLevel::RayLevel() : m_camera(glm::vec3(0.1, -145, 70), 70.0f, 1920. / 1080., 1.f, 12000.0f),
-m_ofbo(true),
-m_screen_sdr("./res/SHADERS/outlineShader"),
-m_screen(screen_quad3, 6)
-{
-}
 
 RayLevel::~RayLevel()
 {
@@ -122,9 +114,6 @@ void RayLevel::OnUpdate()
 
 	display->Clear(0.5f, 0.5f, 1.f, 1.0f);
 
-	//camera.LookAt(PlaneActor.m_transform->GetPos());
-
-	//std::cout << "-h = " << -h(glm::vec2(height_v.x, height_v.z)) << "\n";
 	m_camera.Update(m_clock.Get_DT());
 
 
@@ -157,6 +146,10 @@ void RayLevel::OnUpdate()
 	m_ofbo.Bind_TA(0);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	m_screen_sdr.setFloat("Time", m_clock.Get_Time_Passed());
+	m_screen_sdr.setFloat("EPSILON", Config::Get().gamma);
+	m_screen_sdr.setFloat("bias", Config::Get().bias);
+	m_screen_sdr.setFloat("scale", Config::Get().scale);
+	m_screen_sdr.setFloat("power", Config::Get().power);
 	m_screen_sdr.setVec4("ucolor", Config::Get().shader_color);
 	m_screen_sdr.setInt("diffuse", 0);
 	m_screen_sdr.setInt("depth", 1);

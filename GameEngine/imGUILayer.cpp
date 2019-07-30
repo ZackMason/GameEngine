@@ -49,13 +49,16 @@ void imGUILayer::OnUpdate()
 
 	ImGui::Begin(m_name.c_str());                          // Create a window called "Hello, world!" and append into it.
 
-	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+	ImGui::Text("Welcome.");               // Display some text (you can use a format strings too)
 
 	ImGui::SliderFloat("speed", &c.playerSpeed, 0.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 	ImGui::SliderFloat("shine", &c.shine, 0.01f, 50.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 	ImGui::SliderFloat("expos", &c.expos, 0.01f, 3.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-	ImGui::SliderFloat("gamma", &c.gamma, 0.1f, 5.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-	ImGui::ColorEdit3("shader color", (float*)&c.shader_color); // Edit 3 floats representing a color
+	ImGui::SliderFloat("gamma", &c.gamma, 0.0001f, 2.20f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::SliderFloat("bias", &c.bias, 0.00001f, 3.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::SliderFloat("scale", &c.scale, 0.000001f, 3.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::SliderFloat("power", &c.power, 0.1f, 5.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::ColorEdit3("shader color", (float*)&c.shader_color);  // Edit 3 floats representing a color
 
 	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 		counter++;
