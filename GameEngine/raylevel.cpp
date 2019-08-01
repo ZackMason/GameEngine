@@ -6,15 +6,15 @@
 #include "Config.h"
 
 static Vertex screen_quad[] = { Vertex(glm::vec3(-1.0, 1.0,0.0),glm::vec2(0.0,1.0)),
-								Vertex(glm::vec3(-1.0,-1.0,0.0),glm::vec2(0.0,0.0)),
-								Vertex(glm::vec3( 1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
-								Vertex(glm::vec3(-1.0, 1.0,0.0),glm::vec2(0.0,1.0)),
-								Vertex(glm::vec3( 1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
-								Vertex(glm::vec3( 1.0, 1.0,0.0),glm::vec2(1.0,1.0))  };
+									  Vertex(glm::vec3(-1.0,-1.0,0.0),glm::vec2(0.0,0.0)),
+									  Vertex(glm::vec3( 1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
+									  Vertex(glm::vec3(-1.0, 1.0,0.0),glm::vec2(0.0,1.0)),
+									  Vertex(glm::vec3( 1.0,-1.0,0.0),glm::vec2(1.0,0.0)),
+									  Vertex(glm::vec3( 1.0, 1.0,0.0),glm::vec2(1.0,1.0))  };
 
 RayLevel::RayLevel(const Display &d) : m_camera(glm::vec3(0.1, -4, 0), 70.0f, d.GetAspect(), 1.f, 12000.0f),
 m_ofbo(),
-m_screen_sdr("./res/SHADERS/ray2Shader"),
+m_screen_sdr("./res/SHADERS/ray4Shader"),
 m_screen(screen_quad, 6)
 {
 }

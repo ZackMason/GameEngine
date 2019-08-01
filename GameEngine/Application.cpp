@@ -11,16 +11,11 @@ m_level(nullptr)
 }
 
 
-Application::~Application()
-{
-}
-
 void Application::OnUpdate()
 {
 	for (auto& layer : m_LayerStack)
 		layer->OnUpdate();
 	
-	//SDL_GL_SwapWindow(m_display->GetWindow());
 	m_display->Update();
 }
 
@@ -30,4 +25,6 @@ void Application::OnStart()
 
 void Application::OnExit()
 {
+	for (auto & layer : m_LayerStack)
+		delete layer;
 }

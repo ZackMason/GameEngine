@@ -16,7 +16,18 @@ class Application
 {
 public:
 	Application();
-	~Application();
+	~Application()
+	{
+		if (m_display)
+			delete m_display;
+		if (m_level)
+			delete m_level;
+	};
+
+	Application(const Application&  other) = delete;
+	Application(const Application&& other) = delete;
+	Application& operator=(const Application&  other) = delete;
+	Application& operator=(const Application&& other) = delete;
 
 	void SetDisplay(Display* d) { m_display = d; }
 	void AddLayer(Layer* l)		{ m_LayerStack.PushLayer  (l); }
@@ -28,8 +39,8 @@ public:
 	void OnStart();
 	void OnExit();
 
-	Display * GetDisplay() { return m_display; }
-	const Uint8* GetState() { return state; }
+	Display*     GetDisplay() { return m_display; }
+	const Uint8* GetState()   { return state; }
 
 	inline static Application& Get()
 	{
@@ -37,10 +48,10 @@ public:
 	}
 
 private:
-	Display* m_display;
-	Level* m_level;
 	static Application* s_Instance;
-	LayerStack m_LayerStack;
+	Display*			m_display;
+	Level*				m_level;
+	LayerStack			m_LayerStack;
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 };
 

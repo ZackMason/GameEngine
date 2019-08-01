@@ -22,17 +22,20 @@ public:
 
 	Texture(const Texture& other)
 	{
+		std::cout << "Texture Copied\n";
 		m_texture = other.m_texture;
 		m_loaded = other.m_loaded;
 	}
 
 	Texture& operator=(const Texture& other)
 	{
+		std::cout << "Texture Assigned\n";
 		if (this != &other)
 		{
 			this->m_texture = other.m_texture;
 			this->m_loaded = other.m_loaded;
 		}
+		return *this;
 	}
 protected:
 

@@ -17,7 +17,7 @@ public:
 	Material(std::string filename) 
 	{
 		m_shader  = std::make_shared< Shader >("./res/SHADERS/"  + filename + "Shader");
-		m_textures.push_back(std::make_shared<Texture>("./res/TEXTURES/" + filename + ".jpg"  ));
+		m_textures.push_back(std::make_shared<Texture>("./res/TEXTURES/" + filename + ".jpg"));
 		if (!m_textures[0]->IsLoaded())
 			m_textures.push_back(std::make_shared< Texture>("./res/TEXTURES/" + filename + ".png"));
 	}
@@ -25,7 +25,7 @@ public:
 	Material(std::string fn1, std::string fn2)
 	{
 		m_shader  = std::make_shared<Shader>("./res/SHADERS/"  + fn1 + "Shader");
-		m_textures.push_back(std::make_shared<Texture>("./res/TEXTURES/" + fn2 + ".jpg"  ));
+		m_textures.push_back(std::make_shared<Texture>("./res/TEXTURES/" + fn2 + ".jpg"));
 		if (!m_textures[0]->IsLoaded())
 			m_textures.push_back(std::make_shared<Texture>("./res/TEXTURES/" + fn2 + ".png"));
 	}

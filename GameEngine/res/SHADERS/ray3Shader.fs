@@ -102,6 +102,11 @@ float sphere(vec3 pos,vec4 sph){
 	return distance(pos,sph.xyz)-sph.w;
 }
 
+float plane(vec3 pos)
+{
+	return (pos.y + fbm(.2*pos.xz+vec2(Time,0))/.2);
+}
+
 float opDis2(in vec3 p)
 {
 	return sin(2.*p.y)*sin(2.*p.x)*sin(2.*p.z);
@@ -120,14 +125,60 @@ vec3 opRep(in vec3 p,in vec3 c)
 	return q;
 }
 
+float sky (in vec3 pos)
+{
+	return 3.-pos.y;
+}
+
+float sdRoundBox(vec3 p,vec3 b,float r)
+{
+	vec3 d=abs(p)-b;
+	return length(max(d,0.))-r
+	+min(max(d.x,max(d.y,d.z)),0.);// remove this line for an only partially signed sdf
+}
+
+float sdTorus(vec3 p,vec2 t)
+{
+	vec2 q=vec2(length(p.xz)-t.x,p.y);
+	return length(q)-t.y;
+}
+
 float scene(vec3 pos)
 {
-	vec4 sph = vec4(1,1,1,.75);
-	//vec3 p = pos;
-	vec3 p = opRep(pos,2.0*vec3(1));
-	float sd = (sphere(p,sph)+noise(pos*5.+vec3(Time))/2.)/2.;
+	vec4 sph = vec4(0,2.289,0,.75);
+	vec4 sph1 = vec4(0.54,1.4289,0,.3);
+	vec3 box = vec3(.64,.07,.4);
+	vec3 b2=vec3(1.4,.07,.64);
+	vec3 b3 = vec3(.24,.007,.74);
+	vec3 b4 = vec3(.24,.007,.74);
+	vec2 t = vec2(0.3,0.13);
+
+	float pd = plane(pos)/1.2;
+	float skyd = sky(pos);
+	pd = min(pd,skyd);
+	vec3 p = pos;
+	float sd = (sphere(p,sph)+noise(pos*5.+vec3(0,Time,0))/2.)/2.;
+	sd = opSmoothUnion(sd,pd,.95);
+	float bd = sdRoundBox(p + vec3(0.2,-1.5,0),box,.1);
+	float bd2 = sdRoundBox(p + vec3(-1,-1.32,0),b2,0.1);
+	float bd3 = sdRoundBox(p + vec3(0,-1.32,-0.8),b3,0.1);
+	float bd4 = sdRoundBox(p + vec3(0,-1.32,0.8),b4,0.1);
+	float sd1 = sphere(p,sph1);
+
+	bd2 += abs(p.x/17.);
+	bd3 += (p.x/7.);
+	bd4 += (p.x/7.);
+	bd2 += abs(p.z/7.);
+	bd2 = min(sd1,bd2);
+	bd2 = min(bd2,bd3);
+	bd2 = min(bd2,bd4);
+	bd = min(bd,bd2);
+	float td = sdTorus(p+vec3(0,-1.8,0),t);
+	bd = opSmoothUnion(bd,td,.1);
+	//vec3 p = opRep(pos,2.0*vec3(1));
+	//float sd = sphere(p,sph);
 	//return opDisplace(p+vec3(Time/6.),sphere(p,sph))/8.;
-	return sd ;
+	return min(bd,sd) ;
 }
 
 vec3 calcNormal(in vec3 pos)
@@ -180,32 +231,37 @@ float fresnel(vec3 rd, vec3 n)
 	return bias+scale*pow(1.+dot(rd,n),power);
 }
 
+vec3 GetColor(vec3 rd, vec3 n)
+{
+	return mix(ucolor.rgb,vec3(0.0157, 0.0, 1.0),(fresnel(rd,n)));
+}
 
 void main ()
 {
 	vec2 uv=(iuv*res.xy)/res.y-(vec2(.5)*res.xy)/res.y;
 
-	//vec3 ro=vec3(1,2,-3);
-	vec3 ro = vec3(0,3,0)+ (1.*vec3(0,-.5*Time,Time));
+	vec3 ro=vec3(0,2,-4.5);
     vec3 rd = normalize(vec3(uv.x,uv.y-.25,1));
 	rd = (rotateY(Time/10.) * vec4(rd,1)).xyz;
+	ro = (rotateY(Time/10.) * vec4(ro,1)).xyz;
 	vec2 tv = trace(ro,rd);
 	float dist = tv.x;
 	vec3 p = ro + (rd * dist);
 
-	vec3 n = (estimateNormal(p));
+	vec3 n = (calcNormal(p));
 
-	//color.rgb = (1.-fresnel(rd,n)) * mix(ucolor.rgb , vec3(0,0,1) ,(fresnel(rd,n)));
-	vec3 icol = 1.-color.rgb;
-	color.rgb = (1.-fresnel(rd,n)) * mix(ucolor.rgb , vec3(0,0,1) ,noise(p*1.));
-	color.rgb = vec3(smoothstep(0.0,.53,tv.y))*ucolor.rgb;
+	color.rgb =  GetColor(rd,n);
+	//color.rgb = vec3(fresnel(rd,n));
+	//color.rgb = (1.-fresnel(rd,n)) * mix(ucolor.rgb , vec3(0,0,1) ,noise(p*1.));
 	//color.rgb = vec3(0.5)+abs(noise(p*3.+vec3(Time*1))-.5)/2.;
-	//color.rgb += icol *vec3(0.098, 0.8784, 0.8157);
-	//color.rgb = icol.rrr;
-	//color.rgb *= clamp(50.-dist,0,1);
 
 	//color.rgb = color.rgb/(1+color.rgb);
 
+	float th = dot(n,vec3(0,1,0));
+
+	color.rgb = mix(vec3(.0667,.2392,.0157),vec3(0.0157, 0.7451, 0.0157) , smoothstep(0.,1.5, th)) * step(p.y,0);
+	color.rgb *= dot(n,normalize(vec3(0,sin(Time),cos(Time))))* 1.62;
+	color.rgb += vec3(smoothstep(0.0,EPSILON,tv.y))*ucolor.rgb;
 	//dithering
 	color.rgb += (1./255.)*hash3(uv.x+13.*uv.y);
 	color.a = 1;
