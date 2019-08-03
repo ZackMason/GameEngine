@@ -16,6 +16,7 @@ float Config::bias = 0.001f;
 float Config::scale = 0.47920f;
 float Config::power = 1.3666f;
 float Config::mesh_size = 100.f;
+bool Config::fly = false;
 glm::vec4 Config::shader_color = glm::vec4(1, 0, 0, 1);
 
 Config::~Config()

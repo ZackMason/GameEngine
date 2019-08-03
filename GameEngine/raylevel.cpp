@@ -146,6 +146,7 @@ void RayLevel::OnUpdate()
 	m_ofbo.Bind_TA(0);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	m_screen_sdr.setFloat("Time", m_clock.Get_Time_Passed());
+	//m_screen_sdr.setFloat("deltaTime", m_clock.Get_DT());
 	m_screen_sdr.setFloat("EPSILON", Config::Get().gamma);
 	m_screen_sdr.setFloat("bias", Config::Get().bias);
 	m_screen_sdr.setFloat("scale", Config::Get().scale);

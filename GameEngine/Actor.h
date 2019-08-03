@@ -49,6 +49,9 @@ public:
 	}
 #endif
 
+	std::shared_ptr<Material> Get_Mat() { return m_material; }
+	std::shared_ptr<Shader> Get_Sdr() { return m_material->Get_Sdr(); }
+
 	virtual ~Actor();
 
 	std::shared_ptr<Transform> m_transform;

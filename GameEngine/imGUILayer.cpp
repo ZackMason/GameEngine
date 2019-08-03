@@ -43,9 +43,6 @@ void imGUILayer::OnUpdate()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(display->GetWindow());
 	ImGui::NewFrame();
-	static float f = 0.0f;
-	static int counter = 0;
-	static ImVec4 clear_color(0, 0, 0, 0);
 
 	ImGui::Begin(m_name.c_str());                          // Create a window called "Hello, world!" and append into it.
 
@@ -56,14 +53,22 @@ void imGUILayer::OnUpdate()
 	ImGui::SliderFloat("expos", &c.expos, 0.01f, 3.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 	ImGui::SliderFloat("gamma", &c.gamma, 0.0001f, 2.20f);            // Edit 1 float using a slider from 0.0f to 1.0f
 	ImGui::SliderFloat("bias", &c.bias, 0.00001f, 3.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-	ImGui::SliderFloat("scale", &c.scale, 0.000001f, 3.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-	ImGui::SliderFloat("power", &c.power, 0.1f, 5.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::SliderFloat("scale", &c.scale, 0.000001f, 6.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::SliderFloat("power", &c.power, 0.1f, 7.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 	ImGui::ColorEdit3("shader color", (float*)&c.shader_color);  // Edit 3 floats representing a color
 
-	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-		counter++;
-	ImGui::SameLine();
-	ImGui::Text("counter = %d", counter);
+	if (ImGui::Button("Fly"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+		c.fly = !c.fly;
+
+	static bool wirebut = true;
+	if (ImGui::Button("Wire"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+	{
+		if (wirebut)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		wirebut = !wirebut;
+	}
 
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();

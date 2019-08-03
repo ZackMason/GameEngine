@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	Application *myapp = new Application;
 	Display *display = new Display("game");
 	myapp->SetDisplay(display);
-	Layer *level = new RayLevel(*display);
+	Layer *level = new Level(*display);
 	Config *config = new Config();
 	imGUILayer *gui = new imGUILayer();
 	gui->SetName("Trip");
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 	myapp->AddOverlay(gui);
 	glEnable(GL_DEBUG_OUTPUT);
 	//myapp->OnStart();
-
+	std::string test = "works";
 
 	while (!myapp->GetDisplay()->IsClosed())
 	{

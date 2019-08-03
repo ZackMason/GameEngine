@@ -88,6 +88,24 @@ float noise(vec3 p){
 	return o4.y*d.y+o4.x*(1.-d.y);
 }
 
+float gerstnerWave(in vec3 pos)
+{
+	float a = 1.;
+	float l = 3.;
+	float w = 2.*3.1416/l;
+	float q = 0.5;
+
+	vec2 d = vec2(1,0);
+	float dd = dot(pos.xz,d);
+
+	float s = sin(w*dd+Time);
+	float c = cos(w*dd+Time);
+
+	vec3 p = vec3(pos.x + q*a*c*d.x, a*s, pos.z + q*a*c*d.y);
+	return distance(p,pos);
+}
+
+
 float displacement(in vec3 p)
 {
 	return sin(20*p.x)*sin(20*p.y)*sin(20*p.z)*cos(6*p.y);
@@ -151,7 +169,8 @@ float scene(vec3 pos)
 	vec3 box = vec3(30,30,30);
 	vec2 t = vec2(0.3,0.13);
 
-	float pd = plane(pos-vec3(0,2,0))/1.2;
+	float pd=gerstnerWave(pos);
+//	float pd = plane(pos-vec3(0,2,0))/1.2;
 	float skyd = sky(pos);
 	pd = min(pd,skyd);
 	vec3 p = pos;

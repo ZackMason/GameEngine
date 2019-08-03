@@ -20,8 +20,6 @@ public:
 	{
 		if (m_display)
 			delete m_display;
-		if (m_level)
-			delete m_level;
 	};
 
 	Application(const Application&  other) = delete;
@@ -50,7 +48,6 @@ public:
 private:
 	static Application* s_Instance;
 	Display*			m_display;
-	Level*				m_level;
 	LayerStack			m_LayerStack;
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 };

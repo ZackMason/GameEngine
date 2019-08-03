@@ -128,11 +128,11 @@ void main()
 
     float LightPower=12.f;
     
+    vec3 c1 = vec3(0.0353, 0.8784, 0.0353);
     // Material properties
-    vec3 MaterialDiffuseColor;
+    vec3 MaterialDiffuseColor = c1;
     vec3 MaterialSpecularColor=vec3(.3,.3,.3);
     
-    vec3 c1 = vec3(0.0353, 0.8784, 0.0353);
     vec3 c2 = vec3(0.4745, 0.302, 0.2235);
     vec3 c3 = vec3(0.5569, 0.8667, 0.349);
     vec3 c4 = vec3(0.149, 0.2431, 0.99686);
@@ -175,7 +175,7 @@ void main()
     vec3 b = pp1 - pp3;
     vec3 n = cross(a,b);
     n=normalize(n);
-
+#if 0
     if(position0.y <10)
     {
         MaterialDiffuseColor=c4*(.73);
@@ -192,7 +192,8 @@ void main()
     {
         MaterialDiffuseColor = vec3(1);
     }
-    else if(position0.y+noise(Position_worldspace.xz)*2<40)
+    #endif
+    /*else */if(position0.y+noise(Position_worldspace.xz)*2<40)
     {
         MaterialDiffuseColor=c3;
     }
@@ -309,7 +310,7 @@ void main()
     //color.r = gridf(Position_worldspace.x,0.1);
     //color.g = gridf(position0.y-35, 0.1);
     //color.b = gridf(Position_worldspace.z,0.1);
-    color.rgb = vec3(grid2(Position_worldspace.xz/100.));
+    //color.rgb = vec3(grid2(Position_worldspace.xz/100.));
     color.a=1;
     dcolor = vec4(vec3(depth), 1.0);
  }

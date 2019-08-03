@@ -56,11 +56,11 @@ Actor::~Actor()
 
 void Actor::Draw(Camera &camera, double time_passed)
 {
-	glm::vec3 ray = m_transform->GetPos() - (-1.f*camera.GetPos());
+	glm::vec3 ray = m_transform->GetPos() - ((-1.f*camera.GetPos()) + (camera.GetForward()*140.f));
 
 	ray = glm::normalize(ray);
 	ray *= -1.0;
-	if (glm::dot(ray, camera.GetForward()) < -0.5) { return; }
+	//bif (glm::dot(ray, camera.GetForward()) < -0.5) { return; }
 
 	m_material->Update(*m_transform, camera, time_passed);
 
@@ -69,10 +69,10 @@ void Actor::Draw(Camera &camera, double time_passed)
 
 void Actor::Draw(Camera &camera, double time_passed, const std::vector<Light*>& light)
 {
-	glm::vec3 ray = m_transform->GetPos() - (-1.f*camera.GetPos());
+	glm::vec3 ray = m_transform->GetPos() - ((-1.f*camera.GetPos())+(camera.GetForward()*10.f));
 	ray = glm::normalize(ray);
 	ray *= -1.0;
-	if (glm::dot(ray, camera.GetForward()) < -0.2) { return; }
+	if (glm::dot(ray, camera.GetForward()) < -0.42) { return; }
 
 	m_material->Update(*m_transform, camera, time_passed, light);
 

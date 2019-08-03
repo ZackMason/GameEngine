@@ -12,7 +12,6 @@
 #include "Light.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
-#include "lightShader.h"
 
 
 class Level2 : public Layer

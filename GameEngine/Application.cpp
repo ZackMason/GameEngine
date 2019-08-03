@@ -1,11 +1,9 @@
 #include "Application.h"
 
-
 Application* Application::s_Instance = nullptr;
 
 Application::Application() : 
-m_display(nullptr),
-m_level(nullptr)
+m_display(nullptr)
 {
 	s_Instance = this;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include "Actor.h"
 #include "Camera.h"
@@ -29,6 +30,8 @@ public:
 private:
 	std::vector<Actor>	m_actors;
 	std::vector<Actor>	m_terrain;
+	std::vector<Actor>	m_water;
+	std::map<float, Actor*> sorted;
 	std::vector<Actor>	m_winds;
 	Actor					m_sky;
 	Actor					m_player;
@@ -38,7 +41,6 @@ private:
 	Shader					m_screen_sdr;
 	std::vector<glm::vec2> Water_off;
 	Clock					m_clock;
-	bool auto_move = true;
 	float dv = 0, counter = 0;
 	int mousex, mousey,lastx,thisx,lasty,thisy;
 };

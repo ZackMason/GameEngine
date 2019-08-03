@@ -52,7 +52,90 @@ bool Level::Load_Levels()
 
 void Level::Render_Level()
 {
+	//glDepthMask(GL_FALSE);
+	m_sky.Draw(m_camera, m_clock.Get_Time_Passed());
+	//glDepthMask(GL_TRUE);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	m_player.Draw(m_camera, m_clock.Get_Time_Passed());
 
+	for (auto& a : m_actors)
+	{
+		glm::vec3 ray = a.m_transform->GetPos() - m_camera.GetPos();
+		ray = glm::normalize(ray);
+		ray *= -1.0;
+		//if (glm::dot(ray, camera.GetForward()) > -0.2)
+		a.Draw(m_camera, m_clock.Get_Time_Passed());
+	}
+
+	static auto size = m_terrain.size();
+	for (unsigned int i = 0; i < Water_off.size(); i++)
+	{
+		if (i < size)
+		{
+			m_terrain[i].m_transform->GetPos().z = -m_camera.GetPos().z + Water_off[i].y;
+			m_terrain[i].m_transform->GetPos().x = -m_camera.GetPos().x + Water_off[i].x;
+		}
+		else if (1)
+		{
+			m_water[i - size].m_transform->GetPos().z = -m_camera.GetPos().z + Water_off[i].y;
+			m_water[i - size].m_transform->GetPos().x = -m_camera.GetPos().x + Water_off[i].x;
+		}
+	}
+
+	// Draw mountains
+	for (auto &a : m_terrain)
+	{
+		a.Draw(m_camera, m_clock.Get_Time_Passed());
+	}
+
+#if 0
+	for (unsigned int i = 0; i < m_water.size(); i++)
+	{
+		float distance = glm::length(m_camera.GetPos() - m_water[i].m_transform->GetPos());
+		sorted[distance] = &m_water[i];
+	}
+
+	for (std::map<float, Actor*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+	{
+		it->second->Get_Sdr()->setFloat("power", Config::Get().power);
+		it->second->Get_Sdr()->setFloat("bias", Config::Get().bias);
+		it->second->Get_Sdr()->setFloat("scale", Config::Get().scale);
+		it->second->Draw(m_camera, m_clock.Get_Time_Passed());
+	}
+	sorted.clear();
+
+#else
+	for (auto &a : m_water)
+	{
+		//a.Get_Sdr()->setFloat("DT", m_clock.Get_DT());
+		a.Get_Sdr()->setInt("diffuse", 0);
+		a.Get_Sdr()->setInt( "norm",1);
+		a.Draw(m_camera, m_clock.Get_Time_Passed());
+	}
+#endif
+
+
+#if 1
+	for (auto& w : m_winds)
+	{
+		auto wind_look = glm::lookAtRH(w.m_transform->GetPos(), w.m_transform->GetPos() + m_camera.GetForward() *-30.f, glm::vec3(0, -1, 0));
+		w.m_transform->GetRot().x += -glm::pitch(glm::quat_cast(wind_look)) - w.m_transform->GetRot().x;
+		w.m_transform->GetRot().y += -glm::yaw(glm::quat_cast(wind_look)) - w.m_transform->GetRot().y;
+		w.m_transform->GetRot().z += glm::roll(glm::quat_cast(wind_look)) - w.m_transform->GetRot().z;
+		w.m_transform->QUpdate();
+
+		if (glm::length(-m_camera.GetPos() - w.m_transform->GetPos()) > 300.f)
+		{
+			auto wv = m_camera.GetForward() * -200.f * ((rand() % 1000) / 1000.f);
+			wv += 30.f * m_camera.GetRight() * ((rand() % 1000) - 500.f) / 1000.f;
+			wv += 30.f * m_camera.GetUp() * ((rand() % 1000) - 500.f) / 1000.f;
+			w.m_transform->SetPos(-m_camera.GetPos() + wv);
+		}
+		//glDepthMask(GL_FALSE);
+		w.Draw(m_camera, m_clock.Get_Time_Passed());
+		//glDepthMask(GL_TRUE);
+	}
+#endif
 }
 
 void Level::OnUpdate()
@@ -87,14 +170,14 @@ void Level::OnUpdate()
 	}
 #endif
 
-	if (auto_move)
+	if (Config::Get().fly)
 		m_camera.MoveForward(Config::Get().playerSpeed);
 
 	// release the mouse
 	if (state[SDL_SCANCODE_B])
 		display->SetIsClosed(true);
 	if (state[SDL_SCANCODE_E])
-		auto_move = !auto_move;
+		Config::Get().fly = !Config::Get().fly;
 	if (state[SDL_SCANCODE_ESCAPE])
 		SDL_SetRelativeMouseMode(SDL_FALSE);
 	if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W])
@@ -123,7 +206,7 @@ void Level::OnUpdate()
 		m_camera.SetAspect(display->GetAspect());
 	}
 
-	display->Clear(0.5f, 0.5f, 0.5f, 1.0f);
+	display->Clear(0.05f, 0.05f, 0.05f, 1.0f);
 
 	//camera.LookAt(PlaneActor.m_transform->GetPos());
 
@@ -165,19 +248,11 @@ void Level::OnUpdate()
 	m_player.m_transform->QUpdate();
 
 	dv *= .94;
-#if 0
-	//TODO make hashtable for this kind of stuff
-	//translate
-	Actors[5].m_transform->GetPos().x += sinf(counter) / 100.0f;
-	//rotate
-	Actors[5].m_transform->GetRot().x = counter * 2;
-	Actors[5].m_transform->GetRot().y = counter * 1;
-	Actors[5].m_transform->GetRot().z = counter * 2;
-#endif
+
 
 	//Drawing begins here, needs abstraction
 
-#if 1
+#if 0
 	m_ofbo.Bind();
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.1f, .1f, 0.1f, 1.0f);
@@ -185,73 +260,10 @@ void Level::OnUpdate()
 #endif
 
 
-	//glDepthMask(GL_FALSE);
-	m_player.Draw(m_camera, m_clock.Get_Time_Passed());
-	m_sky.Draw(m_camera, m_clock.Get_Time_Passed());
-	//glDepthMask(GL_TRUE);
-	glClear(GL_DEPTH_BUFFER_BIT);
+	Render_Level();
 
-	for (auto& a : m_actors)
-	{
-		glm::vec3 ray = a.m_transform->GetPos() - m_camera.GetPos();
-		ray = glm::normalize(ray);
-		ray *= -1.0;
-		//if (glm::dot(ray, camera.GetForward()) > -0.2)
-		a.Draw(m_camera, m_clock.Get_Time_Passed());
-	}
-
-	for (unsigned int i = 0; i < m_terrain.size(); i++)
-	{
-		m_terrain[i].m_transform->GetPos().z = -m_camera.GetPos().z + Water_off[i].y;
-		m_terrain[i].m_transform->GetPos().x = -m_camera.GetPos().x + Water_off[i].x;
-	}
-
-	m_player.Draw(m_camera, m_clock.Get_Time_Passed());
 
 #if 0
-	for (unsigned int i = 0; i < Water.size(); i++)
-	{
-		float distance = glm::length(camera.GetPos() - Water[i].m_transform->GetPos());
-		sorted[distance] = &Water[i];
-	}
-
-	for (std::map<float, Actor*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
-	{
-		it->second->Draw(camera, time_passed);
-	}
-	sorted.clear();
-#else
-	for (auto &a : m_terrain)
-	{
-		a.Draw(m_camera, m_clock.Get_Time_Passed());
-	}
-
-#endif
-
-#if 1
-	for (auto& w : m_winds)
-	{
-		auto wind_look = glm::lookAtRH(w.m_transform->GetPos(), w.m_transform->GetPos() + m_camera.GetForward() *-30.f, glm::vec3(0, -1, 0));
-		w.m_transform->GetRot().x += -glm::pitch(glm::quat_cast(wind_look)) - w.m_transform->GetRot().x;
-		w.m_transform->GetRot().y += -glm::yaw(glm::quat_cast(wind_look)) - w.m_transform->GetRot().y;
-		w.m_transform->GetRot().z += glm::roll(glm::quat_cast(wind_look)) - w.m_transform->GetRot().z;
-		w.m_transform->QUpdate();
-
-		if (glm::length(-m_camera.GetPos() - w.m_transform->GetPos()) > 300.f)
-		{
-			auto wv = m_camera.GetForward() * -200.f * ((rand() % 1000) / 1000.f);
-			wv += 30.f * m_camera.GetRight() * ((rand() % 1000) - 500.f) / 1000.f;
-			wv += 30.f * m_camera.GetUp() * ((rand() % 1000) - 500.f) / 1000.f;
-			w.m_transform->SetPos(-m_camera.GetPos() + wv);
-		}
-		//glDepthMask(GL_FALSE);
-		w.Draw(m_camera, m_clock.Get_Time_Passed());
-		//glDepthMask(GL_TRUE);
-	}
-#endif
-
-
-#if 1
 	m_ofbo.Unbind();
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -281,16 +293,17 @@ void Level::OnAttach()
 	int water_scale = 2;
 	float mesh_size = 200.f;
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_03.obj");
-	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/rock_grey.png");
+	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/water_02.jpg");
 	//std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.2");
-	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.3");
-	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
+	std::shared_ptr<Shader> terrain_sdr = std::make_shared<Shader>("./res/SHADERS/terrianShader.3");
+	std::shared_ptr<Material> terrain_mat = std::make_shared<Material>(terrain_sdr, water_tex);
 
+	// make mountain terrain
 	for (int x = -water_size; x <= water_size; x++)
 	{
 		for (int z = -water_size; z <= water_size; z++)
 		{
-			Actor world(mesh, water_mat);
+			Actor world(mesh, terrain_mat);
 			world.m_transform->GetPos().y -= 3.0f;
 			world.m_transform->GetPos().z = z * mesh_size;
 			world.m_transform->GetPos().x = x * mesh_size;
@@ -298,6 +311,27 @@ void Level::OnAttach()
 			world.m_transform->GetScale().y = 1;
 
 			m_terrain.push_back(world);
+			Water_off.push_back(glm::vec2(x * mesh_size * water_scale, z * mesh_size * water_scale));
+		}
+	}
+	std::shared_ptr<Texture> water_n = std::make_shared<Texture>("./res/TEXTURES/water_n.jpeg");
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/water2Shader");
+	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
+	water_mat->Add(water_n);
+	water_scale = 1.0f;
+	//water
+	for (int x = -water_size; x <= water_size; x++)
+	{
+		for (int z = -water_size; z <= water_size; z++)
+		{
+			Actor world(mesh, water_mat);
+			world.m_transform->GetPos().y -= 3.0f;
+			world.m_transform->GetPos().z = z * mesh_size * water_scale;
+			world.m_transform->GetPos().x = x * mesh_size * water_scale;
+			world.m_transform->GetScale() *= water_scale;
+			world.m_transform->GetScale().y = 1;
+
+			m_water.push_back(world);
 			Water_off.push_back(glm::vec2(x * mesh_size * water_scale, z * mesh_size * water_scale));
 		}
 	}

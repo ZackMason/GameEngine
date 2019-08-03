@@ -9,7 +9,7 @@ public:
 
 	void OnAttach() override;
 	void OnUpdate() override;
-	void OnEvent() override;
+	void OnEvent () override;
 	void OnDetach() override;
 };
 

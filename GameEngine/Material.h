@@ -103,6 +103,8 @@ public:
 
 	void Add(std::shared_ptr<Texture> t) { m_textures.push_back(t); }
 
+	std::shared_ptr<Shader> Get_Sdr() { return m_shader; }
+
 private:
 	std::shared_ptr<Shader>  m_shader;
 	std::vector<std::shared_ptr<Texture>> m_textures;

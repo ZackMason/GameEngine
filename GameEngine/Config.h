@@ -16,6 +16,7 @@ public:
 	static float bias;
 	static float scale;
 	static float power;
+	static bool fly;
 	static float mesh_size;
 	static glm::vec4 shader_color;
 	static Config* s_Instance;
