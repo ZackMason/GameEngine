@@ -16,12 +16,22 @@ uniform float bias;
 uniform float scale;
 uniform float power;
 
+layout (location = 0 )out vec4 color;
+layout (location = 1 )out vec4 dcolor;
 
-out vec4 color;
+
+float near=.1;
+float far=150.;
+
+float LinearizeDepth(float depth)
+{
+	float z=depth*2.-1.;// back to NDC
+	return(2.*near*far)/(far+near-z*(far-near));
+}
 
 float fresnel(vec3 rd,vec3 n)
 {
-	return 0.0+0.47*pow(1.+dot(rd,n),7.0);
+	return 0.+.11*pow(1.+dot(rd,n),2.6);
 }
 
 float calcWave(float x)
@@ -62,14 +72,14 @@ void main()
 	vec3 E = normalize(EyeDirection_cameraspace);
 
 	vec3 n = normalize( normal0 );
-	n += normalize(texture(norm,uv+Time/18.).rgb)*9.;
+	n += normalize(texture(norm,uv+Time/18.).rgb);
 	n = normalize(n);
 	float a = min(max((Position_worldspace.y-22)/15.,0.),1.);
 	a = fresnel(E,n);
 	a= max(a,0.);
 	a = min(a,1.);
 
-	vec3 MaterialDiffuseColor = mix(vec3(0.2275, 0.2275, 1.0),vec3(0,0,1), a );
+	vec3 MaterialDiffuseColor = mix(vec3(0,0,1),vec3(0.2275, 0.2275, 1.0), a );
 	vec3 MaterialSpecularColor = vec3(.3);
 
 	// Distance to the light
@@ -80,8 +90,8 @@ void main()
 	vec3 l = normalize( LightDirection_cameraspace );
 	l = vec3(1,1,0);
 	l = normalize(l);
-	float dis =  Position_worldspace.y - (35 + noise(Position_worldspace.xz/2., 550.3)*27.);
-	MaterialDiffuseColor += smoothstep(0.,2.1,dis)* vec3(0.7608, 0.9765, 0.9922);
+	float dis =  Position_worldspace.y - (35 + noise(Position_worldspace.xz/.3, 550.3)*(27.));
+	MaterialDiffuseColor += smoothstep(0.,4.1,dis/4.)* vec3(0.7608, 0.9765, 0.9922);
 
 
 	MaterialDiffuseColor += texture(diffuse,uv).rgb/3.;
@@ -103,7 +113,7 @@ void main()
 	//  - Looking into the reflection -> 1
 	//  - Looking elsewhere -> < 1
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
-	color.a = 1.79;
+	color.a = 1.;
 	color.rgb = 
 		// Ambient : simulates indirect lighting
 		MaterialAmbientColor +
@@ -111,9 +121,14 @@ void main()
 		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
 		// Specular : reflective highlight, like a mirror
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
-	//color.rgb += fresnel(E,n)/6.;
+	//color.rgb = fresnel(E,n)*vec3(1);
 	//color = vec4(vec3(a),1.);
 	//color.rgb = MaterialDiffuseColor;
+
+    float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
+    dcolor = vec4(vec3(depth), 1.0);
+
+
 #if 0
 	color.rgb = MaterialDiffuseColor;
 	

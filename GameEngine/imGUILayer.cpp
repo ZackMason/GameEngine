@@ -60,14 +60,13 @@ void imGUILayer::OnUpdate()
 	if (ImGui::Button("Fly"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 		c.fly = !c.fly;
 
-	static bool wirebut = true;
 	if (ImGui::Button("Wire"))     // Buttons return true when clicked (most widgets return true when edited/activated)
 	{
-		if (wirebut)
+		if (!c.wire)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		wirebut = !wirebut;
+		c.wire = !c.wire;
 	}
 
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

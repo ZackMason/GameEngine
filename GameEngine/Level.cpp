@@ -15,7 +15,7 @@ static Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0
 
 Level::Level(const Display &d) : m_camera(glm::vec3(0.1, -145, 70), 70.0f, d.GetAspect(), 10.f, 12000.0f),
 m_ofbo(),
-m_screen_sdr("./res/SHADERS/screen2Shader"),
+m_screen_sdr("./res/SHADERS/screenShader"),
 m_screen(screen_quad, 6),
 m_player("biplane", "toon", "wood"),
 m_sky("skydome2", "skydome", "skydome")
@@ -107,7 +107,9 @@ void Level::Render_Level()
 #else
 	for (auto &a : m_water)
 	{
-		//a.Get_Sdr()->setFloat("DT", m_clock.Get_DT());
+		a.Get_Sdr()->setFloat("scale", Config::scale);
+		a.Get_Sdr()->setFloat("power", Config::power);
+		a.Get_Sdr()->setFloat("bias", Config::bias);
 		a.Get_Sdr()->setInt("diffuse", 0);
 		a.Get_Sdr()->setInt( "norm",1);
 		a.Draw(m_camera, m_clock.Get_Time_Passed());
@@ -252,7 +254,7 @@ void Level::OnUpdate()
 
 	//Drawing begins here, needs abstraction
 
-#if 0
+#if 1
 	m_ofbo.Bind();
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.1f, .1f, 0.1f, 1.0f);
@@ -261,14 +263,16 @@ void Level::OnUpdate()
 
 
 	Render_Level();
-
-
-#if 0
+	if (Config::wire)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#if 1
 	m_ofbo.Unbind();
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	m_screen_sdr.Bind();
-	//m_screen_sdr.setFloat("Time", m_clock.Get_Time_Passed());
+	m_screen_sdr.setFloat("Time", m_clock.Get_Time_Passed());
+	m_screen_sdr.setFloat("gamma", Config::gamma);
+	m_screen_sdr.setFloat("expos", Config::expos);
 
 	glBindVertexArray(m_screen.GetVAO());
 	//glActiveTexture(0);
@@ -283,6 +287,9 @@ void Level::OnUpdate()
 	glDisable(GL_DEPTH_TEST);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 #endif
+	if (Config::wire)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 
 	counter += 0.01f;
 }
