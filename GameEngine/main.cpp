@@ -13,6 +13,7 @@
 #pragma comment(lib, "./lib/glew32.lib")
 
 #include "CORE.h"
+#include "./Levels/TestLevel.h"
 
 #include <stdlib.h>
 
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
 	Application *myapp = new Application;
 	Display *display = new Display("game");
 	myapp->SetDisplay(display);
-	Layer *level = new Level(*display);
+	Layer *level = new TestLevel(*display);
 	Config *config = new Config();
 	imGUILayer *gui = new imGUILayer();
 	gui->SetName("Trip");

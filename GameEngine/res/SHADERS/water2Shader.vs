@@ -18,6 +18,7 @@ uniform mat4 ViewMatrix;
 uniform mat4 ModelMatrix;
 uniform vec3 LightPosition;
 uniform float Time;
+uniform float power;
 uniform float DT;
 
 vec3 gerstnerWave(in vec3 pos, in vec2 d )
@@ -44,9 +45,9 @@ vec3 Gerstner_Wave(
 	float k=2*3.141592/wavelength;
 	float c=sqrt(9.8/k);
 	vec2 d= normalize(wave.xy);
-	float f=k*(dot(d,p.xz)-c*Time);
+	float f=k*(dot(d,p.xz)-c*Time*3.);
 	float a=steepness/k;
-	
+
 	//p.x += d.x * (a * cos(f));
 	//p.y = a * sin(f);
 	//p.z += d.y * (a * cos(f));
@@ -68,6 +69,20 @@ vec3 Gerstner_Wave(
 	);
 }
 
+float rand(vec2 n){
+    return fract(sin(dot(n,vec2(12.9898,4.1414)))*43758.5453);
+}
+
+float noise(vec2 p){
+    vec2 ip=floor(p);
+    vec2 u=fract(p);
+    u=u*u*(3.-2.*u);
+    
+    float res=mix(
+        mix(rand(ip),rand(ip+vec2(1.,0.)),u.x),
+        mix(rand(ip+vec2(0.,1.)),rand(ip+vec2(1.,1.)),u.x),u.y);
+        return res*res;
+    }
 void main()
 {
 	Position_worldspace = (ModelMatrix * vec4(position,1)).xyz;
@@ -83,19 +98,28 @@ void main()
 	position0 = (ModelMatrix * vec4(position,1.0)).xyz;
 	texCoord0 = texCoord;
 	vec3 pos = Position_worldspace;
-	pos.y += 35.;
-	vec4 wave1 = vec4(0,1,.25,160.);
-	vec4 wave2 = vec4(-1,-1,.245, 165.);
-	vec4 wave3 = vec4(1,1.6,.25, 100.);
-	vec4 wave4 = vec4(-1,.6,.125,130.);
-	vec4 wave5 = vec4(-1.3,0,.125,145.);
+	//pos.y += 35.;
 	vec3 tangent = vec3(1,0,0);
 	vec3 binormal = vec3(0,0,-1);
+	vec4 wave1 = vec4(0,1,.15,1260.);
+	vec4 wave2 = vec4(-1,-1,.145, 1265.);
+	vec4 wave3 = vec4(1,-1.6,.125, 1600.);
+	vec4 wave4 = vec4(1,.6,.125,430.);
+	vec4 wave5 = vec4(-1.3,0,.125,845.);
 	pos += Gerstner_Wave(wave1,pos,tangent,binormal);
 	pos += Gerstner_Wave(wave2, pos, tangent, binormal);
 	pos += Gerstner_Wave(wave3, pos,tangent,binormal);
 	pos += Gerstner_Wave(wave4, pos, tangent, binormal);
 	pos += Gerstner_Wave(wave5, pos, tangent, binormal);
+
+	#if 0
+	for (float i = 0.; i < 5.; i += 1.)
+	{
+		vec4 wave = vec4(1.,0.,1./20.,1000.*sin(i));
+		pos += Gerstner_Wave(wave, pos, tangent, binormal);
+	}
+	#endif
+
 	normal0 = normalize(cross(tangent,binormal));
 	TBN = mat3(tangent,binormal,normal0);
 	Position_worldspace = pos;

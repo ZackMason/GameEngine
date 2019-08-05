@@ -21,6 +21,9 @@ public:
 	static bool wire;
 	static float mesh_size;
 	static glm::vec4 shader_color;
+	static glm::vec4 shader_color2;
+	static glm::vec4 shader_color3;
+	static glm::vec4 shader_color4;
 	static Config* s_Instance;
 };
 
