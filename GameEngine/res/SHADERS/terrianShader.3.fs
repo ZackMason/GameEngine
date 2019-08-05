@@ -11,6 +11,8 @@ in vec4 viewspace;
 
 //uniform vec3 LightPosition;
 uniform float Time;
+uniform float lp;
+uniform float shine;
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 dcolor;
@@ -126,7 +128,7 @@ void main()
 {
     vec3 LightColor=vec3(0.9529, 0.9333, 0.6353);
 
-    float LightPower=12.f;
+    float LightPower=lp;
     
     vec3 c1 = vec3(0.0353, 0.8784, 0.0353);
     // Material properties
@@ -251,7 +253,7 @@ void main()
     //MaterialDiffuseColor *= finalColor;
     //MaterialDiffuseColor =  mix(c2,c1,(position0.y+120)/50.);
     //  MaterialDiffuseColor += vec3(0,1,0) * noise(Position_worldspace.xz) *0.1;
-    float distance = 3.5;
+    float distance = shine;
     vec3 l = vec3(1,1,0);
     l = normalize(l);
     float cosTheta=clamp(dot(n,l),0,1);
@@ -311,6 +313,8 @@ void main()
     //color.g = gridf(position0.y-35, 0.1);
     //color.b = gridf(Position_worldspace.z,0.1);
     //color.rgb = vec3(grid2(Position_worldspace.xz/100.));
+
+
     color.a=1;
     dcolor = vec4(vec3(depth), 1.0);
  }

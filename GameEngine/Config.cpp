@@ -15,6 +15,7 @@ float Config::expos = 1.20f;
 float Config::bias = 0.001f;
 float Config::scale = 0.47920f;
 float Config::power = 1.3666f;
+float Config::lp = 255.f;
 float Config::mesh_size = 100.f;
 bool Config::fly = false;
 bool Config::wire = false;

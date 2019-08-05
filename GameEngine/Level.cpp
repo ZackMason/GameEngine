@@ -81,12 +81,15 @@ void Level::Render_Level()
 			m_water[i - size].m_transform->GetPos().x = -m_camera.GetPos().x + Water_off[i].x;
 		}
 	}
-
+#if 0
 	// Draw mountains
 	for (auto &a : m_terrain)
 	{
+		a.Get_Sdr()->setFloat("shine", Config::shine);
+		a.Get_Sdr()->setFloat("lp", Config::lp);
 		a.Draw(m_camera, m_clock.Get_Time_Passed());
 	}
+#endif
 
 #if 0
 	for (unsigned int i = 0; i < m_water.size(); i++)
@@ -110,6 +113,9 @@ void Level::Render_Level()
 		a.Get_Sdr()->setFloat("scale", Config::scale);
 		a.Get_Sdr()->setFloat("power", Config::power);
 		a.Get_Sdr()->setFloat("bias", Config::bias);
+		a.Get_Sdr()->setFloat("shine", Config::shine);
+		a.Get_Sdr()->setFloat("lp", Config::lp);
+		a.Get_Sdr()->setVec4("ucolor", Config::shader_color);
 		a.Get_Sdr()->setInt("diffuse", 0);
 		a.Get_Sdr()->setInt( "norm",1);
 		a.Draw(m_camera, m_clock.Get_Time_Passed());

@@ -55,6 +55,7 @@ void imGUILayer::OnUpdate()
 	ImGui::SliderFloat("bias", &c.bias, 0.00001f, 3.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 	ImGui::SliderFloat("scale", &c.scale, 0.000001f, 6.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 	ImGui::SliderFloat("power", &c.power, 0.1f, 7.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+	ImGui::SliderFloat("lp", &c.lp, 1.f, 500.f);            // Edit 1 float using a slider from 0.0f to 1.0f
 	ImGui::ColorEdit3("shader color", (float*)&c.shader_color);  // Edit 3 floats representing a color
 
 	if (ImGui::Button("Fly"))                            // Buttons return true when clicked (most widgets return true when edited/activated)

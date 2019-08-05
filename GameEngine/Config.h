@@ -16,6 +16,7 @@ public:
 	static float bias;
 	static float scale;
 	static float power;
+	static float lp;
 	static bool fly;
 	static bool wire;
 	static float mesh_size;

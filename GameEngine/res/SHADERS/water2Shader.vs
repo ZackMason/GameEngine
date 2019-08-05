@@ -11,6 +11,7 @@ out vec3 position0;
 out vec3 LightDirection_cameraspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 Position_worldspace;
+out mat3 TBN;
 
 uniform mat4 ModelViewProjection;
 uniform mat4 ViewMatrix;
@@ -96,6 +97,7 @@ void main()
 	pos += Gerstner_Wave(wave4, pos, tangent, binormal);
 	pos += Gerstner_Wave(wave5, pos, tangent, binormal);
 	normal0 = normalize(cross(tangent,binormal));
+	TBN = mat3(tangent,binormal,normal0);
 	Position_worldspace = pos;
 	//normal0 = (ViewMatrix * ModelMatrix * vec4(normal0,0.0)).xyz;
 	//pos = gerstnerWave(pos,wavedir.xy)+gerstnerWave(pos,wavedir.yx)+gerstnerWave(pos,wavedir.yy);

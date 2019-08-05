@@ -40,7 +40,7 @@ void main ()
     // gamma correction 
 	vec3 mapped = vec3(1.0) - exp(-color.rgb * expos);
     mapped = pow(mapped, vec3(1.0 / gamma));
-	color.rgb = mapped;
+	//color.rgb = mapped;
 //	color.rgb=texture(diffuse,uv).rgb;
 
 	color.a = 1;
