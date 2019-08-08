@@ -3,13 +3,13 @@
 #include <vector>
 #include <map>
 
-#include "../Actor.h"
-#include "../Camera.h"
-#include "../Clock.h"
-#include "../FrameBuffer.h"
-#include "../Shader.h"
-#include "../Display.h"
-#include "../Layer.h"
+#include "Actor.h"
+#include "Camera.h"
+#include "Clock.h"
+#include "FrameBuffer.h"
+#include "Shader.h"
+#include "Display.h"
+#include "Layer.h"
 
 
 class TestLevel : public Layer
@@ -28,13 +28,13 @@ public:
 	void OnAttach() override;
 
 private:
-	std::vector<Actor>	m_actors;
-	std::vector<Actor>	m_terrain;
-	std::vector<Actor>	m_water;
-	std::map<float, Actor*> sorted;
-	std::vector<Actor>	m_winds;
-	Actor					m_sky;
-	Actor					m_player;
+	std::vector<Actor>			m_actors;
+	//std::vector<Actor>			m_terrain;
+	//std::vector<Actor>			m_water;
+	//std::map<float, Actor*>	sorted;
+	//std::vector<Actor>			m_winds;
+	Actor						m_sky;
+	Actor						m_player;
 	Camera					m_camera;
 	FrameBuffer				m_ofbo;  //off screen frame buffer
 	Mesh					m_screen;

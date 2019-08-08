@@ -13,35 +13,57 @@ const vec2 res = vec2(1920,1080);
 uniform float gamma;
 uniform float expos;
 
+vec3 Uncharted2Tonemap(vec3 x)
+{
+    float A = 0.15;
+	float B = 0.50;
+	float C = 0.10;
+	float D = 0.20;
+	float E = 0.02;
+	float F = 0.30;
+
+    return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+}
+
+vec3 gammaCorrection(vec3 color){
+	// gamma correction 
+	color = pow(color, vec3(1.0/gamma)); 
+	return color;
+}
+
+vec3 Reinhard(vec3 color)
+{
+	return color.rgb / (color.rgb + vec3(1.0));
+}
+
+vec3 Exposure(vec3 color) 
+{
+	return vec3(1.0) - exp(-color.rgb * expos);
+}
+
 void main ()
 {
 
 	color.rgb = texture(diffuse,uv).rgb;
 	#if 0
-	//color.rgb = color.rgb/(1.+color.rgb);
-	vec2 map = vec2(0.65,-0.3);
-	vec2 p = (uv*res.xy)/res.y - (vec2(.5)*res.xy)/res.y;
-	vec2 pp = map - p;
-	if(length(pp) < 0.1)
-	{
-		if (dot(normalize(pp), normalize(vec2(cos(Time),sin(Time)))) > .999)
-			color.rgb = vec3(0,1,0);
-		else
-		color.rgb = vec3(0);
-	}
-	//color.rgb = vec3(dot(pp,vec2(cos(Time),sin(Time))));
 
-	//float bright = dot(color.rgb,vec3(0.2627,0.678,.0593));
-	//color.rgb *= bright;
+
 	float d = texture(depth,uv).r;
-	#endif
 
 	//vec3 mapped = color.rgb / (color.rgb + vec3(1.0));
     // gamma correction 
-	vec3 mapped = vec3(1.0) - exp(-color.rgb * expos);
-    mapped = pow(mapped, vec3(1.0 / gamma));
-	color.rgb = mapped;
-//	color.rgb=texture(diffuse,uv).rgb;
+	color.rgb = vec3(1) * bright;
+
+	
+	#endif
+	float bright = dot(color.rgb,vec3(0.2627,0.678,.0593));
+
+
+	#if 0
+	color.rgb = Reinhard(color.rgb);
+	//color.rgb = Exposure(color.rgb);
+	color.rgb = gammaCorrection(color.rgb);
+	#endif
 
 	color.a = 1;
 	//color.rg = uv;

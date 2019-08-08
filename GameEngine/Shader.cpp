@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include "Application.h"
 #include "Config.h"
 #include <iostream>
 #include <fstream>
@@ -17,7 +18,6 @@ Shader::Shader(const std::string& fileName)
 
 	glBindFragDataLocation(m_program, 0, "color");
 	glBindFragDataLocation(m_program, 1, "dcolor");
-
 
 	glBindAttribLocation(m_program, 0, "position");
 	glBindAttribLocation(m_program, 1, "texCoord");
@@ -102,7 +102,7 @@ GLuint Shader::CreateShader(const std::string& text, unsigned int type)
 	const GLchar* p[1];
 	p[0] = text.c_str();
 	GLint lengths[1];
-	lengths[0] = text.length();
+	lengths[0] = static_cast<GLint>(text.length());
 
 	glShaderSource (shader, 1, p, lengths);
 	glCompileShader(shader);
@@ -117,14 +117,12 @@ void Shader::Bind()
 	glUseProgram(m_program);
 }
 
-void Shader::Update( Transform& transform, const Camera& camera, double time_passed)
+#if 1
+void Shader::SetMVP( Transform& transform, const Camera& camera)
 {
 	glm::mat4 ModelMatrix         = transform.GetModel();
 	glm::mat4 ViewMatrix          = camera.GetViewProjection();
 	glm::mat4 ModelViewProjection = camera.GetViewProjection() * ModelMatrix;
-	//glm::vec3 LightPosition       = glm::vec3(42.0f, sinf(time_passed) + 4.0f, -44.0f) /*+ glm::vec3(-40,0,-40)*/;
-	//glm::vec3 LightPosition       = glm::vec3(sinf(time_passed) * 40.0f, sinf(time_passed) + 4.0f, cosf(time_passed) * 40.0f) /*+ glm::vec3(-40,0,-40)*/;
-	//auto LightPosition = transform.GetPos() + glm::vec3(0,50,0);
 	//transpose if matrices are weird
 	//ModelViewProjection = glm::transpose(ModelViewProjection);
 	//ModelMatrix = glm::transpose(ModelMatrix);
@@ -133,39 +131,32 @@ void Shader::Update( Transform& transform, const Camera& camera, double time_pas
 	glUniformMatrix4fv              (GetUniformLocation("ModelViewProjection"), 1, GL_FALSE, &ModelViewProjection[0][0]);
 	glUniformMatrix4fv              (GetUniformLocation("ViewMatrix"), 1, GL_FALSE, &ViewMatrix[0][0]);
 	glUniformMatrix4fv              (GetUniformLocation("ModelMatrix"), 1, GL_FALSE, &ModelMatrix[0][0]);
-	//glUniform3f		                (m_uniforms[LIGHT_U], LightPosition.x, LightPosition.y, LightPosition.z);
-	glUniform1f		                (GetUniformLocation("Time"), time_passed);
 }
 
-void Shader::Update(Transform& transform, const Camera& camera, double time_passed, const std::vector<Light*>& lights)
-{
-	glm::mat4 ModelMatrix = transform.GetModel();
-	glm::mat4 ViewMatrix = camera.GetViewProjection();
-	glm::mat4 ModelViewProjection = camera.GetViewProjection() * transform.GetModel();
-	glUniformMatrix4fv(GetUniformLocation("ModelViewProjection"), 1, GL_FALSE, &ModelViewProjection[0][0]);
-	glUniformMatrix4fv(GetUniformLocation("ViewMatrix"), 1, GL_FALSE, &ViewMatrix[0][0]);
-	glUniformMatrix4fv(GetUniformLocation("ModelMatrix"), 1, GL_FALSE, &ModelMatrix[0][0]);
-	glUniform1f(GetUniformLocation("Time"), time_passed);
 
-	setInt("material.diffuse", 0);
-	setInt("material.specular", 1);
+void Shader::SetLights(const std::vector<Light*>& lights)
+{
+
+	setInt("num_lights", static_cast<int>(lights.size()));
 	setFloat("material.shininess", Config::Get().shine);
 
 	GLuint i = 0;
 	for (auto&l : lights)
 	{
+		int j = 0;
 		std::string number = std::to_string(i);
-		glUniform4f(GetUniformLocation( ("pointLights[" + number + "].position").c_str()), lights[i]->m_position.x, lights[i]->m_position.y, lights[i]->m_position.z, lights[i]->m_position.w);
-		glUniform4f(GetUniformLocation( ("pointLights[" + number + "].color").c_str()), lights[i]->m_color.x, lights[i]->m_color.y, lights[i]->m_color.z, lights[i]->m_position.w);
-		glUniform3f(GetUniformLocation( ("pointLights[" + number + "].ambient").c_str()), lights[i]->m_ads.r, lights[i]->m_ads.r, lights[i]->m_ads.r);
-		glUniform3f(GetUniformLocation( ("pointLights[" + number + "].diffuse").c_str()), lights[i]->m_ads.g, lights[i]->m_ads.g, lights[i]->m_ads.g);
-		glUniform3f(GetUniformLocation( ("pointLights[" + number + "].specular").c_str()), lights[i]->m_ads.b, lights[i]->m_ads.b, lights[i]->m_ads.b);
-		glUniform1f(GetUniformLocation( ("pointLights[" + number + "].constant").c_str()), lights[i]->m_clq.x);
-		glUniform1f(GetUniformLocation( ("pointLights[" + number + "].linear").c_str()), lights[i]->m_clq.y);
-		glUniform1f(GetUniformLocation( ("pointLights[" + number + "].quadratic").c_str()), lights[i]->m_clq.z);
+		glUniform4f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_position.x, lights[i]->m_position.y, lights[i]->m_position.z, lights[i]->m_position.w);
+		glUniform4f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_color.x, lights[i]->m_color.y, lights[i]->m_color.z, lights[i]->m_position.w);
+		glUniform3f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_ads.r, lights[i]->m_ads.r, lights[i]->m_ads.r);
+		glUniform3f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_ads.g, lights[i]->m_ads.g, lights[i]->m_ads.g);
+		glUniform3f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_ads.b, lights[i]->m_ads.b, lights[i]->m_ads.b);
+		glUniform1f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_clq.x);
+		glUniform1f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_clq.y);
+		glUniform1f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_clq.z);
 		i++;
 	}
 }
+#endif
 
 GLint Shader::GetUniformLocation(const std::string& name) const
 {

@@ -12,7 +12,7 @@
 class Material
 {
 public:
-	Material();
+	Material() : m_shader(nullptr) , m_textures(std::vector<std::shared_ptr<Texture>>()) {};
 
 	Material(std::string filename) 
 	{
@@ -29,7 +29,6 @@ public:
 		if (!m_textures[0]->IsLoaded())
 			m_textures.push_back(std::make_shared<Texture>("./res/TEXTURES/" + fn2 + ".png"));
 	}
-
 	Material(std::string fn1, std::string fn2, std::string fn3)
 	{
 		m_shader  =  std::make_shared<Shader> ("./res/SHADERS/"  + fn1 + "Shader");
@@ -48,39 +47,24 @@ public:
 		m_textures.push_back(tex);
 	}
 
-	void Update(Transform &transform, const Camera &camera, double time_passed)
+	void Bind()
 	{
 		if (m_shader == nullptr) { return; }
 		m_shader->Bind();
 		int i = 0;
-		for (auto& t : m_textures)
+		for (auto& Shader : m_textures)
 		{
-			if (t->IsLoaded())
-				t->Bind(i++);
+			if (Shader->IsLoaded())
+				Shader->Bind(i++);
 		}
-		m_shader->Update(transform, camera, time_passed);
-	}
-
-	void Update(Transform &transform, const Camera &camera, double time_passed, const std::vector<Light*>& l)
-	{
-		if (m_shader == nullptr) { return; }
-		m_shader->Bind();
-		int i = 0;
-		for (auto& t : m_textures)
-		{
-			if (t->IsLoaded())
-				t->Bind(i++);
-		}
-		m_shader->Update(transform, camera, time_passed, l);
 	}
 	
-	std::shared_ptr<Texture> GetTex() {return m_textures[0];}
 
 	Material(const Material& other)
 	{
 		m_shader = other.m_shader;
-		for ( auto& t : other.m_textures)
-		m_textures.push_back(t);
+		for ( auto& Shader : other.m_textures)
+		m_textures.push_back(Shader);
 	}
 #if 0
 	Material& operator=(const Material& other)
@@ -101,9 +85,11 @@ public:
 		//delete m_texture;
 	}
 
-	void Add(std::shared_ptr<Texture> t) { m_textures.push_back(t); }
-
+	void AddSdr(std::shared_ptr<Shader> sdr) { m_shader = sdr; }
+	void Add(std::shared_ptr<Texture> Shader) { m_textures.push_back(Shader); }
+	std::shared_ptr<Texture> GetTex(size_t i = 0) { return m_textures[i]; }
 	std::shared_ptr<Shader> Get_Sdr() { return m_shader; }
+	size_t GetTexSize(size_t i = 0) {return m_textures.size();}
 
 private:
 	std::shared_ptr<Shader>  m_shader;

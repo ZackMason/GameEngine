@@ -30,10 +30,6 @@ Level::~Level()
 {
 }
 
-void Level::Add_Actor(std::shared_ptr<Actor> actor)
-{
-
-}
 
 void Level::Display_Levels()
 {

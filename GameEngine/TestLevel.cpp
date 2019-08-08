@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
-#include "../Application.h"
+#include "Application.h"
 #include "TestLevel.h"
-#include "../Config.h"
+#include "Config.h"
 
 static Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0)),
 						   Vertex(glm::vec3(-1.0,-1.0,0.0),glm::vec2(0.0,0.0)),
@@ -13,20 +13,15 @@ static Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0
 						   Vertex(glm::vec3(1.0,1.0,0.0),glm::vec2(1.0,1.0))
 };
 
-TestLevel::TestLevel(const Display &d) : m_camera(glm::vec3(0.1, -145, 70), 70.0f, d.GetAspect(), 10.f, 12000.0f),
+TestLevel::TestLevel(const Display &d) : m_camera(glm::vec3(0, -1, -70), 70.0f, d.GetAspect(), 10.f, 12000.0f),
 m_ofbo(),
 m_screen_sdr("./res/SHADERS/screenShader"),
 m_screen(screen_quad, 6),
-m_player("sphere", "water2", "water_02"),
+m_player("plane", "standard", "bricks"),
 m_sky("skydome2", "skydome", "skydome")
 {	
 	m_sky.m_transform->GetScale() *= 40;
 	m_player.m_transform->GetScale() *= 20;
-	m_player.m_transform->GetPos().z -= 42;
-	m_player.m_transform->GetPos().x = 44;
-	m_player.m_transform->GetPos().y -= 3;
-	std::shared_ptr<Texture> water_n = std::make_shared<Texture>("./res/TEXTURES/water_n.jpeg");
-	m_player.Get_Mat()->Add(water_n);
 }
 
 TestLevel::~TestLevel()
@@ -60,6 +55,8 @@ void TestLevel::Render_Level()
 	//glDepthMask(GL_TRUE);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
+
+#if 0
 	m_player.Get_Sdr()->setFloat("scale", Config::scale);
 	m_player.Get_Sdr()->setFloat("power", Config::power);
 	m_player.Get_Sdr()->setFloat("bias", Config::bias);
@@ -71,6 +68,7 @@ void TestLevel::Render_Level()
 	m_player.Get_Sdr()->setVec4("ucolor4", Config::shader_color4);
 	m_player.Get_Sdr()->setInt("diffuse", 0);
 	m_player.Get_Sdr()->setInt("norm", 1);
+#endif
 	m_player.Draw(m_camera, m_clock.Get_Time_Passed());
 
 	for (auto& a : m_actors)
@@ -81,13 +79,14 @@ void TestLevel::Render_Level()
 		//if (glm::dot(ray, camera.GetForward()) > -0.2)
 		a.Draw(m_camera, m_clock.Get_Time_Passed());
 	}
-
+#if 0
 	for (unsigned int i = 0; i < Water_off.size(); i++)
 	{
 
 		m_water[i].m_transform->GetPos().z = -m_camera.GetPos().z + Water_off[i].y;
 		m_water[i].m_transform->GetPos().x = -m_camera.GetPos().x + Water_off[i].x;
 	}
+#endif
 
 
 
@@ -151,7 +150,7 @@ void TestLevel::OnUpdate()
 		m_camera.RotX(-(lasty - thisy) / 6.0f * m_clock.Get_DT());
 	}
 
-#if 1
+#if 0
 	//capture mouse when you click on the window
 	if (SDL_GetMouseState(&mousex, &mousey))
 	{
@@ -261,6 +260,7 @@ void TestLevel::OnUpdate()
 
 void TestLevel::OnAttach()
 {
+#if 0
 	int water_size = 40;
 	int water_scale = 2;
 	float mesh_size = 200.f;
@@ -287,7 +287,6 @@ void TestLevel::OnAttach()
 			Water_off.push_back(glm::vec2(x * mesh_size * water_scale, z * mesh_size * water_scale));
 		}
 	}
-#if 0
 	water_scale = 16;
 	water_size = 30;
 	for (int x = -water_size; x <= water_size; x++)

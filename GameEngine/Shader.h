@@ -8,17 +8,20 @@
 #include "Camera.h"
 #include "Light.h"
 
+
 class Shader
 {
 public:
 	Shader(const std::string& fileName);
 
 	void Bind  ();
-	void Update(Transform& transform, const Camera& camera, double time_passed);
-	void Update(Transform& transform, const Camera& camera, double time_passed, const std::vector<Light*>& lights);
+	void SetMVP(Transform& transform, const Camera& camera);
+	void SetLights(const std::vector<Light*>& lights = { 0 });
+
 
 	virtual ~Shader();
 
+#if 1
 	// utility uniform functions
    // ------------------------------------------------------------------------
 	void setBool(const std::string &name, bool value) const
@@ -77,70 +80,28 @@ public:
 	{
 		glUniformMatrix4fv(GetUniformLocation( name.c_str()), 1, GL_FALSE, &mat[0][0]);
 	}
+#endif
 
+	// public cache of uniform locations
 	mutable std::unordered_map<std::string, GLint> m_uniform_location_cache;
 
+	// Fucntion Definitions
 protected:
-	static const unsigned int NUM_SHADERS = 2;
-	Shader(const Shader& other)
-	{
-		m_fileName = other.m_fileName;
-		m_program  = other.m_program;
-	}
-#if 0
-	Shader(const Shader& other)
-	{
-		if (this != &other)
-		{
-			m_program = other.m_program;
-			for (unsigned int i = 0; i < NUM_SHADERS; i++)
-			{
-				m_shaders[i] = other.m_shaders[i];
-				//glDetachShader(other.m_program, other.m_shaders[i]);
-				//glDeleteShader(other.m_shaders[i]);
-			}
-			//glDeleteProgram(other.m_program);
-		}
-	}
-#endif
-	Shader& operator=(const Shader& other) 
-	{
-		if (this != &other)
-		{
-			m_program = other.m_program;
-			for (unsigned int i = 0; i < NUM_SHADERS; i++)
-			{
-				m_shaders[i] = other.m_shaders[i];
-				glDetachShader(m_program, m_shaders[i]);
-				glDeleteShader(m_shaders[i]);
-			}
-			glDeleteProgram(m_program);
-
-		}
-		return *this;
-	}
-
-	enum
-	{
-		MVP_U   ,
-		VIEW_U  ,
-		MODEL_U ,
-		LIGHT_U ,
-		TIME_U  ,
-		DIFFUSE_U,
-
-		NUM_UNIFORMS
-	};
+	Shader(const Shader& other) = default;
+	Shader& operator=(const Shader& other) = default;
 
 	std::string LoadShader       (const std::string& fileName);
 	GLuint      CreateShader     (const std::string& text    , unsigned int type);
 	void        CheckShaderError (           GLuint  shader  ,       GLuint flag, bool isProgram, const std::string& errorMessage);
+	GLint		GetUniformLocation(const std::string& name) const;
 
+	// Member Varible Declarations
+protected:
+	static const unsigned int NUM_SHADERS = 2;
 	std::string m_fileName;
 
 	GLuint m_program;
 	GLuint m_shaders [ NUM_SHADERS ];
 
-	GLint GetUniformLocation(const std::string& name) const;
 };
 

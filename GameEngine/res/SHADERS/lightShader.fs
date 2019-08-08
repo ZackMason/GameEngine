@@ -20,7 +20,7 @@ struct Light{
 	vec3 specular;
 };
 
-#define NR_POINT_LIGHTS 10
+#define NR_POINT_LIGHTS 100
 
 in vec3 FragPos;
 in vec3 Normal;
@@ -28,6 +28,7 @@ in vec2 TexCoords;
 in vec3 vd;
 
 uniform Light pointLights[NR_POINT_LIGHTS];
+uniform int num_lights;
 uniform Material material;
 
 const float kPi=3.14159265;
@@ -57,7 +58,7 @@ void main()
 	// phase 2: point lights
 	vec3 result = vec3(0);
 	//result = texture(material.diffuse,TexCoords).rgb;
-	for(int i=0;i<NR_POINT_LIGHTS;i++)
+	for(int i=0;i<num_lights;i++)
 	{
 		if (pointLights[i].position.w >= 1.0)
 			result+=CalcDirLight(pointLights[i],norm,vd);

@@ -11,6 +11,8 @@ in vec4 viewspace;
 
 //uniform vec3 LightPosition;
 uniform float Time;
+uniform float lp;
+uniform float shine;
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 dcolor;
@@ -126,13 +128,13 @@ void main()
 {
     vec3 LightColor=vec3(0.9529, 0.9333, 0.6353);
 
-    float LightPower=12.f;
-    
-    // Material properties
-    vec3 MaterialDiffuseColor;
-    vec3 MaterialSpecularColor=vec3(.3,.3,.3);
+    float LightPower=lp;
     
     vec3 c1 = vec3(0.0353, 0.8784, 0.0353);
+    // Material properties
+    vec3 MaterialDiffuseColor = c1;
+    vec3 MaterialSpecularColor=vec3(.3,.3,.3);
+    
     vec3 c2 = vec3(0.4745, 0.302, 0.2235);
     vec3 c3 = vec3(0.5569, 0.8667, 0.349);
     vec3 c4 = vec3(0.149, 0.2431, 0.99686);
@@ -175,12 +177,12 @@ void main()
     vec3 b = pp1 - pp3;
     vec3 n = cross(a,b);
     n=normalize(n);
-
-    if(position0.y <20)
+#if 0
+    if(position0.y <10)
     {
         MaterialDiffuseColor=c4*(.73);
     }
-    else if(position0.y<30)
+    else if(position0.y<20)
     {
         MaterialDiffuseColor=c4*.9;
     }
@@ -192,7 +194,8 @@ void main()
     {
         MaterialDiffuseColor = vec3(1);
     }
-    else if(position0.y+noise(Position_worldspace.xz)*2<40)
+    #endif
+    /*else */if(position0.y+noise(Position_worldspace.xz)*2<40)
     {
         MaterialDiffuseColor=c3;
     }
@@ -250,7 +253,7 @@ void main()
     //MaterialDiffuseColor *= finalColor;
     //MaterialDiffuseColor =  mix(c2,c1,(position0.y+120)/50.);
     //  MaterialDiffuseColor += vec3(0,1,0) * noise(Position_worldspace.xz) *0.1;
-    float distance = 3.5;
+    float distance = shine;
     vec3 l = vec3(1,1,0);
     l = normalize(l);
     float cosTheta=clamp(dot(n,l),0,1);
@@ -294,6 +297,8 @@ void main()
     // Specular : reflective highlight, like a mirror
     MaterialSpecularColor*LightColor*LightPower*pow(cosAlpha,5)/(distance*distance);
     #endif
+
+
     vec3 finalColor = mix(vec3(0.8), MaterialDiffuseColor, fogFactor);
     color.rgb = finalColor;
     //color.rgb = MaterialDiffuseColor;
@@ -310,6 +315,8 @@ void main()
     //color.g = gridf(position0.y-35, 0.1);
     //color.b = gridf(Position_worldspace.z,0.1);
     //color.rgb = vec3(grid2(Position_worldspace.xz/100.));
+
+
     color.a=1;
     dcolor = vec4(vec3(depth), 1.0);
  }

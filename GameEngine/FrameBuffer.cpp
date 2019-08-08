@@ -41,12 +41,14 @@ FrameBuffer::FrameBuffer() : m_TA() , m_DTA()
 void FrameBuffer::Bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+
 	m_bound = true;
 }
 
 void FrameBuffer::Unbind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	m_bound = false;
 }
 

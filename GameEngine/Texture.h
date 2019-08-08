@@ -19,7 +19,10 @@ public:
 	virtual ~Texture();
 
 	operator GLuint() { return m_texture; std::cout << "CAST TEXTURE\n"; }
+	operator GLuint*() { return &m_texture; std::cout << "CAST TEXTURE\n"; }
+	
 
+#if 1	
 	Texture(const Texture& other)
 	{
 		std::cout << "Texture Copied\n";
@@ -37,6 +40,7 @@ public:
 		}
 		return *this;
 	}
+#endif
 protected:
 
 	GLuint m_texture;

@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "Clock.h"
 #include "FrameBuffer.h"
+#include "GBuffer.h"
 #include "Display.h"
 #include "Layer.h"
 #include "Light.h"
@@ -37,8 +38,11 @@ private:
 	Actor					m_player;
 	Camera					m_camera;
 	FrameBuffer				m_ofbo;  //off screen frame buffer
+	GBuffer					m_gbo;  //off screen frame buffer
 	Mesh					m_screen;
 	Shader					m_screen_sdr;
+	Shader					*scr_sdr2 = new Shader("./res/SHADERS/screenShader");
+
 	std::vector<Light*>		m_lights;
 	std::vector<glm::vec2> Water_off;
 	Clock					m_clock;

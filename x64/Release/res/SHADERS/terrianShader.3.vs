@@ -90,7 +90,22 @@ float calcWave(float x)
 }
 
 
-
+vec3 gerstnerWave(in vec3 pos)
+{
+    float a=5.;
+    float l=5.;
+    float w=2.*3.1416/l;
+    float q=.5;
+    
+    vec2 d=vec2(1,0);
+    float dd=dot(pos.xz,d);
+    
+    float s=sin(w*dd+Time/100.);
+    float c=cos(w*dd+Time/100.);
+    
+    vec3 p=vec3(pos.x+q*a*c*d.x,a*s,pos.z+q*a*c*d.y);
+    return p;
+}
 
 void main()
 {
@@ -110,12 +125,14 @@ void main()
     float l = h(Position_worldspace.xz);    
     pos.y = l * y_scale *2. + 580;//130 200
 
-    position0=(ModelMatrix*vec4(pos,0.)).xyz;
 
+    position0=(ModelMatrix*vec4(pos,0.)).xyz;
+    #if 0
     if (pos.y < 35)
     {
         pos.y = 35;
     }
+    #endif
     viewspace = (ModelViewProjection*vec4(position,1));
 
     gl_Position=ModelViewProjection*vec4(pos,1.);

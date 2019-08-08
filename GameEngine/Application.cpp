@@ -19,10 +19,24 @@ void Application::OnUpdate()
 
 void Application::OnStart()
 {
+
+	for (int number = 0; number < 200; number++)
+	{
+		auto n = std::to_string(number);
+		std::vector<std::string> tmp;
+		tmp.push_back( "pointLights[" + n + "].position");
+		tmp.push_back( "pointLights[" + n + "].color");
+		tmp.push_back( "pointLights[" + n + "].ambient");
+		tmp.push_back( "pointLights[" + n + "].diffuse");
+		tmp.push_back( "pointLights[" + n + "].specular");
+		tmp.push_back( "pointLights[" + n + "].constant");
+		tmp.push_back( "pointLights[" + n + "].linear");
+		tmp.push_back( "pointLights[" + n + "].quadratic");
+		light_names.push_back(tmp);
+	}
+
 }
 
 void Application::OnExit()
 {
-	for (auto & layer : m_LayerStack)
-		delete layer;
 }

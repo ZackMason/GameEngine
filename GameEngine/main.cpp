@@ -13,7 +13,9 @@
 #pragma comment(lib, "./lib/glew32.lib")
 
 #include "CORE.h"
-#include "./Levels/TestLevel.h"
+#include "TestLevel.h"
+#include "Level.h"
+
 
 #include <stdlib.h>
 
@@ -26,22 +28,24 @@
 //scene -> models --> shaders --> draw
 //				  \_> texture _/
 
+
 #undef main
 int main(int argc, char* argv[])
 {
-	srand(time(NULL));
+	srand(static_cast<unsigned int>(time(NULL)));
 
-	Application *myapp = new Application;
-	Display *display = new Display("game");
+	std::shared_ptr<Application>myapp = std::make_shared<Application>();
+	std::shared_ptr<Display> display = std::make_shared<Display>("game");
 	myapp->SetDisplay(display);
-	Layer *level = new TestLevel(*display);
-	Config *config = new Config();
-	imGUILayer *gui = new imGUILayer();
+	std::shared_ptr<Layer> level = std::make_shared< Level2 > (*display);
+	std::shared_ptr<Config> config = std::make_shared<Config>();
+	std::shared_ptr<imGUILayer> gui = std::make_shared<imGUILayer>();
+	
 	gui->SetName("Trip");
 	myapp->AddLayer(level);
 	myapp->AddOverlay(gui);
 	glEnable(GL_DEBUG_OUTPUT);
-	//myapp->OnStart();
+	myapp->OnStart();
 	std::string test = "works";
 
 	while (!myapp->GetDisplay()->IsClosed())
@@ -49,6 +53,5 @@ int main(int argc, char* argv[])
 		myapp->OnUpdate();
 		glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, 1, GL_DEBUG_SEVERITY_HIGH,200,"OPENGL ERROR: ");
 	}
-	delete myapp, display, level, gui, config;
 	return 0;
 }

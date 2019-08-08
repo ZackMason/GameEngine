@@ -44,7 +44,7 @@ vec3 Exposure(vec3 color)
 void main ()
 {
 
-	color.rgb = texture(diffuse,uv).rgb;
+	color.rgb = texture(depth,uv).rgb;
 	#if 0
 
 
@@ -59,9 +59,10 @@ void main ()
 	float bright = dot(color.rgb,vec3(0.2627,0.678,.0593));
 
 
-	#if 0
-	color.rgb = Reinhard(color.rgb);
-	//color.rgb = Exposure(color.rgb);
+	#if 1
+	//color.rgb = Reinhard(color.rgb);
+	color.rgb = Uncharted2Tonemap(color.rgb);
+	color.rgb = Exposure(color.rgb);
 	color.rgb = gammaCorrection(color.rgb);
 	#endif
 
