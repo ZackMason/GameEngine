@@ -122,7 +122,7 @@ void Shader::SetMVP( Transform& transform, const Camera& camera)
 {
 	glm::mat4 ModelMatrix         = transform.GetModel();
 	glm::mat4 ViewMatrix          = camera.GetViewProjection();
-	glm::mat4 ModelViewProjection = camera.GetViewProjection() * ModelMatrix;
+	glm::mat4 ModelViewProjection = ViewMatrix * ModelMatrix;
 	//transpose if matrices are weird
 	//ModelViewProjection = glm::transpose(ModelViewProjection);
 	//ModelMatrix = glm::transpose(ModelMatrix);
@@ -147,9 +147,9 @@ void Shader::SetLights(const std::vector<Light*>& lights)
 		std::string number = std::to_string(i);
 		glUniform4f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_position.x, lights[i]->m_position.y, lights[i]->m_position.z, lights[i]->m_position.w);
 		glUniform4f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_color.x, lights[i]->m_color.y, lights[i]->m_color.z, lights[i]->m_position.w);
-		glUniform3f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_ads.r, lights[i]->m_ads.r, lights[i]->m_ads.r);
-		glUniform3f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_ads.g, lights[i]->m_ads.g, lights[i]->m_ads.g);
-		glUniform3f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_ads.b, lights[i]->m_ads.b, lights[i]->m_ads.b);
+		glUniform1f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_ads.r);
+		glUniform1f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_ads.g);
+		glUniform1f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_ads.b);
 		glUniform1f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_clq.x);
 		glUniform1f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_clq.y);
 		glUniform1f(GetUniformLocation( (Application::Get().light_names[i][j++]).c_str()), lights[i]->m_clq.z);

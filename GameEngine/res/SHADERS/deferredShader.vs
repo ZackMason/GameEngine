@@ -13,8 +13,6 @@ uniform mat4 ModelViewProjection;
 uniform mat4 ViewMatrix;
 uniform mat4 ModelMatrix;
 
-
-
 void main()
 {
 	Position_worldspace = (ModelMatrix * vec4(position,1)).xyz;
@@ -23,6 +21,6 @@ void main()
 
 	position0 = (ModelMatrix * vec4(position,0.0)).xyz;
 	texCoord0 = texCoord;
-	normal0 = ( ModelMatrix * vec4(normal,0.0)).xyz;
+	normal0 = (transpose(inverse(ModelMatrix)) * vec4(normal,0.0)).xyz;
 	gl_Position = ModelViewProjection * vec4(position, 1.0);
 }

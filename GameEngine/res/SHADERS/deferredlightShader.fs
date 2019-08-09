@@ -9,9 +9,9 @@ struct Light{
 	float linear;
 	float quadratic;
 	
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	float ambient;
+	float diffuse;
+	float specular;
 };
 
 #define NR_LIGHTS 100
@@ -28,6 +28,7 @@ uniform sampler2D u_norm;
 uniform vec3 u_viewpos;
 
 const float kPi=3.14159265;
+const float kShine = 16.0;
 
 // function prototypes
 //vec3 CalcDirLight(Light light,vec3 normal,vec3 viewDir);
@@ -37,15 +38,15 @@ vec3 CalcPointLight(Light light,vec3 normal,vec3 fragPos,vec3 viewDir, vec3 colo
 bool blinn = true;
 void main()
 {
-	// properties
-
+	// deferred properties
 	vec3 FragPos = texture(u_pos, uv).rgb;
     vec3 Normal = texture(u_norm, uv).rgb;
     vec3 Albedo = texture(u_color, uv).rgb;
     float Specular = texture(u_color, uv).a;
     
     // then calculate lighting as usual
-    vec3 lighting = Albedo * 0.1; // hard-coded ambient component
+    vec3 lighting = Albedo * 0.61; // hard-coded ambient component
+	//vec3 lighting = vec3(0.);
     vec3 viewDir = (u_viewpos-FragPos);
 	viewDir = normalize(viewDir);
     for(int i = 0; i < num_lights; ++i)
@@ -57,8 +58,11 @@ void main()
 		lighting += CalcPointLight(pointLights[i], Normal, FragPos, viewDir, Albedo, Specular);
 	}
 	FragColor = vec4(lighting,1.);
+	//FragColor = vec4(vec3(1)*FragPos,1.);
 	//FragColor = vec4(vec3(1)*Specular,1.);
 	//FragColor = vec4(vec3(1)*viewDir,1.);
+	//FragColor = vec4(vec3(1)*Albedo,1.);
+	//FragColor = vec4(vec3(1)*Normal,1.);
 	//FragColor = vec4(vec3(1)*Albedo,1.);
 
 	
@@ -99,24 +103,24 @@ vec3 CalcPointLight(Light light,vec3 normal,vec3 fragPos,vec3 viewDir, vec3 colo
 	#if 1
 	if(blinn)
 	{
-		const float kEnergyConservation=(8.+s)/(8.*kPi);
+		const float kEnergyConservation=(8.+kShine)/(8.*kPi);
 		vec3 halfwayDir=normalize(lightDir+viewDir);
-		spec=kEnergyConservation*pow(max(dot(normal,halfwayDir),0.),s);
+		spec=kEnergyConservation*pow(max(dot(normal,halfwayDir),0.),kShine);
 	}
 	else
 	{
-		const float kEnergyConservation=(2.+s)/(2.*kPi);
+		const float kEnergyConservation=(2.+kShine)/(2.*kPi);
 		vec3 reflectDir=reflect(-lightDir,normal);
-		spec=kEnergyConservation*pow(max(dot(viewDir,reflectDir),0.),s);
+		spec=kEnergyConservation*pow(max(dot(viewDir,reflectDir),0.),kShine);
 	}
 	#endif
 	// attenuation
 	float distance=length(light.position.xyz-fragPos);
 	float attenuation=1./(light.constant+light.linear*distance+light.quadratic*(distance*distance));
 	// combine results
-	vec3 ambient=light.ambient*color*light.color.rgb;
-	vec3 diffuse=light.diffuse*diff*color*light.color.rgb;
-	vec3 specular=light.specular*spec*s*light.color.rgb;
+	vec3 ambient  =  light.ambient          * color * light.color.rgb;
+	vec3 diffuse  =  light.diffuse  * diff  * color * light.color.rgb;
+	vec3 specular =  light.specular * spec    * light.color.rgb;
 	//vec3 specular=vec3(0.);
 
 	ambient*=attenuation;

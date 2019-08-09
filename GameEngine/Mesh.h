@@ -71,6 +71,8 @@ private:
 		TEXCOORD_VB,
 		INDEX_VB   ,
 		NORMAL_VB  ,
+		TANGENT_VB ,
+		BITANGENT_VB ,
 		NUM_BUFFERS
 	};
 

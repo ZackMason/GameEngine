@@ -11,13 +11,26 @@ class Camera
 public:
 	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar);
 
+	inline glm::vec3 GetRot() const {
+		glm::quat qPitch	= glm::angleAxis(m_pitch,	glm::vec3(1, 0, 0));
+		glm::quat qYaw		= glm::angleAxis(m_yaw,		glm::vec3(0, 1, 0));
+		glm::quat qRoll		= glm::angleAxis(m_roll,	glm::vec3(0, 0, -1));
+		glm::quat orient	= qPitch * qYaw * qRoll;
+
+		orient = glm::normalize(orient);
+		return glm::eulerAngles(orient);
+	}
+
 	inline glm::mat4 GetViewProjection() const
 	{
 		// translate builds id mat and adds pos vec to col 4
 		// order is persp * rot * pos * scale
 		// in that order
 		// scale is absent for camera
-		return m_perspective * m_rot * glm::translate(glm::mat4(1.0f), m_position);
+		auto v = glm::lookAt(m_position,m_position + m_forward, m_up);
+
+		//return m_perspective * m_rot * glm::translate(glm::mat4(1), m_position);
+		return m_perspective * v;
 		//return m_perspective * glm::lookAt(m_position, m_position + m_forward, m_up);
 	}
 
@@ -33,14 +46,7 @@ public:
 	void RotZ (float angle) { m_roll  += angle; }
 	void RotX (float angle) { m_pitch += angle; }
 
-	inline glm::vec3 GetRot() {
-		glm::quat qPitch = glm::angleAxis(m_pitch, glm::vec3(1, 0, 0));
-		glm::quat qYaw = glm::angleAxis(m_yaw, glm::vec3(0, 1, 0));
-		glm::quat qRoll = glm::angleAxis(m_roll, glm::vec3(0, 0, 1));
-		glm::quat orient = qPitch * qYaw * qRoll;
 
-		orient = glm::normalize(orient); 
-		return glm::eulerAngles(orient); }
 	inline glm::vec3 GetPos()     { return m_position; }
 	inline glm::vec3 GetUp()      { return       m_up; }	
 	inline glm::vec3 GetRight()   { return    m_right; }

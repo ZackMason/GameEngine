@@ -34,11 +34,11 @@ int main(int argc, char* argv[])
 {
 	srand(static_cast<unsigned int>(time(NULL)));
 
-	std::shared_ptr<Application>myapp = std::make_shared<Application>();
+	std::shared_ptr<Application> myapp = std::make_shared<Application>();
 	std::shared_ptr<Display> display = std::make_shared<Display>("game");
 	myapp->SetDisplay(display);
-	std::shared_ptr<Layer> level = std::make_shared< Level2 > (*display);
-	std::shared_ptr<Config> config = std::make_shared<Config>();
+	std::shared_ptr<Layer>   level  = std::make_shared< Level2 > (*display);
+	std::shared_ptr<Config>  config = std::make_shared<Config>();
 	std::shared_ptr<imGUILayer> gui = std::make_shared<imGUILayer>();
 	
 	gui->SetName("Trip");

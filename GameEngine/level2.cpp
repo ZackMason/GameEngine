@@ -13,11 +13,11 @@ static Vertex screen_quad[] = { Vertex(glm::vec3(-1.0,1.0,0.0),glm::vec2(0.0,1.0
 						   Vertex(glm::vec3(1.0,1.0,0.0),glm::vec2(1.0,1.0))
 };
 
-Level2::Level2(const Display &d) : m_camera(glm::vec3(0.1, -4, 0), 70.0f, d.GetAspect(), 1.f, 12000.0f),
+Level2::Level2(const Display &d) : m_camera(glm::vec3(0.1, 4, 0), 70.0f, d.GetAspect(), 1.f, 12000.0f),
 m_ofbo(),
-m_screen_sdr("./res/SHADERS/deferredlightShader"),
+m_screen_sdr("./res/SHADERS/deferredPBRlightShader"),
 m_screen(screen_quad, 6),
-m_player("biplane", "toon", "wood"),
+m_player("biplane", "deferredPBR", "wood"),
 m_sky("skydome2", "skydome", "skydome")
 {
 	m_sky.m_transform->GetScale() *= 80;
@@ -99,17 +99,18 @@ void Level2::OnUpdate()
 	if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S])
 		m_camera.MoveForward(-14.f);
 	if (state[SDL_SCANCODE_I])
-		m_camera.RotX(0.46f * m_clock.Get_DT());
-	if (state[SDL_SCANCODE_K])
 		m_camera.RotX(-0.46f * m_clock.Get_DT());
+	if (state[SDL_SCANCODE_K])
+		m_camera.RotX(
+			0.46f * m_clock.Get_DT());
 	if (state[SDL_SCANCODE_SPACE])
-		m_camera.MoveUp(-14.f);
+		m_camera.MoveUp(14.f);
 	if (state[SDL_SCANCODE_A])
 		m_camera.MoveRight(14.f);
 	if (state[SDL_SCANCODE_D])
 		m_camera.MoveRight(-14.f);
 	if (state[SDL_SCANCODE_C])
-		m_camera.MoveUp(14.f);
+		m_camera.MoveUp(-14.f);
 	if (state[SDL_SCANCODE_F])
 	{
 		SDL_SetWindowFullscreen(display->GetWindow(), SDL_WINDOW_FULLSCREEN);
@@ -212,8 +213,11 @@ void Level2::OnUpdate()
 	m_screen_sdr.setInt("u_pos", 0);
 	m_screen_sdr.setInt("u_color", 1);
 	m_screen_sdr.setInt("u_norm", 2);
+	//m_screen_sdr.setFloat("metallic", Config::bias);
+	//m_screen_sdr.setFloat("roughness", Config::lp);
+	m_screen_sdr.setFloat("lp", Config::lp);
 	m_screen_sdr.SetLights(m_lights);
-	m_screen_sdr.setVec3("u_viewpos", -1.f * m_camera.GetPos());
+	m_screen_sdr.setVec3("u_viewpos", m_camera.GetPos());
 	glDisable(GL_DEPTH_TEST);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -246,7 +250,7 @@ void Level2::OnAttach()
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
 	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/grass.png");
 	std::shared_ptr<Texture> water_spec = std::make_shared<Texture>("./res/TEXTURES/white.png");
-	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/deferredShader");
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/deferredPBRShader");
 
 	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
 	///water_mat->Add(water_spec);
@@ -265,13 +269,13 @@ void Level2::OnAttach()
 		}
 	}
 
-	std::shared_ptr<Mesh> bmesh = std::make_shared<Mesh>("./res/MESHS/cube.obj");
+	std::shared_ptr<Mesh> bmesh = std::make_shared<Mesh>("./res/MESHS/monkey.obj");
 	std::shared_ptr<Texture> btex = std::make_shared<Texture>("./res/TEXTURES/box_diffuse.png");
 	std::shared_ptr<Texture> bspec = std::make_shared<Texture>("./res/TEXTURES/box_specular.png");
-	std::shared_ptr<Shader> b_sdr = std::make_shared<Shader>("./res/SHADERS/deferredShader");
+	std::shared_ptr<Shader> b_sdr = std::make_shared<Shader>("./res/SHADERS/deferredPBRShader");
 	std::shared_ptr<Material> bmat = std::make_shared<Material>(b_sdr, btex);
 	bmat->Add(bspec);
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 0; i++)
 	{
 		Actor box(bmesh, bmat);
 		box.m_transform->GetPos().z = rand() % 500;
@@ -281,15 +285,29 @@ void Level2::OnAttach()
 		m_actors.push_back(box);
 	}
 
-	for (int i = 0; i < 10; i++)
+	for (int x = 0; x < 20; x++)
+	{
+		for (int z = 0; z < 20; z++)
+		{
+			Actor box(bmesh, bmat);
+			box.m_transform->GetPos().z = z * 15;
+			box.m_transform->GetPos().x = x * 15;
+			box.m_transform->GetScale() *= 5;
+			box.m_transform->GetPos().y += box.m_transform->GetScale().y - 1.f  * .5f;
+			m_actors.push_back(box);
+		}
+	}
+
+	for (int i = 0; i < 70; i++)
 	{
 		Light *l = new Light();
-		l->m_position.z =  500.f * (rand() % 100 / 100.);
-		l->m_position.x =  500.f * (rand() % 100 / 100.);
-		l->m_ads = glm::vec3(0.1, 0.9, 1.0);
+		l->m_position.z =  300.f * (rand() % 100 / 100.)-30.f;
+		l->m_position.x = 330.f * (rand() % 100 / 100.);
+		l->m_position.y = 12.f;
+		l->m_ads = glm::vec3(.4, 0.9, 1.0);
 		l->m_color = glm::vec4((rand()%100)/100., (rand() % 100) / 100., (rand() % 100) / 100.,1.0);
 		l->m_color += glm::vec4(0.5, 0.5, 0.5, 0.0);
-		l->m_clq = glm::vec3(.5, 0.0009, 0.000032);
+		l->m_clq = glm::vec3(.9, 0.09, 0.00032);
 		m_lights.push_back(l);
 	}
 #if 0

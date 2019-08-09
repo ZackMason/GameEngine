@@ -24,7 +24,7 @@ RayLevel::~RayLevel()
 {
 }
 
-void RayLevel::Add_Actor(std::shared_ptr<Actor<PhongShader>> actor)
+void RayLevel::Add_Actor(std::shared_ptr<Actor> actor)
 {
 
 }

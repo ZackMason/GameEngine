@@ -54,10 +54,10 @@ public:
 
 	void Draw(Camera &camera, float time_passed, const std::vector<Light*>& light = std::vector<Light*>())
 	{
-		glm::vec3 ray = m_transform->GetPos() - ((-1.f*camera.GetPos()) + (camera.GetForward()*10.f));
+		glm::vec3 ray = m_transform->GetPos() - ((1.f*camera.GetPos()) + (camera.GetForward()*30.f));
 		ray = glm::normalize(ray);
 		ray *= -1.0;
-		if (glm::dot(ray, camera.GetForward()) < -0.42) { return; }
+//		if (glm::dot(ray, camera.GetForward()) < -0.42) { return; }
 
 		m_material->Bind();
 		m_material->Get_Sdr()->SetMVP(*m_transform, camera);

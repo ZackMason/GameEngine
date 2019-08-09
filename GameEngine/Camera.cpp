@@ -12,7 +12,7 @@ Camera::Camera(const glm::vec3 &pos, float fov, float aspect, float zNear, float
     m_dpos        = glm::vec3(0, 0, 0);
 
     m_up          = glm::vec3(0, 1, 0);
-    m_right       = glm::vec3(-1, 0, 0);
+    m_right       = glm::vec3(1, 0, 0);
     m_forward     = glm::vec3(0, 0,-1);
     m_quat        = glm::quat(glm::quatLookAt(m_forward, m_up));
     

@@ -118,6 +118,28 @@ void Mesh::InitMesh(const IndexedModel& model)
 
 	std::cout << "Model (normal buffer) loaded." << std::endl;
 
+	//tangents
+	// bind vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[TANGENT_VB]);
+	//set layout of Vertex buffer
+	glBufferData(GL_ARRAY_BUFFER, model.tangents.size() * sizeof(model.tangents[0]), &model.tangents[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	std::cout << "Model (tangents buffer) loaded." << std::endl;
+
+	//bitangents
+	// bind vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[BITANGENT_VB]);
+	//set layout of Vertex buffer
+	glBufferData(GL_ARRAY_BUFFER, model.bitangents.size() * sizeof(model.bitangents[0]), &model.bitangents[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	std::cout << "Model (bitangents buffer) loaded." << std::endl;
+
 	// bind index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.indices.size() * sizeof(model.indices[0]), &model.indices[0], GL_STATIC_DRAW);
