@@ -13,6 +13,7 @@ struct Light{
 	float specular;
 };
 
+
 #define NR_LIGHTS 100
 
 in vec2 uv;
@@ -25,8 +26,14 @@ uniform float lp;
 uniform sampler2D u_pos;
 uniform sampler2D u_color;
 uniform sampler2D u_norm;
+uniform sampler2D u_last_frame;
 
 uniform vec3 u_viewpos;
+
+uniform mat4 u_projection;
+uniform mat4 u_inv_projection;
+uniform mat4 u_view;
+uniform mat4 u_inv_view;
 
 // material parameters
 float metallic;
@@ -37,13 +44,23 @@ float ao = .2;
 const float kPi=3.14159265;
 const float kShine = 16.0;
 const float PI = 3.14159265359;
+const float rayStep=.1;
+const float minRayStep=.1;
+const int maxSteps=30;
+const float searchDist=5.;
+const int numBinarySearchSteps=10;
+const float reflectionSpecularFalloffExponent=3.;
   
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
+vec4 RayCast(in vec3 dir, inout vec3 hitCoord, out float dDepth);
+vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth);
+vec3 hash(vec3 n);
+vec3 PositionFromDepth(float depth);
 
-out vec4 FragColor;
+ out vec4 FragColor;
 
 void main()
 {		
@@ -51,14 +68,40 @@ void main()
     vec3 Normal = texture(u_norm, uv).rgb;
     vec3 Albedo = texture(u_color, uv).rgb;
     float Specular = texture(u_color, uv).a;
-
-	metallic =  clamp(FragPos.x/300., 0.01,1.0);
-	roughness = clamp(FragPos.z/300. ,0.01,1.);
-
+    vec3 last = texture(u_last_frame,uv).rgb;
+    metallic = texture(u_pos,uv).a;
+    roughness = texture(u_norm,uv).a;
     vec3 N = normalize(Normal);
     vec3 V = normalize(u_viewpos - FragPos);
 
+
+    float dDepth;
+    vec3 VN = (u_view * vec4(Normal,.0)).xyz;
+    vec3 VV = (u_view * vec4(V,1.0)).xyz;
+    vec3 hitPos = ( u_view * vec4(FragPos,1.0)).xyz;
+    vec3 reflected = normalize(reflect(normalize(hitPos),normalize(VN)));
+    vec3 hh = hitPos;
+    vec3 jitt = mix(vec3(0.),vec3(hash(FragPos)),Specular)/1.;
+
+    vec4 coords = RayCast(jitt + reflected * max(minRayStep,-hitPos.z),hh,dDepth);
+    vec2 dCoords = smoothstep(0.2,.6,abs(vec2(0.5)-coords.xy));
+    float screenEdgeFactor = clamp(1. - (dCoords.x + dCoords.y),0.,1.);
+
+    float multiplier = pow(metallic,reflectionSpecularFalloffExponent) * 
+                    screenEdgeFactor *
+                    -reflected.z;
+
+    vec3 ssr = texture(u_last_frame, coords.xy).rgb * clamp(multiplier,0.,.9);
+
+	//metallic =  clamp(FragPos.x/300., 0.01,1.0);
+	//roughness = clamp(FragPos.z/300. ,0.01,1.);
+    vec3 fres = fresnelSchlick(dot(normalize(hitPos),VN),vec3(.03));
+    //IOR
+    // plastic
     vec3 F0 = vec3(0.04); 
+
+    // gold
+    //vec3 F0 = vec3(1.,.71,.29); 
     F0 = mix(F0, Albedo, metallic);
 	vec3 lr = vec3(0);
     // reflectance equation
@@ -97,11 +140,100 @@ void main()
 	
     //color = color / (color + vec3(1.0));
     //color = pow(color, vec3(1.0/2.2));  
-   
+    //FragColor = vec4(Albedo,1.);
+   // FragColor = vec4(vec3(roughness), 1.0);
     FragColor = vec4(color,1.);
-    //FragColor = vec4(lr,1.);
-    //FragColor = vec4(vec3(metallic), 1.0);
+    //if (uv.x>0.5)
+        FragColor = vec4(mix(ssr,color,.5),1.);
+    //FragColor.rgb = (u_projection * u_view * vec4(FragPos,1.)).zzz/20.;
+    //FragColor.rg = coords.xy;
+    //FragColor.b =0;
 }  
+
+vec3 hash(vec3 n)
+{
+    n = fract(n * vec3(.8));
+    n += dot(n,n.yxz+19.19);
+    return fract((n.xxy+n.yxx)*n.zyx);
+}
+
+vec3 PositionFromDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0;
+
+    vec4 clipSpacePosition = vec4(uv * 2.0 - 1.0, z, 1.0);
+    vec4 viewSpacePosition = u_inv_projection * clipSpacePosition;
+
+    // Perspective division
+    viewSpacePosition /= viewSpacePosition.w;
+
+    return viewSpacePosition.xyz;
+}
+
+
+vec4 RayCast(in vec3 dir,inout vec3 hitCoord,out float dDepth)
+{
+    dir *= rayStep;
+    float depth = 0.;
+    int steps = 0;
+    vec4 projectedCoord = vec4(0.);
+
+    for (int i = 0; i < maxSteps; ++i)
+    {
+        hitCoord += dir;
+
+        projectedCoord = u_projection * vec4(hitCoord,1.0);
+        projectedCoord.xy /= projectedCoord.w;
+        projectedCoord.xy = projectedCoord.xy * .5 + .5;
+        depth = (u_view * vec4(textureLod(u_pos, projectedCoord.xy,0.0).xyz,1.0)).z;
+
+        //if (depth>1000.)
+          //  continue;
+        dDepth = hitCoord.z - depth;
+        if ((dir.z - dDepth) < 1.2)
+        {
+            if(dDepth <= 0.0)
+            {
+                vec4 Result;
+                Result = vec4(BinarySearch(dir,hitCoord,dDepth),1.0);
+                return Result;
+            }
+        }
+        steps++;
+    }
+    //return vec4(-1.);
+    return vec4(projectedCoord.xy,depth,1.);
+}
+
+vec3 BinarySearch(inout vec3 dir,inout vec3 hitCoord,inout float dDepth)
+{
+    float depth;
+    vec4 projectedCoord;
+
+    for (int i = 0; i < numBinarySearchSteps; ++i)
+    {
+        projectedCoord = u_projection * vec4(hitCoord,1.0);
+        projectedCoord.xy /= projectedCoord.w;
+        projectedCoord.xy = projectedCoord.xy * .5 + .5;
+        depth = (u_view * vec4(textureLod(u_pos, projectedCoord.xy,0.0).xyz,1.0)).z;
+
+//        depth = textureLod(u_pos, projectedCoord.xy,2.0).z;
+
+        dDepth = hitCoord.z - depth;
+
+        dir *= .5;
+        if (dDepth > 0.) 
+            hitCoord += dir;
+        else
+            hitCoord -= dir;
+    }
+
+    projectedCoord = u_projection * vec4(hitCoord, 1.0);
+    projectedCoord.xy /= projectedCoord.w;
+    projectedCoord.xy = projectedCoord.xy * .5 + .5;
+
+    return vec3(projectedCoord.xy,depth);
+}
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {

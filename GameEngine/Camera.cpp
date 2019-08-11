@@ -32,7 +32,9 @@ void Camera::PosUpdate(double time_passed)
     m_dpos     *= 0.8f;
 	if (m_dpos.length() < 1.5)
 		m_dpos = glm::vec3(0, 0, 0);
-    //((m_position.y < 0.0f) ? m_dpos.y += 0.051f : m_dpos.y = 0.0f);
+    //a	m_position.y > 3.0f ? m_dpos.y -= 9.851f : m_position.y = 3.10f;
+	if (m_position.y < 3.0f)
+		m_position.y = 3.01f;
 }
 
 void Camera::QuatUpdate()

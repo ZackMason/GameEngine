@@ -12,8 +12,8 @@ in vec3 Position_worldspace;
 uniform vec3 LightPosition;
 uniform float Time;
 
-layout (location = 0) out vec4 color;
-layout (location = 1) out vec4 dcolor;
+out vec4 color;
+//layout (location = 1) out vec4 dcolor;
 
 float rand(vec2 n){
 	return fract(sin(dot(n,vec2(12.9898,4.1414)))*43758.5453);
@@ -56,15 +56,16 @@ void main()
 	}
 	#endif
 
-	vec3 MaterialDiffuseColor = vec3(0.18,0.27,.47);
+	vec3 MaterialDiffuseColor = vec3(0.2157, 0.3922, 0.7725);
+//	vec3 MaterialDiffuseColor = vec3(0.18,0.27,.47);
 	MaterialDiffuseColor.r += -0.00022 * min(Position_worldspace.y - 1800,0.);
 	MaterialDiffuseColor.g += -0.00025 * min(Position_worldspace.y - 1800,0.);
 	MaterialDiffuseColor.b += -0.00019 * min(Position_worldspace.y - 1800,0.);
 
 	color.a = 1;
-	color.rgb = MaterialDiffuseColor;//+ MaterialAmbientColor;
-	//color.rgb *= 8.;
+	color.rgb = MaterialDiffuseColor*2.;//+ MaterialAmbientColor;
+	//color.rgb = vec3(0.4588, 0.4588, 1.0);//+ MaterialAmbientColor;
 
-	dcolor = vec4(0);
+	//dcolor = vec4(0);
 
 }

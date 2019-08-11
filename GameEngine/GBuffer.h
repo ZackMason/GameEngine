@@ -41,6 +41,18 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_diffuse, 0);
+#if 1
+		// - normal color buffer
+		glGenTextures(1, &m_last_frame);
+		glBindTexture(GL_TEXTURE_2D, m_last_frame);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+#endif
 
 		glGenRenderbuffers(1, &m_rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
@@ -80,6 +92,9 @@ public:
 		glBindTexture(GL_TEXTURE_2D, m_diffuse);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, m_normal);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, m_last_frame);
+
 	}
 
 	GLuint m_buffer;
@@ -88,6 +103,7 @@ public:
 	GLuint m_diffuse;
 	GLuint m_normal;
 	GLuint m_rbo;
+	GLuint m_last_frame;
 
 private:
 };

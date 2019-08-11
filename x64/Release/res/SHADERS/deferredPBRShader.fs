@@ -21,7 +21,7 @@ void main()
 {
     o_pos.rgb=Position_worldspace;
     //o_color=texture(material.diffuse,texCoord0);
-    o_color.rgb=vec3(1.0,0.,.0);
+    o_color.rgb=vec3(1.,0.71,.0);
     //o_norm = texture(mat.normal, texCoord0) * 2. - 1.;
     o_norm.xyz=normalize(normal0);
     o_color.a = .3; // texture(material.specular,texCoord0).r;

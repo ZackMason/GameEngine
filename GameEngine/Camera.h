@@ -34,6 +34,16 @@ public:
 		//return m_perspective * glm::lookAt(m_position, m_position + m_forward, m_up);
 	}
 
+	inline glm::mat4 GetView() const
+	{
+		return glm::lookAt(m_position, m_position + m_forward, m_up);
+	}
+
+	inline glm::mat4 GetProjection() const
+	{
+		return m_perspective;
+	}
+
 	void SetAspect(float aspect);
 
 	void Update    (double);

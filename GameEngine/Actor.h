@@ -63,7 +63,8 @@ public:
 		m_material->Get_Sdr()->SetMVP(*m_transform, camera);
 		m_material->Get_Sdr()->setInt("material.diffuse", 0);
 		if (m_material->GetTexSize() > 1)
-		m_material->Get_Sdr()->setInt("material.specular", 1);
+			m_material->Get_Sdr()->setInt("material.normal", 1);
+		m_material->Get_Sdr()->setInt("material.roughness", 1);
 
 		//if (!light.empty())
 			//m_material->Get_Sdr()->SetLights(light);

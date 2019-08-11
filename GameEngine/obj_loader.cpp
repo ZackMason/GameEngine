@@ -209,7 +209,7 @@ IndexedModel OBJModel::ToIndexedModel()
 			result.normals[i] = normalModel.normals[indexMap[i]];
 	}
 	
-	computeTangentBasis(vertices, uvs, normals, result.tangents, result.bitangents);
+	//computeTangentBasis(vertices, uvs, normals, result.tangents, result.bitangents);
 
 	return result;
 };

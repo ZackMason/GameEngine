@@ -156,7 +156,7 @@ void Level2::OnUpdate()
 
 
 	//glDepthMask(GL_FALSE);
-	m_sky.Draw(m_camera, m_clock.Get_Time_Passed());
+	//m_sky.Draw(m_camera, m_clock.Get_Time_Passed());
 	//glDepthMask(GL_TRUE);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -201,28 +201,62 @@ void Level2::OnUpdate()
 	}
 
 #endif
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 
-
-	m_gbo.Unbind();
+	//calculate light
+	m_gbo.Unbind(); // Binds gbuffers attachments!!!!!!
 	m_ofbo.Bind();
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	m_screen_sdr.Bind();
+	
 	glBindVertexArray(m_screen.GetVAO());
+	m_screen_sdr.setMat4("u_projection", m_camera.GetProjection());
+	m_screen_sdr.setMat4("u_inv_projection", glm::inverse(m_camera.GetProjection()));
+	m_screen_sdr.setMat4("u_view", m_camera.GetView());
+	m_screen_sdr.setMat4("u_inv_view", glm::inverse(m_camera.GetView()));
 	m_screen_sdr.setInt("u_pos", 0);
 	m_screen_sdr.setInt("u_color", 1);
 	m_screen_sdr.setInt("u_norm", 2);
+	m_screen_sdr.setInt("u_last_frame", 3);
 	//m_screen_sdr.setFloat("metallic", Config::bias);
 	//m_screen_sdr.setFloat("roughness", Config::lp);
 	m_screen_sdr.setFloat("lp", Config::lp);
 	m_screen_sdr.SetLights(m_lights);
 	m_screen_sdr.setVec3("u_viewpos", m_camera.GetPos());
-	glDisable(GL_DEPTH_TEST);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	//glBindFramebuffer(GL_READ_BUFFER, m_ofbo);
+	//glCopyTexImage2D(m_gbo.m_last_frame, 0, GL_RGBA, 0, 0, WIDTH, HEIGHT, 0);
+	m_ofbo.Unbind();
 
 #if 1
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_gbo.m_buffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_ofbo); // write to default framebuffer
+	glBlitFramebuffer(
+		0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST
+	);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_ofbo);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+	m_sky.Draw(m_camera, m_clock.Get_Time_Passed());
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
+
+#endif
+
 	m_ofbo.Unbind();
+
+
+	//post process - tonemapping / HDR gamma correction
+#if 1
+
+	//save last frame to gbuffer to use for ssr without gamma corrections
+
+
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -230,7 +264,16 @@ void Level2::OnUpdate()
 	glBindVertexArray(m_screen.GetVAO());
 	m_ofbo.Bind_TA(0);
 	glGenerateMipmap(GL_TEXTURE_2D);
+
+#if 1
+	glCopyImageSubData(m_ofbo.GetColor() , GL_TEXTURE_2D, 0, 0, 0, 0,
+		m_gbo.m_last_frame, GL_TEXTURE_2D, 0, 0, 0, 0,
+		WIDTH, HEIGHT, 1);
+#endif	
 	m_ofbo.Bind_DTA(1);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	//glCopyTexImage2D(m_gbo.m_last_frame, 0, GL_RGBA, 0, 0, WIDTH, HEIGHT, 0);
 	//m_screen_sdr.setFloat("Time", m_clock.Get_Time_Passed());
 	scr_sdr2->setFloat("gamma", Config::Get().gamma);
 	scr_sdr2->setFloat("expos", Config::Get().expos);
@@ -241,6 +284,7 @@ void Level2::OnUpdate()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 #endif
 
+
 }
 
 void Level2::OnAttach()
@@ -248,12 +292,16 @@ void Level2::OnAttach()
 	int water_size = 40;
 	int water_scale = 12;
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
-	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/grass.png");
-	std::shared_ptr<Texture> water_spec = std::make_shared<Texture>("./res/TEXTURES/white.png");
-	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/deferredPBRShader");
+	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_DIFF.png");
+	std::shared_ptr<Texture> water_tex_r = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_RGH.png");
+	std::shared_ptr<Texture> water_tex_n = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_NRM.png");
+	//std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/water_n.jpeg");
+	//std::shared_ptr<Texture> water_spec = std::make_shared<Texture>("./res/TEXTURES/water_dudv.jpg");
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/deferredPBRTexShader");
 
 	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
-	///water_mat->Add(water_spec);
+	water_mat->Add(water_tex_n);
+	water_mat->Add(water_tex_r);
 	for (int x = -water_size; x <= water_size; x++)
 	{
 		for (int z = -water_size; z <= water_size; z++)
@@ -307,7 +355,7 @@ void Level2::OnAttach()
 		l->m_ads = glm::vec3(.4, 0.9, 1.0);
 		l->m_color = glm::vec4((rand()%100)/100., (rand() % 100) / 100., (rand() % 100) / 100.,1.0);
 		l->m_color += glm::vec4(0.5, 0.5, 0.5, 0.0);
-		l->m_clq = glm::vec3(.9, 0.09, 0.00032);
+		l->m_clq = glm::vec3(.9, 0.009, 0.0000032);
 		m_lights.push_back(l);
 	}
 #if 0
