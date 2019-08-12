@@ -28,8 +28,8 @@ void main()
 	vec3 tangent = vec3(1,0,0);
 	vec3 binormal = vec3(0,0,-1);
 	vec4 wave1 = vec4(0,1,.015,1260.);
-	vec4 wave2 = vec4(-1,-1,.0145, 1265.);
-	vec4 wave3 = vec4(1,-1.6,.0125, 1600.);
+	vec4 wave2 = vec4(-1,-1,.0145, 265.);
+	vec4 wave3 = vec4(1,-1.6,.0125, 600.);
 	vec4 wave4 = vec4(1,.6,.0125,430.);
 	vec4 wave5 = vec4(-1.3,0,.0125,845.);
 	pos += Gerstner_Wave(wave1,pos,tangent,binormal);
@@ -37,7 +37,7 @@ void main()
 	pos += Gerstner_Wave(wave3, pos,tangent,binormal);
 	pos += Gerstner_Wave(wave4, pos, tangent, binormal);
 	pos += Gerstner_Wave(wave5, pos, tangent, binormal);
-	normal0 = normalize(cross(tangent,binormal));
+	normal0 = normalize(cross(normalize(tangent),normalize(binormal)));
 	TBN = mat3(tangent,binormal,normal0);
 	Position_worldspace = pos;
 	texCoord0=texCoord;

@@ -27,13 +27,13 @@ void main()
 {
     o_pos.rgb=Position_worldspace;
     //o_color=texture(material.diffuse,texCoord0);
-    o_color.rgb=vec3(0.,0.,1.0);
+    o_color.rgb=vec3(0.0, 0.4667, 1.0);
+    o_norm.rgb = vec3(0,0,1);
     //o_norm.rgb = texture(material.diffuse, texCoord0*4.).rgb * 2. - 1.;
-    o_norm.rgb = vec3(0,-1,0);
     o_norm.xyz=normalize(TBN*o_norm.rgb);
-    o_color.rgb = fresnelSchlick(max(0.,1.-dot(o_norm.xyz, vd)),o_color.rgb);
+    //o_color.rgb = fresnelSchlick(max(0.,1.-dot(o_norm.xyz, vd)),o_color.rgb);
     o_color.a = .3; // texture(material.specular,texCoord0).r;
-    o_pos.a = 0.;
+    o_pos.a = .2;
     o_norm.a = .1;
 }
 

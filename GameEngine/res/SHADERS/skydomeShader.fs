@@ -9,7 +9,6 @@ in vec3 LightDirection_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 Position_worldspace;
 
-uniform vec3 LightPosition;
 uniform float Time;
 
 out vec4 color;
@@ -63,7 +62,7 @@ void main()
 	MaterialDiffuseColor.b += -0.00019 * min(Position_worldspace.y - 1800,0.);
 
 	color.a = 1;
-	color.rgb = MaterialDiffuseColor*2.;//+ MaterialAmbientColor;
+	color.rgb = MaterialDiffuseColor*MaterialDiffuseColor*MaterialDiffuseColor*5.;//+ MaterialAmbientColor;
 	//color.rgb = vec3(0.4588, 0.4588, 1.0);//+ MaterialAmbientColor;
 
 	//dcolor = vec4(0);

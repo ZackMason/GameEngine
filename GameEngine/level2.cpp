@@ -17,13 +17,26 @@ Level2::Level2(const Display &d) : m_camera(glm::vec3(0.1, 4, 0), 70.0f, d.GetAs
 m_ofbo(),
 m_screen_sdr("./res/SHADERS/deferredPBRlightShader"),
 m_screen(screen_quad, 6),
-m_player("biplane", "deferredPBR", "wood"),
+m_player("CAR_01", "deferredPBR", "wood"),
 m_sky("skydome2", "skydome", "skydome")
 {
 	m_sky.m_transform->GetScale() *= 80;
 	m_player.m_transform->GetPos().z -= 42;
 	m_player.m_transform->GetPos().x = 44;
 	m_player.m_transform->GetPos().y -= 3;
+	m_player.m_transform->GetScale() *= 15;
+	auto a = Actor("CAR_window_01", "deferredPBR", "wood");
+	a.m_transform->GetPos().z -= 42;
+	a.m_transform->GetPos().x = 44;
+	a.m_transform->GetPos().y -= 3;
+	a.m_transform->GetScale() *= 15;
+	m_terrain.push_back(a);
+	auto b = Actor("CAR_wheel_01", "deferredPBR", "wood");
+	b.m_transform->GetPos().z -= 42;
+	b.m_transform->GetPos().x = 44;
+	b.m_transform->GetPos().y -= 3;
+	b.m_transform->GetScale() *= 15;
+	m_terrain.push_back(b);
 }
 
 Level2::~Level2()
@@ -129,9 +142,6 @@ void Level2::OnUpdate()
 	m_camera.Update(m_clock.Get_DT());
 
 	m_sky.m_transform->SetPos(m_camera.GetPos());
-	m_sky.m_transform->GetPos().z *= -1;
-	m_sky.m_transform->GetPos().x *= -1;
-	m_sky.m_transform->GetPos().y *= -1;
 
 
 	if (state[SDL_SCANCODE_RIGHT] || state[SDL_SCANCODE_L])
@@ -206,6 +216,11 @@ void Level2::OnUpdate()
 
 	//calculate light
 	m_gbo.Unbind(); // Binds gbuffers attachments!!!!!!
+
+
+	if (Config::wire)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 	m_ofbo.Bind();
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -283,25 +298,24 @@ void Level2::OnUpdate()
 	glDisable(GL_DEPTH_TEST);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 #endif
-
+	if (Config::wire)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 }
 
 void Level2::OnAttach()
 {
 	int water_size = 40;
-	int water_scale = 12;
+	int water_scale = 6;
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>("./res/MESHS/plane_02.obj");
-	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_DIFF.png");
+	std::shared_ptr<Texture> box_tex = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_DIFF.png");
 	std::shared_ptr<Texture> water_tex_r = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_RGH.png");
 	std::shared_ptr<Texture> water_tex_n = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_NRM.png");
-	//std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/water_n.jpeg");
+	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/water_n.jpeg");
 	//std::shared_ptr<Texture> water_spec = std::make_shared<Texture>("./res/TEXTURES/water_dudv.jpg");
-	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/deferredPBRTexShader");
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/deferredWaterPBRShader");
 
 	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
-	water_mat->Add(water_tex_n);
-	water_mat->Add(water_tex_r);
 	for (int x = -water_size; x <= water_size; x++)
 	{
 		for (int z = -water_size; z <= water_size; z++)
@@ -323,15 +337,7 @@ void Level2::OnAttach()
 	std::shared_ptr<Shader> b_sdr = std::make_shared<Shader>("./res/SHADERS/deferredPBRShader");
 	std::shared_ptr<Material> bmat = std::make_shared<Material>(b_sdr, btex);
 	bmat->Add(bspec);
-	for (int i = 0; i < 0; i++)
-	{
-		Actor box(bmesh, bmat);
-		box.m_transform->GetPos().z = rand() % 500;
-		box.m_transform->GetPos().x = rand() % 500;
-		box.m_transform->GetScale() *= rand() % 10;
-		box.m_transform->GetPos().y += box.m_transform->GetScale().y - 1.f  * .5f;
-		m_actors.push_back(box);
-	}
+	
 
 	for (int x = 0; x < 20; x++)
 	{
@@ -345,8 +351,28 @@ void Level2::OnAttach()
 			m_actors.push_back(box);
 		}
 	}
+	water_sdr = std::make_shared<Shader>("./res/SHADERS/deferredPBRTexShader");
+	std::shared_ptr<Material> water_mat2 = std::make_shared<Material>(water_sdr, box_tex);
+	bmesh = std::make_shared<Mesh>("./res/MESHS/cube.obj");
+	water_mat2->Add(water_tex_n);
+	water_mat2->Add(water_tex_r);
+	for (int i = 0; i < 100; i++)
+	{
+		Actor box(bmesh, water_mat2);
+		box.m_transform->GetPos().z = rand() % 500;
+		box.m_transform->GetPos().x = rand() % 500;
+		box.m_transform->GetScale().y *= 20;
+		box.m_transform->GetScale().z *= 20;
+		box.m_transform->GetRot().y = rand() % 20;
+		box.m_transform->QUpdate();
+		box.m_transform->GetPos().y +=7;
+		m_terrain.push_back(box);
+	}
+	//bmesh = std::make_shared<Mesh>("./res/MESHS/test_home_02.obj");
+	//Actor home(bmesh, water_mat);
+	//m_terrain.push_back(home);
 
-	for (int i = 0; i < 70; i++)
+	for (int i = 0; i < 7; i++)
 	{
 		Light *l = new Light();
 		l->m_position.z =  300.f * (rand() % 100 / 100.)-30.f;

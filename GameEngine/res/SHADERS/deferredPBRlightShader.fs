@@ -44,12 +44,12 @@ float ao = .2;
 const float kPi=3.14159265;
 const float kShine = 16.0;
 const float PI = 3.14159265359;
-const float rayStep=.1;
+const float rayStep=.021;
 const float minRayStep=.1;
-const int maxSteps=30;
+const int maxSteps=130;
 const float searchDist=5.;
 const int numBinarySearchSteps=10;
-const float reflectionSpecularFalloffExponent=3.;
+const float reflectionSpecularFalloffExponent=24.;
   
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
@@ -59,6 +59,8 @@ vec4 RayCast(in vec3 dir, inout vec3 hitCoord, out float dDepth);
 vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth);
 vec3 hash(vec3 n);
 vec3 PositionFromDepth(float depth);
+float fresnel(vec3 direction,vec3 normal);
+
 
  out vec4 FragColor;
 
@@ -81,13 +83,13 @@ void main()
     vec3 hitPos = ( u_view * vec4(FragPos,1.0)).xyz;
     vec3 reflected = normalize(reflect(normalize(hitPos),normalize(VN)));
     vec3 hh = hitPos;
-    vec3 jitt = mix(vec3(0.),vec3(hash(FragPos)),Specular)/1.;
+    vec3 jitt = mix(vec3(0.),vec3(hash(FragPos)),roughness)*0.;
 
     vec4 coords = RayCast(jitt + reflected * max(minRayStep,-hitPos.z),hh,dDepth);
     vec2 dCoords = smoothstep(0.2,.6,abs(vec2(0.5)-coords.xy));
     float screenEdgeFactor = clamp(1. - (dCoords.x + dCoords.y),0.,1.);
 
-    float multiplier = pow(metallic,reflectionSpecularFalloffExponent) * 
+    float multiplier = pow(1.-roughness,reflectionSpecularFalloffExponent) * 
                     screenEdgeFactor *
                     -reflected.z;
 
@@ -95,7 +97,7 @@ void main()
 
 	//metallic =  clamp(FragPos.x/300., 0.01,1.0);
 	//roughness = clamp(FragPos.z/300. ,0.01,1.);
-    vec3 fres = fresnelSchlick(dot(normalize(hitPos),VN),vec3(.03));
+    float fres = fresnel(V,N);
     //IOR
     // plastic
     vec3 F0 = vec3(0.04); 
@@ -119,8 +121,8 @@ void main()
         // cook-torrance brdf
         float NDF = DistributionGGX(N, H, roughness);        
         float G   = GeometrySmith(N, V, L, roughness);      
-        vec3 F    = mix( fresnelSchlick(max(dot(L,V),0.),F0) , fresnelSchlick(max(dot(H,V),0.),F0), step(.5,lp));
-//        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+        //vec3 F    = mix( fresnelSchlick(max(dot(L,V),0.),F0) , fresnelSchlick(max(dot(H,V),0.),F0), step(.5,lp));
+        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
         
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
@@ -143,12 +145,26 @@ void main()
     //FragColor = vec4(Albedo,1.);
    // FragColor = vec4(vec3(roughness), 1.0);
     FragColor = vec4(color,1.);
-    //if (uv.x>0.5)
-        FragColor = vec4(mix(ssr,color,.5),1.);
+    //if (uv.x>lp)
+        FragColor = vec4(mix(fres*ssr+color,color,lp),1.);
     //FragColor.rgb = (u_projection * u_view * vec4(FragPos,1.)).zzz/20.;
-    //FragColor.rg = coords.xy;
+    //FragColor.rgb = Normal;
+    //FragColor.rgb = vec3(multiplier);
     //FragColor.b =0;
 }  
+
+#define fresnelExp 5.
+
+float fresnel(vec3 direction,vec3 normal){
+    vec3 halfDirection=normalize(normal+direction);
+    
+    float cosine=dot(halfDirection,direction);
+    float product=max(cosine,0.);
+    float factor=1.-pow(product,fresnelExp);
+    
+    return factor;
+}
+
 
 vec3 hash(vec3 n)
 {
@@ -190,7 +206,7 @@ vec4 RayCast(in vec3 dir,inout vec3 hitCoord,out float dDepth)
         //if (depth>1000.)
           //  continue;
         dDepth = hitCoord.z - depth;
-        if ((dir.z - dDepth) < 1.2)
+        if ((dir.z - dDepth) < 0.2)
         {
             if(dDepth <= 0.0)
             {
@@ -201,7 +217,6 @@ vec4 RayCast(in vec3 dir,inout vec3 hitCoord,out float dDepth)
         }
         steps++;
     }
-    //return vec4(-1.);
     return vec4(projectedCoord.xy,depth,1.);
 }
 
