@@ -46,7 +46,7 @@ const float kShine = 16.0;
 const float PI = 3.14159265359;
 const float rayStep=.021;
 const float minRayStep=.1;
-const int maxSteps=130;
+const int maxSteps=30;
 const float searchDist=5.;
 const int numBinarySearchSteps=10;
 const float reflectionSpecularFalloffExponent=24.;
@@ -77,27 +77,7 @@ void main()
     vec3 V = normalize(u_viewpos - FragPos);
 
 
-    float dDepth;
-    vec3 VN = (u_view * vec4(Normal,.0)).xyz;
-    vec3 VV = (u_view * vec4(V,1.0)).xyz;
-    vec3 hitPos = ( u_view * vec4(FragPos,1.0)).xyz;
-    vec3 reflected = normalize(reflect(normalize(hitPos),normalize(VN)));
-    vec3 hh = hitPos;
-    vec3 jitt = mix(vec3(0.),vec3(hash(FragPos)),roughness)*0.;
 
-    vec4 coords = RayCast(jitt + reflected * max(minRayStep,-hitPos.z),hh,dDepth);
-    vec2 dCoords = smoothstep(0.2,.6,abs(vec2(0.5)-coords.xy));
-    float screenEdgeFactor = clamp(1. - (dCoords.x + dCoords.y),0.,1.);
-
-    float multiplier = pow(1.-roughness,reflectionSpecularFalloffExponent) * 
-                    screenEdgeFactor *
-                    -reflected.z;
-
-    vec3 ssr = texture(u_last_frame, coords.xy).rgb * clamp(multiplier,0.,.9);
-
-	//metallic =  clamp(FragPos.x/300., 0.01,1.0);
-	//roughness = clamp(FragPos.z/300. ,0.01,1.);
-    float fres = fresnel(V,N);
     //IOR
     // plastic
     vec3 F0 = vec3(0.04); 
@@ -111,14 +91,27 @@ void main()
     for(int i = 0; i < num_lights; ++i) 
     {
         // calculate per-light radiance
-        vec3 L = normalize(pointLights[i].position.xyz - FragPos.rgb);
+        vec3 L, radiance;
+        if (pointLights[i].position.w >=1.0)
+        {
+            L = normalize(pointLights[i].position.xyz);
+        }
+        else
+        {
+            L = normalize(pointLights[i].position.xyz - FragPos.rgb);
+        }
+
         vec3 H = normalize(V + L);
         //float distance    = length(pointLights[i].position.xyz - FragPos.rgb);
         //float attenuation = 1.0 / (distance * distance);
 		float distance=length(pointLights[i].position.xyz-FragPos);
 		float attenuation=1./(pointLights[i].constant+pointLights[i].linear*distance+pointLights[i].quadratic*(distance*distance));
-        vec3 radiance     = pointLights[i].color.rgb * attenuation;        
+        if (pointLights[i].position.w >=.90)
+            radiance = pointLights[i].color.rgb;
+        else
+            radiance     = pointLights[i].color.rgb * attenuation;        
         // cook-torrance brdf
+
         float NDF = DistributionGGX(N, H, roughness);        
         float G   = GeometrySmith(N, V, L, roughness);      
         //vec3 F    = mix( fresnelSchlick(max(dot(L,V),0.),F0) , fresnelSchlick(max(dot(H,V),0.),F0), step(.5,lp));
@@ -144,10 +137,35 @@ void main()
     //color = pow(color, vec3(1.0/2.2));  
     //FragColor = vec4(Albedo,1.);
    // FragColor = vec4(vec3(roughness), 1.0);
-    FragColor = vec4(color,1.);
+
     //if (uv.x>lp)
+    if (roughness<5. || true)
+    {
+        float dDepth;
+        vec3 VN = (u_view * vec4(Normal,.0)).xyz;
+        vec3 VV = (u_view * vec4(V,1.0)).xyz;
+        vec3 hitPos = ( u_view * vec4(FragPos,1.0)).xyz;
+        vec3 reflected = normalize(reflect(normalize(hitPos),normalize(VN)));
+        vec3 hh = hitPos;
+        vec3 jitt = mix(vec3(0.),vec3(hash(FragPos)),roughness)*0.;
+
+        vec4 coords = RayCast(jitt + reflected * max(minRayStep,-hitPos.z),hh,dDepth);
+        vec2 dCoords = smoothstep(0.2,.6,abs(vec2(0.5)-coords.xy));
+        float screenEdgeFactor = clamp(1. - (dCoords.x + dCoords.y),0.,1.);
+
+        float multiplier = pow(1.-roughness,reflectionSpecularFalloffExponent) * 
+                        screenEdgeFactor *
+                        -reflected.z;
+
+        vec3 ssr = texture(u_last_frame, coords.xy).rgb * clamp(multiplier,0.,.9);
+
+        float fres = fresnel(V,N);
         FragColor = vec4(mix(fres*ssr+color,color,lp),1.);
-    //FragColor.rgb = (u_projection * u_view * vec4(FragPos,1.)).zzz/20.;
+    }
+    else
+        FragColor = vec4(color,1.);
+    vec4 puv = (u_projection * u_view * vec4(FragPos,1.));
+    //FragColor.rg = (puv.xy/puv.w) ;//* .5 + .5;
     //FragColor.rgb = Normal;
     //FragColor.rgb = vec3(multiplier);
     //FragColor.b =0;

@@ -62,7 +62,7 @@ void main()
 	MaterialDiffuseColor.b += -0.00019 * min(Position_worldspace.y - 1800,0.);
 
 	color.a = 1;
-	color.rgb = MaterialDiffuseColor*MaterialDiffuseColor*MaterialDiffuseColor*5.;//+ MaterialAmbientColor;
+	color.rgb = MaterialDiffuseColor*MaterialDiffuseColor*MaterialDiffuseColor*10.;//+ MaterialAmbientColor;
 	//color.rgb = vec3(0.4588, 0.4588, 1.0);//+ MaterialAmbientColor;
 
 	//dcolor = vec4(0);

@@ -311,11 +311,13 @@ void Level2::OnAttach()
 	std::shared_ptr<Texture> box_tex = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_DIFF.png");
 	std::shared_ptr<Texture> water_tex_r = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_RGH.png");
 	std::shared_ptr<Texture> water_tex_n = std::make_shared<Texture>("./res/TEXTURES/Generated_Checker_Tiles/Generated_Checker_Tiles_NRM.png");
-	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/water_n.jpeg");
+	std::shared_ptr<Texture> water_tex = std::make_shared<Texture>("./res/TEXTURES/Water_001_SD/Water_001_COLOR.jpg");
+	//std::shared_ptr<Texture> water_tex_n = std::make_shared<Texture>("./res/TEXTURES/Water_001_SD/Water_001_NORM.jpg");
+	//std::shared_ptr<Texture> water_tex_r = std::make_shared<Texture>("./res/TEXTURES/Water_001_SD/Water_001_COLOR.jpg");
 	//std::shared_ptr<Texture> water_spec = std::make_shared<Texture>("./res/TEXTURES/water_dudv.jpg");
-	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/deferredWaterPBRShader");
-
-	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, water_tex);
+	std::shared_ptr<Shader> water_sdr = std::make_shared<Shader>("./res/SHADERS/deferredPBRTexShader");
+	std::shared_ptr<Material> water_mat = std::make_shared<Material>(water_sdr, box_tex);
+	water_mat->Add(water_tex_n);
 	for (int x = -water_size; x <= water_size; x++)
 	{
 		for (int z = -water_size; z <= water_size; z++)
@@ -363,7 +365,7 @@ void Level2::OnAttach()
 		box.m_transform->GetPos().x = rand() % 500;
 		box.m_transform->GetScale().y *= 20;
 		box.m_transform->GetScale().z *= 20;
-		box.m_transform->GetRot().y = rand() % 20;
+		box.m_transform->GetRot().y = rand() % 20 * PI/3.f;
 		box.m_transform->QUpdate();
 		box.m_transform->GetPos().y +=7;
 		m_terrain.push_back(box);
@@ -372,7 +374,7 @@ void Level2::OnAttach()
 	//Actor home(bmesh, water_mat);
 	//m_terrain.push_back(home);
 
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < -87; i++)
 	{
 		Light *l = new Light();
 		l->m_position.z =  300.f * (rand() % 100 / 100.)-30.f;
@@ -384,12 +386,27 @@ void Level2::OnAttach()
 		l->m_clq = glm::vec3(.9, 0.009, 0.0000032);
 		m_lights.push_back(l);
 	}
-#if 0
+#if 1
 	Light *l = new Light();
 	l->m_ads = glm::vec3(0.15, 0.1,.0);
 	l->m_position.w = 1.0f;
-	l->m_position.y = -1.0f;
+	l->m_position.y = 41.0f;
 	l->m_position.z = 1.0f;
+	l->m_color = glm::vec4(0.15, 0.15, 0.15, 0.0);
+	m_lights.push_back(l);
+	l = new Light();
+	l->m_ads = glm::vec3(0.15, 0.1, .0);
+	l->m_position.w = 1.0f;
+	l->m_position.y = 1.0f;
+	l->m_position.z = -1.0f;
+	l->m_color = glm::vec4(0.15, 0.15, 0.15, 0.0);
+	m_lights.push_back(l);
+	l = new Light();
+	l->m_ads = glm::vec3(0.15, 0.1, .0);
+	l->m_position.w = 1.0f;
+	l->m_position.y = 1.0f;
+	l->m_position.x= -1.0f;
+	l->m_color = glm::vec4(0.15, 0.15, 0.15, 0.0);
 	m_lights.push_back(l);
 #endif 
 	//delete l;
