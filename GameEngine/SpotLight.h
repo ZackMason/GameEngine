@@ -4,7 +4,7 @@ class SpotLight :
 	public Light
 {
 public:
-	SpotLight();
-	~SpotLight();
+	SpotLight() = default;
+	~SpotLight() = default;
 };
 

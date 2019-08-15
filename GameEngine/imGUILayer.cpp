@@ -9,12 +9,9 @@
 #include "Application.h"
 #include "Config.h"
 
-
-
 imGUILayer::imGUILayer()
 {
 }
-
 
 imGUILayer::~imGUILayer()
 {

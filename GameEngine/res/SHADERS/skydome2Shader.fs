@@ -137,7 +137,7 @@ void main()
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
 	#endif
 	color.a = 1;
-	color.rgb = MaterialDiffuseColor + MaterialAmbientColor;
+	color.rgb = MaterialDiffuseColor + MaterialAmbientColor * 8.;
 	dcolor = vec4(1);
 	//color.rgb=1.-exp(-1.*color.rgb);
 }
