@@ -117,7 +117,7 @@ void Mesh::InitMesh(const IndexedModel& model)
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	std::cout << "Model (normal buffer) loaded." << std::endl;
-
+#if 0
 	//tangents
 	// bind vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[TANGENT_VB]);
@@ -139,6 +139,7 @@ void Mesh::InitMesh(const IndexedModel& model)
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	std::cout << "Model (bitangents buffer) loaded." << std::endl;
+#endif
 
 	// bind index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);

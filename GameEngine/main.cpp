@@ -16,6 +16,10 @@
 #include "TestLevel.h"
 #include "Level.h"
 
+#include "EntityManager.h"
+#include "TransformSystem.h"
+#include "TransformComponent.h"
+#include "./Physics/SphereCollider.h"
 
 #include <stdlib.h>
 
@@ -28,11 +32,38 @@
 //scene -> models --> shaders --> draw
 //				  \_> texture _/
 
+#define _LOG(x) {std::cout << x << "\n";}
 
 #undef main
 int main(int argc, char* argv[])
 {
 	srand(static_cast<unsigned int>(time(NULL)));
+
+
+	
+	EntityManager manager;
+	Entity e1(0xedfe);
+	TransformSystem ts;
+	TransformComponent* tc = new TransformComponent(e1.GetID());
+	SphereCollider* sc = new SphereCollider(e1.GetID());
+	TransformComponent* tc2 = new TransformComponent(e1.GetID());
+	e1.AddComponent(sc->GetID(), sc);
+	e1.AddComponent(tc->GetID(), tc);
+
+	//auto t3 = TransformComponent::CREATE_FUNCTION(manager.m_components[tc->GetID()], e1.GetID(), tc);
+
+	manager.AddEntity(&e1);
+	manager.AddSystem(&ts);
+	std::cout << tc->GetID() << "\n";
+	std::cout << tc2->GetID() << "\n";
+	std::cout << sc->GetID() << "\n";
+
+	auto t = e1.GetComponent<TransformComponent>();
+	auto c = e1.GetComponent<SphereCollider>();
+	_LOG("x: " << t->m_position.x)
+	_LOG("z:" << t->m_position.z)
+
+#if 0
 
 	std::shared_ptr<Application> myapp = std::make_shared<Application>();
 	std::shared_ptr<Display> display = std::make_shared<Display>("game");
@@ -48,10 +79,14 @@ int main(int argc, char* argv[])
 	myapp->OnStart();
 	std::string test = "works";
 
+
+
+
 	while (!myapp->GetDisplay()->IsClosed())
 	{
 		myapp->OnUpdate();
 		glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, 1, GL_DEBUG_SEVERITY_HIGH,200,"OPENGL ERROR: ");
 	}
+#endif
 	return 0;
 }

@@ -1,18 +1,24 @@
 #pragma once
 #include "../Component.h"
+#include "../ECSTypes.h"
 #include "../Entity.h"
 
 class SphereCollider :
-	public Component
+	public Component<SphereCollider>
 {
 public:
-	SphereCollider(unsigned int owner) : m_owner(owner) {};
+	SphereCollider(EntityID owner) : m_radius(1.f)
+	{
+		SetEntityId(owner);
+		
+	};
 	SphereCollider() = delete;
 
-	~SphereCollider();
+	~SphereCollider() = default;
+
+	virtual bool Init(void* pDescription) { return true; }
 
 private:
-	unsigned int m_owner;
 	float m_radius;
 
 };
