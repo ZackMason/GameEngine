@@ -358,14 +358,14 @@ void Level2::OnAttach()
 	bmesh = std::make_shared<Mesh>("./res/MESHS/cube.obj");
 	water_mat2->Add(water_tex_n);
 	water_mat2->Add(water_tex_r);
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 200; i++)
 	{
 		Actor box(bmesh, water_mat2);
-		box.m_transform->GetPos().z = rand() % 500;
-		box.m_transform->GetPos().x = rand() % 500;
+		box.m_transform->GetPos().z = rand() % 500+300;
+		box.m_transform->GetPos().x = rand() % 500+300;
 		box.m_transform->GetScale().y *= 20;
 		box.m_transform->GetScale().z *= 20;
-		box.m_transform->GetRot().y = rand() % 20 * PI/3.f;
+		box.m_transform->GetRot().y = rand() % 20 * PI/2.f;
 		box.m_transform->QUpdate();
 		box.m_transform->GetPos().y +=7;
 		m_terrain.push_back(box);
@@ -376,7 +376,7 @@ void Level2::OnAttach()
 
 	for (int i = 0; i < -87; i++)
 	{
-		Light *l = new Light();
+		Light *l = new PointLight();
 		l->m_position.z =  300.f * (rand() % 100 / 100.)-30.f;
 		l->m_position.x = 330.f * (rand() % 100 / 100.);
 		l->m_position.y = 12.f;
@@ -387,21 +387,21 @@ void Level2::OnAttach()
 		m_lights.push_back(l);
 	}
 #if 1
-	Light *l = new Light();
+	Light *l = new DirectionalLight();
 	l->m_ads = glm::vec3(0.15, 0.1,.0);
 	l->m_position.w = 1.0f;
 	l->m_position.y = 41.0f;
 	l->m_position.z = 1.0f;
 	l->m_color = glm::vec4(0.15, 0.15, 0.15, 0.0);
 	m_lights.push_back(l);
-	l = new Light();
+	l = new DirectionalLight();
 	l->m_ads = glm::vec3(0.15, 0.1, .0);
 	l->m_position.w = 1.0f;
 	l->m_position.y = 1.0f;
 	l->m_position.z = -1.0f;
 	l->m_color = glm::vec4(0.15, 0.15, 0.15, 0.0);
 	m_lights.push_back(l);
-	l = new Light();
+	l = new DirectionalLight();
 	l->m_ads = glm::vec3(0.15, 0.1, .0);
 	l->m_position.w = 1.0f;
 	l->m_position.y = 1.0f;

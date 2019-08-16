@@ -38,18 +38,18 @@ uniform mat4 u_inv_view;
 // material parameters
 float metallic;
 float roughness;
-float ao = .2;
+float ao = .4;
 
 
 const float kPi=3.14159265;
 const float kShine = 16.0;
 const float PI = 3.14159265359;
-const float rayStep=.021;
+const float rayStep=.03;
 const float minRayStep=.1;
-const int maxSteps=30;
+const int maxSteps=60;
 const float searchDist=5.;
 const int numBinarySearchSteps=10;
-const float reflectionSpecularFalloffExponent=24.;
+const float reflectionSpecularFalloffExponent=10.;
   
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
@@ -139,7 +139,7 @@ void main()
    // FragColor = vec4(vec3(roughness), 1.0);
 
     //if (uv.x>lp)
-    if (roughness<5. || true)
+    if (roughness<8.)
     {
         float dDepth;
         vec3 VN = (u_view * vec4(Normal,.0)).xyz;
@@ -147,7 +147,7 @@ void main()
         vec3 hitPos = ( u_view * vec4(FragPos,1.0)).xyz;
         vec3 reflected = normalize(reflect(normalize(hitPos),normalize(VN)));
         vec3 hh = hitPos;
-        vec3 jitt = mix(vec3(0.),vec3(hash(FragPos)),roughness)*0.;
+        vec3 jitt = mix(vec3(0.),vec3(hash(FragPos)),metallic);
 
         vec4 coords = RayCast(jitt + reflected * max(minRayStep,-hitPos.z),hh,dDepth);
         vec2 dCoords = smoothstep(0.2,.6,abs(vec2(0.5)-coords.xy));
@@ -160,13 +160,13 @@ void main()
         vec3 ssr = texture(u_last_frame, coords.xy).rgb * clamp(multiplier,0.,.9);
 
         float fres = fresnel(V,N);
-        FragColor = vec4(mix(fres*ssr+color,color,lp),1.);
+        FragColor = vec4(mix(fres*ssr+color,color,0.),1.);
+        //FragColor.rgb=coords.zzz/4.;
     }
     else
         FragColor = vec4(color,1.);
-    vec4 puv = (u_projection * u_view * vec4(FragPos,1.));
+    //vec4 puv = (u_projection * u_view * vec4(FragPos,1.));
     //FragColor.rg = (puv.xy/puv.w) ;//* .5 + .5;
-    //FragColor.rgb = Normal;
     //FragColor.rgb = vec3(multiplier);
     //FragColor.b =0;
 }  
@@ -224,7 +224,7 @@ vec4 RayCast(in vec3 dir,inout vec3 hitCoord,out float dDepth)
         //if (depth>1000.)
           //  continue;
         dDepth = hitCoord.z - depth;
-        if ((dir.z - dDepth) < 0.2)
+        if ((dir.z - dDepth) < 1.2)
         {
             if(dDepth <= 0.0)
             {

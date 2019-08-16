@@ -63,8 +63,8 @@ public:
 	Material(const Material& other)
 	{
 		m_shader = other.m_shader;
-		for ( auto& Shader : other.m_textures)
-		m_textures.push_back(Shader);
+		for ( auto& tex : other.m_textures)
+		m_textures.push_back(tex);
 	}
 #if 0
 	Material& operator=(const Material& other)

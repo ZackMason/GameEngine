@@ -14,9 +14,7 @@ class Application
 {
 public:
 	Application();
-	~Application()
-	{
-	};
+	~Application() = default;
 
 	Application(const Application&  other) = delete;
 	Application(const Application&& other) = delete;
